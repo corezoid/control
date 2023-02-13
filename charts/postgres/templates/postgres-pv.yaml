@@ -1,0 +1,22 @@
+{{- if eq .Values.global.db.internal true }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.appName }}-{{ .Values.global.storage}}-{{ .Release.Name }}
+  labels:
+    tier: {{ .Values.appName }}
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  claimRef:
+    name: {{ .Values.global.db.persistantVolumeClaimName }}
+    namespace: {{ .Release.Namespace }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.global.storageClassName }}
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: {{ .Values.global.efs.efsFileSystemId }}
+{{- end }}

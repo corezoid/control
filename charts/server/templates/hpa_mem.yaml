@@ -1,0 +1,51 @@
+{{- if eq .Values.hpa_mem true }}
+{{- if .Values.global.control.server.autoscaling.enabled }}
+{{- if semverCompare "<=1.22-0" .Capabilities.KubeVersion.Version -}}
+apiVersion: autoscaling/v2beta2
+{{- else if semverCompare ">=1.23-0" .Capabilities.KubeVersion.Version -}}
+apiVersion: autoscaling/v2
+{{- end }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.appName }}-memory-autoscale
+  labels:
+{{- include "server.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.appName }}-deployment
+  minReplicas: {{ .Values.global.control.realtime.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.global.control.realtime.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.global.control.server.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.global.control.server.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      policies:
+      - type: Pods
+        value: 4
+        periodSeconds: 60
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      selectPolicy: Min
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      policies:
+      - type: Pods
+        value: 5
+        periodSeconds: 70
+      - type: Percent
+        value: 12
+        periodSeconds: 80
+      selectPolicy: Max
+      stabilizationWindowSeconds: 0
+{{- end }}
+{{- end }}

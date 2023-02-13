@@ -1,0 +1,19 @@
+{{- if ( .Values.global.elasticsearch.internal )}}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.elasticsearch.secret.data.host }}
+  labels:
+    app: {{ .Values.appName }}
+spec:
+  selector:
+    app: {{ .Values.global.control.product }}
+    tier: {{ .Values.appName }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.appPort }}
+    targetPort: {{ .Values.appPort }}
+
+
+{{- end }}

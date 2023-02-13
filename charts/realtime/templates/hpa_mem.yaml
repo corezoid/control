@@ -1,0 +1,39 @@
+{{- if eq .Values.hpa_mem true }}
+{{- if semverCompare "<=1.22-0" .Capabilities.KubeVersion.Version -}}
+{{- if .Values.global.control.realtime.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.appName }}-memory-autoscale
+  labels:
+{{- include "realtime.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.appName }}-deployment
+  minReplicas: {{ .Values.global.control.realtime.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.global.control.realtime.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.global.control.realtime.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.global.control.realtime.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 180
+      policies:
+        - type: Pods
+          value: 6
+          periodSeconds: 120
+        - type: Percent
+          value: 10
+          periodSeconds: 120
+      selectPolicy: Max
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,107 @@
+{{- if eq .Values.global.db.internal true }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}
+  labels:
+    app: {{ .Values.global.control.product }}
+    tier: {{ .Values.appName }}
+spec:
+  selector:
+    matchLabels:
+      tier: {{ .Values.appName }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.control.product }}
+        tier: {{ .Values.appName }}
+    spec:
+      {{- if not  (eq .Values.global.control.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}
+      {{- end }}
+      initContainers:
+        #### https://github.com/docker-library/postgres/issues/563
+        - name: pgsql-data-permission-fix
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              chmod 700 {{ .Values.postgresqlDataDir }}
+              chown 70:70 {{ .Values.postgresqlDataDir }}
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: {{ .Values.appName }}-claim
+              mountPath: {{ .Values.postgresqlDataDir }}
+              subPath: pgdata
+      containers:
+        - image: {{ .Values.global.db.image }}
+          imagePullPolicy: {{ .Values.global.db.imagePullPolicy | default "IfNotPresent" }}
+          name: {{ .Values.appName }}
+          securityContext:
+            runAsUser: 70
+          env:
+            - name: PGDATA
+              value: {{ .Values.postgresqlDataDir }}
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.db.secret.name }}-root
+                  key: dbsuperuser
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.db.secret.name }}-root
+                  key: dbsuperuserpwd
+          ports:
+            - containerPort: 5432
+              name: {{ .Values.appName }}
+          volumeMounts:
+            - name: {{ .Values.appName }}-claim
+              mountPath: {{ .Values.postgresqlDataDir }}
+                {{- if not  (eq .Values.global.db.internal false) }}
+              subPath: pgdata
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready -U "{{ .Values.global.db.secret.dbsuperuser }}" -h localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready -U "{{ .Values.global.db.secret.dbsuperuser }}" -h localhost
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+                {{- end }}
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1500Mi
+            requests:
+              cpu: 300m
+              memory: 400Mi
+      volumes:
+        - name: {{ .Values.appName }}-claim
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.db.persistantVolumeClaimName }}
+            readOnly: false
+      {{- with .Values.global.control.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

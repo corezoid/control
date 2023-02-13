@@ -1,0 +1,430 @@
+# Default values for control.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+
+  # second level domain only! / core domain (example: control.local)
+  domain: "control.local"
+
+  #######  PostgreSQL  ########
+  ## Supported version  from 9.6.* <
+  ## for RDS minimum instance - db.t3.medium
+  db:
+    image: "postgres:13.7-alpine"
+    imagePullPolicy: "IfNotPresent"
+    # if internal true - create and use internal postgres container
+    # if internal false - enable external db, like aws rds
+    internal: true
+    ## secret configuration for postgresql
+    create: true
+    ## pvc name
+    persistantVolumeClaimName: "postgresql-pvc"
+    secret:
+      ## true - secret will be created automaticaly with provided values
+      ## false - secret should be created manualy
+      create: true
+      ## secret name
+      name: "postgresql-secret"
+      ## for init db and roles dbsuperuser and dbuser cannot be changed (because used as plain text in sql)
+      dbsuperuser: "master"
+      ## password - for dbsuperuser
+      dbsuperuserpwd: "bZPgkBiZ75o36jLiqPW4f6APxM5YdQLT"
+      data:
+        dbname: "control"
+        dbhost: "postgres"
+        dbport: "5432"
+        dbuser: "ddcktw2lwxnlhl8qo924lbk97flghneo"
+        dbpwd: "jtMFT9BxWLnG7h4aZwsWOsScNURRVcNrdSJ0IzCq1uJ0JafEfprMQt5M4FRnOc1F"
+        # sslmode: "require"
+
+    # Set false to disable if you don't want to use PGBouncer, recommended - true
+    # If true, will create pod with PGBouncer
+    bouncer: true
+    bouncer_port: 5432
+    bouncer_minReplicas: 1
+    bouncer_maxReplicas: 6
+    bouncer_resources:
+      limits:
+        cpu: "500m"
+        memory: "500Mi"
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+    bouncer_log_level: debug
+    # Maximum number of client connections allowed.
+    maxclientconn: "100000"
+    # How many server connections to allow per user/database pair. Can be overridden in the per-database configuration.
+    default_pool_size: "5000"
+    # Server is released back to pool after transaction finishes. default: session, see man https://wiki.postgresql.org/wiki/PgBouncer
+    # transaction | session
+    default_pool_mode: transaction
+
+  ## NO CLUSTER Mode!
+  redis:
+    # if internal true - create and use internal k8s redis container
+    # if internal false - enable external redis, like aws elasticache (Engine Version Compatibility: 3.2.10)
+    internal: true
+    ## pvc name if it already exist or was created manualy
+    persistantVolumeClaimName: "redis-pvc"
+    ## secret configuration for redis
+    sentinel:
+      enable: false
+      master_name: "mymaster"
+    secret:
+      ## true - secret will be created automatically with provided values
+      ## false - secret should be created manually
+      create: true
+      name: "redis-secret"
+      # you can specify different servers for redis for cache and PubSub  - or specify the same server in variables
+      data:
+        host: "redis-master"
+        port: "6379"
+        password: ""
+        # default redis for PubSub
+        host_PubSub: "redis-master"
+        port_PubSub: "6379"
+        password_PubSub: ""
+
+  #######  Elasticsearch  ########
+  ## Supported version 7.17.*
+  elasticsearch:
+    tag: "7.17.5"
+    # if internal true - create and use internal elasticsearch container
+    # if internal false - enable external elasticsearch, like aws elasticsearch service
+    internal: false
+    ## secret configuration for elasticsearch
+    secret:
+      ## true - secret will be created automaticaly with provided values
+      ## false - secret should be created manualy
+      create: true
+      name: "elasticsearch-secret"
+      data:
+        # Set host with ElasticSearch if use external
+        host: "elasticsearch-local"
+        ## be careful with port - in internal install used 9200, in aws uses 443
+        port: 9200
+        schema: "http"
+      # Optional
+      auth_enabled: false
+      auth_data:
+        username: ""
+        password: ""
+
+  elasticsearchLogs:
+    tag: "7.17.5"
+    # if internal true - create and use internal elasticsearch container
+    # if internal false - enable external elasticsearch, like aws elasticsearch service
+    internal: false
+    ## secret configuration for elasticsearch
+    secret:
+      ## true - secret will be created automaticaly with provided values
+      ## false - secret should be created manualy
+      create: true
+      name: "elasticsearch-secret"
+      data:
+        # Set host with ElasticSearch if use external
+        host: "elasticsearch-local"
+        ## be careful with port - in internal install used 9200, in aws uses 443
+        port: 9200
+        schema: "http"
+        index: control
+      # Optional
+      auth_enabled: false
+      auth_data:
+        username: ""
+        password: ""
+
+  ###########################################
+  ######## Settings for filesystems #########
+  # Define global storage class: efs / nfs / manual
+  storage: efs
+  # Define global storageClass name
+  storageClassName: "control-storage-class-prod"
+  persistantVolumeClaimCreate: true
+  ######## Settings AWS EFS filesystem   ########
+  efs:
+    # Set AWS region
+    awsRegion: "eu-west-1"
+    # Set EFS id
+    efsFileSystemId: "fs-07465fb09693c837f"
+    ## set true if you choose storage: efs
+    enabled: true
+  ######## Settings NFS filesystem   ########
+  nfs:
+    ## set true if you choose storage: nfs
+    enabled: false
+
+  imageRegistry: "docker-hub.middleware.biz"
+  repotype: "public"
+
+  imageInit:
+    repository: docker-hub.middleware.biz/hub.docker.com/library/alpine
+    pullPolicy: IfNotPresent
+    tag: "3.13"
+
+  deploymentStrategy:
+    type: RollingUpdate
+
+  networkPolicy:
+    enabled: false
+    monitoring:
+      # Selector for prometheus namespace
+      namespaceSelector:
+        name: monitoring
+      # Selector for prometheus deploymnets
+      podSelector:
+        release: prometheus-stack
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  control:
+    product: "control"
+    # Applications ports
+    serverPort: 9000
+    cronPort: 9001
+    realtimePort: 9005
+    frontendPort: 80
+    widgetPort: 80
+    apiVersion: '1.0'
+    # Secret for submitting requests between Control applications.
+    apiSecret: "sRk5FM;T(]WbUuFeP8)[f2p[cH9:+)Qm"
+    browserExtensionsSecret: "IeV0j4i8ewSDT!FETZ@%69nDiiJ$BKmBCOVq!#%Q"
+    googleApiKey: "AIzaSyA36Bi3n5IiQjGiXEGL4pxW0piqGp4nvOs"
+    # Superadmin API key
+    superAdminApiKey: "P8NTWrKT2fkRjRKNyAm2QjYJa3nxnzhb9xqDxjVx"
+    # Supported localizations
+    locales:
+      - en
+    # Time zone from which time is calculated in notification letters.
+    timeZone: 2
+    session:
+      ttl: "2592000"
+      cookieName: "sc_prod"
+
+    requestLimits:
+      ip: -1
+
+    auth:
+      # Auth settings via Single Account
+      disablePublicApiCheck: true
+      # Name of client in Single Account
+      name: "control-test.eks.control.events_migration_001"
+      key: "aogeungoh3mohM3valu6Zu1ohdiighie1EemoophaequohMoovuanoJ3OhguKeiG"
+      domain: "account.corezoid.local"
+
+
+    # Sub-domain for Control
+    controlSubDomain: "control"
+    # Sub-domain for API Corezoid
+    apiCorezoidDomain: "dev.corezoid.local"
+    # Sub-domain for Corezoid
+    adminCorezoidDomain: "admin.corezoid.local"
+    # Sub-domain for Corezoid Widget
+    widgetSubDomain: "widget"
+
+    connectors:
+      # SyncApi API login
+      apiLogin: 123456
+      # SyncApi API secret
+      apiSecret: "lnNhDfAWxCp6N1m7yLtiMtnCqhgkfsWSDau15WXGFv7xoaPiir"
+      convId: 54321
+      syncApiUrl: "https://sync-api.corezoid.local"
+    corezoidSyncApiUrl: "https://sync-api.corezoid.local"
+
+    corezoid:
+      companyId: "i123456789"
+      apiSecret: "12345"
+      processes:
+        sendEmail:
+          directUrl: "https://corezoid.local/api/1/json/public/111/ve67clroyo9teicrapbvorrb1unqf2npmnjx4u2b"
+          convId: 111
+        botNotifications:
+          directUrl: "https://corezoid.local/api/1/json/public/222/o5grwe74qlxh75z51dmkdnkmpjzs09lnbitmzwrp"
+          convId: 222
+        accRegistrations:
+          directUrl: "https://corezoid.local/api/1/json/public/333/s1cl3amvf2jz9bcb271szxkuarroezrcgfzppovh"
+          convId: 333
+
+    filesStorage:
+      eventFiles: "/ebsmnt/attachments"
+
+    webConfig:
+      supportEmail: ''
+      maxFileSize: '26214400'
+
+    channels:
+      gmail:
+        clientId: "290516331007-kdznbto71dls7fv2e43rovxpay6lmwp2.apps.googleusercontent.com"
+        clientSecret: "T19LiivOJ21QbxJvLHdFpMOx"
+        ignoredDomains: []
+
+
+    service:
+      type: ClusterIP
+
+    terminationGracePeriodSeconds: {}
+
+    frontend:
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 10
+      resources:
+        limits:
+          cpu: 200m
+          memory: 600Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
+    realtime:
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
+      resources:
+        limits:
+          cpu: 200m
+          memory: 600Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
+    server:
+      persistantVolumeClaimName: "server-pvc"
+      persistantVolumeClaimCreate: true
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9000"
+        prometheus.io/scrape: "true"
+      autoscaling:
+        enabled: true
+        minReplicas: 2
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
+      resources:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+        requests:
+          cpu: 100m
+          memory: 500Mi
+
+    cron:
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 1
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9000"
+        prometheus.io/scrape: "true"
+      resources:
+        limits:
+          cpu: 200m
+          memory: 600Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
+    widget:
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 2
+      resources:
+        limits:
+          cpu: 200m
+          memory: 600Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
+    control_tasks:
+      pullPolicy: IfNotPresent
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 1
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9000"
+        prometheus.io/scrape: "true"
+      resources:
+        limits:
+          cpu: 200m
+          memory: 600Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
+    serviceAccount:
+      # Specifies whether a service account should be created
+      create: false
+      # Annotations to add to the service account
+      annotations: {}
+      # The name of the service account to use.
+      # If not set and create is true, a name is generated using the fullname template
+      name: ""
+
+    podAnnotations: {}
+
+    podSecurityContext: {}
+      # fsGroup: 2000
+
+    securityContext: {}
+    # securityContext:
+    #   runAsUser: 1000
+    #   runAsGroup: 1000
+    #   runAsNonRoot: true
+    #   readOnlyRootFilesystem: true
+    #   allowPrivilegeEscalation: false
+    #   privileged: false
+    #   capabilities:
+    #     drop:
+    #       - NET_ADMIN
+    #       - SYS_ADMIN
+    #       - MAC_ADMIN
+    #       - SETUID
+    #       - SETGID
+    #       - FOWNER
+    #       - CHOWN
+    #       - MKNOD
+
+
+    ingress:
+      enabled: true
+      className: "internal-nginx"
+
+    nodeSelector: {}
+
+    tolerations: []
+
+    affinity: {}
+    # affinity:
+    #   nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #         - matchExpressions:
+    #             - key: eks.amazonaws.com/nodegroup
+    #               operator: In
+    #               values:
+    #                 - control-1
+
+  sa:
+    subDomain: "account.corezoid.local"
+    config:
+      # Bearer token from single-account.conf file
+      admin_bearer_token_secret: "aogeungoh3mohM3valu6Zu1ohdiighie1EemoophaequohMoovuanoJ3OhguKeiG"

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+{{- include "control-tasks.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+{{- include "control-tasks.labels" . | nindent 6 }}
+{{- with .Values.global.deploymentStrategy }}
+  strategy:
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+{{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "control.control-tasks.annotations" . | nindent 4 }}
+      labels:
+{{- include "control-tasks.labels" . | nindent 8 }}
+    spec:
+  {{- if not (eq .Values.global.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}
+  {{- end }}
+      serviceAccountName: ""
+      securityContext:
+        {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ include "InitWait.postgres" . | nindent 8 }}
+
+        {{ include "InitWait.bouncer" . | nindent 8 }}
+
+        {{ include "InitWait.redis" . | nindent 8 }}
+
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.global.control.securityContext | nindent 12 }}
+          image: {{ include "control-tasks.imageUrl" . | quote }}
+          imagePullPolicy: {{ .Values.global.control.control_tasks.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: CONTROL_TASKS_CONFIG
+              value: /ebsmnt/conf/config.yml
+          {{ include "control-tasks.liveness" . | nindent 10 }}
+          {{ include "control-tasks.readiness" . | nindent 10 }}
+          volumeMounts:
+            - name: {{ .Values.appName }}-config-volume
+              mountPath: /ebsmnt/conf/config.yml
+              subPath: config.yml
+      volumes:
+        - name: {{ .Values.appName }}-config-volume
+          configMap:
+            name: {{ .Values.appName }}-configmap
+      {{- with .Values.global.control.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.control.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.control.tolerations }}
+
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

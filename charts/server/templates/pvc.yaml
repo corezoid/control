@@ -1,0 +1,19 @@
+{{- if .Values.global.control.server.persistantVolumeClaimCreate }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.global.control.server.persistantVolumeClaimName }}
+  labels:
+{{- include "server.labels" . | nindent 4 }}
+{{- if eq .Values.global.storage "efs" }}
+  annotations:
+    volume.beta.kubernetes.io/storage-class: {{ .Values.global.storageClassName }}
+{{- end }}
+spec:
+  storageClassName: {{ .Values.global.storageClassName }}
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+{{- end }}

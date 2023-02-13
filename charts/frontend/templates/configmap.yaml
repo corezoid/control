@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-nginx-configmap
+  labels:
+{{- include "control.frontend.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes 1;
+    error_log /dev/stdout;
+    pid        /var/run/nginx.pid;
+
+    events {
+        worker_connections  512000;
+        multi_accept on;
+    }
+
+    http {
+        client_max_body_size 25m;
+        server_names_hash_bucket_size 128;
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+        log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$http_cookie\t$host';
+        access_log /dev/stdout up_log;
+
+        sendfile        on;
+        tcp_nopush     on;
+
+        server_tokens   off;
+        # disable buffering
+        proxy_buffering off;
+        proxy_max_temp_file_size 0;
+        keepalive_timeout  65;
+        gzip on;
+        gzip_types text/css application/x-javascript text/xml application/xml application/xml+rss text/plain application/javascript text/javascript application/json image/png image/svg+xml;
+        gzip_proxied any;
+        include /etc/nginx/conf.d/*.conf;
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-site-configmap
+  labels:
+{{- include "control.frontend.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {
+      "apmHost": ""
+    }
+  control_{{ .Values.appName }}.conf: |
+    server {
+      access_log /dev/stdout main;
+      error_log  /dev/stdout;
+
+      listen {{ .Values.global.control.frontendPort }};
+      server_name {{ template "control.Domain" . }};
+
+      charset utf-8;
+      etag off;
+      index index.html;
+      client_max_body_size 50m;
+
+      # gzip
+      gzip on;
+      gzip_vary on;
+      gzip_proxied any;
+      gzip_comp_level 5;
+      gzip_types text/plain text/css text/xml application/json application/javascript application/rss+xml application/atom+xml image/svg+xml image/jpeg image/png text/javascript;
+
+      # security headers
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+      add_header Referrer-Policy "no-referrer-when-downgrade" always;
+      add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} {{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com;";
+
+      location ~ ^/ping$ {
+        return 200 "pong";
+        types         { }
+        default_type  text/plain;
+      }
+
+      # location ~* \.(jpg|pdf|jpeg|png|gif|webp|wav|mp3|js|css|woff2|json)$ {
+      #   expires 90d;
+      # }
+
+      location / {
+        # Security
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+
+        gzip_static on;
+        root /usr/share/nginx/html;
+        try_files $uri /index.html;
+      }
+
+      location /ws {
+        proxy_pass http://realtime-service:{{ .Values.global.control.realtimePort }};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+
+      location ~ ^/api/1.0/download/(.*)?$request_uri$ {
+        client_max_body_size 50m;
+        proxy_set_header Connection "keep-alive";
+        proxy_pass http://server-service:{{ .Values.global.control.serverPort }};
+      }
+
+      location ~ ^/api/1.0/download/(.*)$ {
+        add_header Content-disposition "attachment";
+        alias {{ .Values.global.control.filesStorage.eventFiles }}/$1;
+      }
+
+      location /api {
+        client_max_body_size 50m;
+        proxy_set_header Connection "keep-alive";
+        proxy_pass http://server-service:{{ .Values.global.control.serverPort }};
+      }
+
+    }
+{{- if .Values.global.control.apiSubDomain }}
+    server {
+      access_log /dev/stdout main;
+      error_log  /dev/stdout;
+
+      listen {{ .Values.global.control.frontendPort }};
+      server_name {{ include "control.ApiDomain" . }};
+
+      charset utf-8;
+      etag off;
+
+      client_max_body_size 50m;
+
+      # gzip
+      gzip on;
+      gzip_vary on;
+      gzip_proxied any;
+      gzip_comp_level 5;
+      gzip_types text/plain text/css text/xml application/json application/javascript application/rss+xml application/atom+xml image/svg+xml image/jpeg image/png;
+
+      # security headers
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+      add_header Referrer-Policy "no-referrer-when-downgrade" always;
+
+      location ~ ^/ping$ {
+        return 200 "ok";
+        types         { }
+        default_type  text/plain;
+      }
+
+      location / {
+        return 200 "ok";
+        types         { }
+        default_type  text/plain;
+      }
+
+      location /v/1.0 {
+        client_max_body_size 50m;
+        proxy_pass http://server-service:{{ .Values.global.control.serverPort }}/papi/1.0;
+      }
+    }
+{{- end }}

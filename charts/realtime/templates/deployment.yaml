@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+{{- include "realtime.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.global.control.realtime.autoscaling.enabled }}
+  replicas: {{ .Values.global.control.realtime.autoscaling.minReplicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+{{- include "realtime.labels" . | nindent 6 }}
+{{- with .Values.global.deploymentStrategy }}
+  strategy:
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+    {{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    {{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+{{- include "realtime.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.global.control.terminationGracePeriodSeconds.front }}
+      terminationGracePeriodSeconds: {{ .Values.global.control.terminationGracePeriodSeconds.front }}
+      {{- end }}
+      {{- if not (eq .Values.global.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}
+      {{- end }}
+      serviceAccountName: ""
+      securityContext:
+        {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ include "InitWait.redis" . | nindent 8 }}
+
+      containers:
+        - name: {{ .Chart.Name }}-realtime
+          securityContext:
+            {{- toYaml .Values.global.control.securityContext | nindent 12 }}
+          image: {{ include "realtime.imageUrl" . | quote }}
+          imagePullPolicy: {{ .Values.global.control.realtime.pullPolicy }}
+          env:
+            - name: K8S
+              value: "true"
+          ports:
+            - name: ws
+              containerPort: {{ .Values.global.control.realtimePort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: ws
+            # tcpSocket:
+            #   port: ws
+          readinessProbe:
+            # tcpSocket:
+            #   port: ws
+            httpGet:
+              path: /
+              port: ws
+          resources:
+            {{- toYaml .Values.global.control.realtime.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Values.appName }}-config-volume
+              mountPath: /ebsmnt/conf/control_{{ .Values.appName }}.yml
+              subPath: control_realtime.yml
+      volumes:
+        - name: {{ .Values.appName }}-config-volume
+          configMap:
+            name: {{ .Values.appName }}-configmap
+      {{- with .Values.global.control.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.control.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.control.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
