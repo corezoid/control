@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-configmap
+  labels:
+{{- include "control-tasks.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    {
+      "control": {
+        "token": {{ include "control.token" . | quote }},
+        "host": "{{- include "control.Domain" . }}"
+      },
+      "postgres": {
+      {{- if .Values.global.db.bouncer }}
+        "host": "pgbouncer-service",
+      {{- else }}
+        "host": "{{ .Values.global.db.secret.data.dbhost }}",
+      {{- end }}
+      {{- if .Values.global.db.bouncer }}
+        "port": {{ .Values.global.db.bouncer_port }},
+      {{- else }}
+        "port": {{ .Values.global.db.secret.data.dbport }},
+      {{- end }}
+        "database": "{{ .Values.global.db.secret.data.dbname | default "control" }}",
+        "user": "{{ .Values.global.db.secret.data.dbuser }}",
+        "password": "{{ .Values.global.db.secret.data.dbpwd }}",
+        "sslMode": "{{ .Values.global.db.secret.data.sslmode | default "disable" }}"
+      },
+      "redis": {
+        "host": "{{ .Values.global.redis.secret.data.host }}",
+        "port": {{ .Values.global.redis.secret.data.port | default "6379" }},
+        "database": {{ .Values.global.redis.secret.data.database | default "0" }},
+        "password": "{{ .Values.global.redis.secret.data.password | default "" }}"
+      }
+    }

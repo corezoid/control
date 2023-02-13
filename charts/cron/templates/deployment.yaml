@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+{{- include "cron.labels" . | nindent 4 }}
+spec:
+{{- if .Values.global.control.cron.autoscaling.enabled }}
+  replicas: {{ .Values.global.control.cron.autoscaling.minReplicas }}
+{{- end }}
+  selector:
+    matchLabels:
+{{- include "cron.labels" . | nindent 6 }}
+{{- with .Values.global.deploymentStrategy }}
+  strategy:
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+{{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "control.cron.annotations" . | nindent 4 }}
+      labels:
+{{- include "cron.labels" . | nindent 8 }}
+    spec:
+  {{- if not (eq .Values.global.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}
+  {{- end }}
+      serviceAccountName: ""
+      securityContext:
+        {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ include "InitWait.postgres" . | nindent 8 }}
+
+        {{ include "InitWait.bouncer" . | nindent 8 }}
+
+        {{ include "InitWait.redis" . | nindent 8 }}
+
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.global.control.securityContext | nindent 12 }}
+          image: {{ include "cron.imageUrl" . | quote }}
+          imagePullPolicy: {{ .Values.global.control.server.pullPolicy }}
+          env:
+            - name: ENABLE_API
+              value: "true"
+            - name: ENABLE_CRONS
+              value: "true"
+            - name: CONTROL_CONFIG_FILENAME
+              value: control_{{ .Values.appName }}.yml
+            - name: CONTROL_CONFIG_PATH
+              value: /ebsmnt/conf
+            - name: K8S
+              value: "true"
+          ports:
+            - name: http
+              containerPort: {{ .Values.global.control.cronPort }}
+              protocol: TCP
+          {{ include "cron.liveness" . | nindent 10 }}
+          {{ include "cron.readiness" . | nindent 10 }}
+          resources:
+            {{- toYaml .Values.global.control.cron.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Values.appName }}-config-volume
+              mountPath: /ebsmnt/conf/control_{{ .Values.appName }}.yml
+              subPath: control_{{ .Values.appName }}.yml
+            - name: {{ .Values.appName }}-attachments
+              mountPath: {{ .Values.global.control.filesStorage.eventFiles }}
+      volumes:
+        - name: {{ .Values.appName }}-config-volume
+          configMap:
+            name: {{ .Values.appName }}-configmap
+        {{- if .Values.global.control.server.persistantVolumeClaimCreate }}
+        - name: {{ .Values.appName }}-attachments
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.control.server.persistantVolumeClaimName }}
+            readOnly: false
+        {{- end }}
+      {{- with .Values.global.control.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.control.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.control.tolerations }}
+
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
