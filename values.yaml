@@ -237,13 +237,13 @@ global:
       apiSecret: "12345"
       processes:
         sendEmail:
-          directUrl: "https://corezoid.leobank.az/api/1/json/public/111/68cb9iusg5555ds36dc474ce987vds"
+          directUrl: "https://dev.corezoid.company/api/1/json/public/111/68cb9iusg5555ds36dc474ce987vds"
           convId: 111
         botNotifications:
-          directUrl: "https://corezoid.leobank.az/api/1/json/public/111/68cb9iusg5555ds36dc474ce987vds"
+          directUrl: "https://dev.corezoid.company/api/1/json/public/111/68cb9iusg5555ds36dc474ce987vds"
           convId: 112
         accRegistrations:
-          directUrl: "https://corezoid.leobank.az/api/1/json/public/112/e5068cb9iusg5555ds36dc474ce987vds"
+          directUrl: "https://dev.corezoid.company/api/1/json/public/112/e5068cb9iusg5555ds36dc474ce987vds"
           convId: 112
 
     filesStorage:
