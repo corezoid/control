@@ -3,5 +3,4 @@ appName: realtime
 image:
   registry: docker-hub.middleware.biz
   repository: ctrl-realtime
-
-hpa_mem: false
+  version: 1.1.4

@@ -2,4 +2,4 @@ appName: frontend
 
 image:
   registry: docker-hub.middleware.biz
-  repository: ctrl-frontend
+  repository: /ctrl/ctrl-frontend

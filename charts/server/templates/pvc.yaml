@@ -1,4 +1,4 @@
-{{- if .Values.global.control.server.persistantVolumeClaimCreate }}
+{{- if .Values.global.persistantVolumeClaimCreate }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

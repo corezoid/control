@@ -1,9 +1,0 @@
-appName: control-tasks
-
-image:
-  registry: docker-hub.middleware.biz
-  repository: ctrl-control-tasks
-
-appReadinessHttpPort: 9000
-appReadinessHttpPath: "/ready"
-appLivenessHttpPath: "/ready"

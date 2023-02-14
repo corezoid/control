@@ -11,5 +11,5 @@ release: {{ .Release.Name }}
 Image url
 */}}
 {{- define "realtime.imageUrl" -}}
-{{ .Values.image.registry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.realtime.tag | default .Chart.AppVersion }}
+{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.realtime.tag | default .Values.image.version }}
 {{- end }}

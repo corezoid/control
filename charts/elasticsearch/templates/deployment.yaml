@@ -46,10 +46,10 @@ spec:
               containerPort: {{ .Values.appPort }}
           resources:
             requests:
-              cpu: 1000m
+              cpu: 500m
               memory: 1Gi
             limits:
-              cpu: 1000m
+              cpu: 500m
               memory: 2Gi
           readinessProbe:
             httpGet:

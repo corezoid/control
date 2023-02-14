@@ -44,6 +44,7 @@ spec:
 
         {{ include "InitWait.pubsubredis" . | nindent 8 }}
 
+        {{ include "InitWait.elasticsearch" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -57,16 +58,15 @@ spec:
               value: "false"
             - name: K8S
               value: "true"
-            {{- if .Values.global.control.server.selfsigned }}
-            - name: NODE_TLS_REJECT_UNAUTHORIZED
-              value: "0"
-            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.global.control.serverPort }}
               protocol: TCP
+
           {{ include "server.liveness" . | nindent 10 }}
+
           {{ include "server.readiness" . | nindent 10 }}
+
           resources:
             {{- toYaml .Values.global.control.server.resources | nindent 12 }}
           volumeMounts:
@@ -79,7 +79,7 @@ spec:
         - name: {{ .Values.appName }}-config-volume
           configMap:
             name: {{ .Values.appName }}-configmap
-        {{- if .Values.global.control.server.persistantVolumeClaimCreate }}
+        {{- if .Values.global.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
             claimName: {{ .Values.global.control.server.persistantVolumeClaimName }}

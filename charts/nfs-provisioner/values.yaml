@@ -43,7 +43,7 @@ persistence:
 
 ## For creating the StorageClass automatically:
 storageClass:
-  create: false # TODO need investigate
+  create: false
 
   ## Set a provisioner name. If unset, a name will be generated.
   # provisionerName:

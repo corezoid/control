@@ -2,16 +2,12 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: postgres-post-install
-{{- if not .Values.global.argocd_deploy }}
   annotations:
     helm.sh/hook: "post-install,post-upgrade"
     helm.sh/hook-weight: "-5"
-{{- end }}
   labels:
     tier: postgres
 spec:
-  initContainers:
-    {{ include "InitWait.postgres" . | nindent 8 }}
   containers:
     - image: {{ .Values.global.db.image }}
       imagePullPolicy: {{ .Values.global.db.imagePullPolicy | default "IfNotPresent" }}
@@ -24,7 +20,6 @@ spec:
           echo  "$POSTGRES_DBHOST:$POSTGRES_PORT:*:$POSTGRES_DBSUPERUSER:$POSTGRES_DBSUPERUSERPWD" > ~/.pgpass; chmod 0600 ~/.pgpass;
           echo "SELECT 'CREATE DATABASE $POSTGRES_DBNAME' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$POSTGRES_DBNAME')\gexec" | psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d postgres -U $POSTGRES_DBSUPERUSER ;
           psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d postgres -U $POSTGRES_DBSUPERUSER -Atc "SELECT count(*) FROM pg_catalog.pg_roles WHERE  rolname = '$POSTGRES_APPUSER';" | grep -q 1 || psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d postgres -U $POSTGRES_DBSUPERUSER -Atc "CREATE ROLE $POSTGRES_APPUSER LOGIN PASSWORD '$POSTGRES_APPUSERPWD'; ALTER DATABASE $POSTGRES_DBNAME OWNER TO $POSTGRES_APPUSER; ALTER USER $POSTGRES_APPUSER WITH CREATEDB CREATEROLE;"
-          psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d $POSTGRES_DBNAME -U $POSTGRES_DBSUPERUSER -Atc "CREATE EXTENSION IF NOT EXISTS btree_gin;"
       securityContext:
         runAsUser: 70
       env:

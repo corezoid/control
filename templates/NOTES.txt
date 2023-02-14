@@ -21,9 +21,9 @@
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
 {{- if .Values.global.control.ingress.enabled }}
-  https://{{- include "control.Domain" . }}
-  https://{{- include "control.WidgetDomain" . }}
-{{- if .Values.global.control.apiSubDomain }}
-  https://{{- include "control.ApiDomain" . }}
+  https://{{ .Values.global.control.domain }}
+  https://{{ .Values.global.control.widgetDomain }}
+{{- if .Values.global.control.apiDomain }}
+  https://{{ .Values.global.control.apiDomain }}
 {{- end }}
 {{- end }}

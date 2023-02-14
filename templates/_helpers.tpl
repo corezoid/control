@@ -72,28 +72,33 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "control.ingressAnnotations" -}}
-prometheus.io/scrape: "true"
-prometheus.io/port: "9113"
-prometheus.io/scheme: http
-{{- if .Values.global.control.ingress.className }}
-{{- if semverCompare "<=1.18-0" .Capabilities.KubeVersion.GitVersion }}
-
-kubernetes.io/ingress.class: {{ .Values.global.control.ingress.className }}
-{{- end }}
-{{- end }}
+kubernetes.io/ingress.class: nginx
 nginx.ingress.kubernetes.io/ssl-redirect: "true"
 nginx.ingress.kubernetes.io/proxy-body-size: "{{ .Values.global.control.webConfig.maxFileSize }}"
 nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers X-Content-Type-Options "nosniff" always;
       more_set_headers X-Frame-Options "SAMEORIGIN" always;
       more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
-      more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }};";
+      more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{ .Values.global.control.domain }} https://{{ .Values.global.control.auth.domain }} https://{{ .Values.global.control.domain }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com https://*.{{ .Values.global.control.mainDomain }} wss://*.{{ .Values.global.control.mainDomain }};";
       if ($request_uri ~ "/index.html") {
         more_set_headers "Cache-Control no-cache";
         more_set_headers "Cache-Control: no-store";
         expires 0;
       }
 {{- end }}
+
+{{- define "control.server.annotations" -}}
+{{- with .Values.global.control.server.annotations }}
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- end }}
+
+{{- define "control.cron.annotations" -}}
+{{- with .Values.global.control.cron.annotations }}
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- end }}
+
 
 {{/*
 Create block for init-wait containers
@@ -145,17 +150,3 @@ Create block for init-wait containers
   terminationMessagePolicy: File
 {{- end }}
 
-
-{{- define "control.Domain" -}}
-{{- .Values.global.control.controlSubDomain }}.{{ .Values.global.domain }}
-{{- end -}}
-
-{{- define "control.WidgetDomain" -}}
-{{- .Values.global.control.widgetSubDomain | default "widget" }}.{{ .Values.global.domain }}
-{{- end -}}
-
-{{- define "control.ApiDomain" -}}
-{{- if .Values.global.control.apiSubDomain -}}
-{{- .Values.global.control.apiSubDomain }}.{{ .Values.global.domain }}
-{{- end -}}
-{{- end -}}

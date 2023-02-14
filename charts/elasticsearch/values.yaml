@@ -3,5 +3,5 @@ appPort: 9200
 image:
   registry: docker-hub.middleware.biz
   repository: /ctrl/elasticsearch
-  # tag: 7.17.5
+  # tag: 7.17.2
   tag: k8s

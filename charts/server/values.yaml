@@ -1,16 +1,8 @@
 appName: server
 
+hpa_mem: false
+
 image:
   registry: docker-hub.middleware.biz
   repository: ctrl-server
-
-hpa_mem: false
-
-server:
-  config:
-    db:
-      pool:
-        acquire: 60000
-        idle: 20000
-        max: 200
-        min: 2
+  version: 4.8.0
