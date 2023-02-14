@@ -3,9 +3,12 @@
 # Declare variables to be passed into your templates.
 global:
 
+  # second level domain only! / core domain (example: control.local)
+  domain: "control.local"
+
   #######  PostgreSQL  ########
   ## Supported version  from 9.6.* <
-  ## for RDS minimum instance - db.t3.medium / master user set "postgres"
+  ## for RDS minimum instance - db.t3.medium
   db:
     image: "postgres:13.7-alpine"
     imagePullPolicy: "IfNotPresent"
@@ -25,13 +28,14 @@ global:
       ## for init db and roles dbsuperuser and dbuser cannot be changed (because used as plain text in sql)
       dbsuperuser: "master"
       ## password - for dbsuperuser
-      dbsuperuserpwd: "password"
+      dbsuperuserpwd: "DB_SUPERUSER_PASSWORD"
       data:
         dbname: "ctrl"
         dbhost: "POSTGRES_HOST"
         dbport: "5432"
         dbuser: "dbuser"
         dbpwd: "dbpwd"
+        # sslmode: "require"
 
     # Set false to disable if you don't want to use PGBouncer, recommended - true
     # If true, will create pod with PGBouncer
@@ -81,57 +85,6 @@ global:
         host_PubSub: "REDIS_HOST"
         port_PubSub: "6379"
         password_PubSub: ""
-
-  #######  Elasticsearch  ########
-  ## Supported version 7.17.*
-  elasticsearch:
-    tag: "k8s"
-    # if internal true - create and use internal elasticsearch container
-    # if internal false - enable external elasticsearch, like aws elasticsearch service
-    internal: false
-    ## secret configuration for elasticsearch
-    secret:
-      ## true - secret will be created automaticaly with provided values
-      ## false - secret should be created manualy
-      create: true
-      name: "elasticsearch-secret"
-      data:
-        # Set host with ElasticSearch if use external
-        # host: "elasticsearch-local"
-        host: "ELASTICSEARCH_HOST"
-        ## be careful with port - in internal install used 9200, in aws uses 443
-        port: 9200
-        schema: "http"
-      # Optional
-      auth_enabled: false
-      auth_data:
-        username: ""
-        password: ""
-
-  elasticsearchLogs:
-    tag: "k8s"
-    # if internal true - create and use internal elasticsearch container
-    # if internal false - enable external elasticsearch, like aws elasticsearch service
-    internal: false
-    ## secret configuration for elasticsearch
-    secret:
-      ## true - secret will be created automaticaly with provided values
-      ## false - secret should be created manualy
-      create: true
-      name: "elasticsearch-secret"
-      data:
-        # Set host with ElasticSearch if use external
-        # host: "elasticsearch-local"
-        host: "ELASTICSEARCH_HOST"
-        ## be careful with port - in internal install used 9200, in aws uses 443
-        port: 9200
-        schema: "http"
-        index: control
-      # Optional
-      auth_enabled: false
-      auth_data:
-        username: ""
-        password: ""
 
   ###########################################
   ######## Settings for filesystems #########
@@ -202,6 +155,8 @@ global:
     timeZone: 2
     session:
       ttl: "2592000"
+      cookieName: "sc_prod"
+
     requestLimits:
       ip: -1
 
@@ -209,42 +164,41 @@ global:
       # Auth settings via Single Account
       disablePublicApiCheck: true
       # Name of client in Single Account
-      name: "control-auth-name-public"
-      key: "zD8llYwv7i8DeTNZqvzyHMEycBa1RRvJetIo8U8hE5YHgwphZ6TcZ9veVNo4AnDV"
-      domain: "account.pre.corezoid.company"
+      name: "control-test.eks.control.events_migration_001"
+      key: "aogeungoh3mohM3valu6Zu1ohdiighie1EemoophaequohMoovuanoJ3OhguKeiG"
+      domain: "account.corezoid.local"
 
-    mainDomain: "control.company" # Use for CORS
     # Sub-domain for Control
-    domain: "control-test.eks.control.company"
+    controlSubDomain: "control"
     # Sub-domain for API Corezoid
-    apiCorezoidDomain: "dev.corezoid.company"
+    apiCorezoidDomain: "corezoid.local"
     # Sub-domain for Corezoid
-    adminCorezoidDomain: "admin.dev.corezoid.company"
+    adminCorezoidDomain: "corezoid.local"
     # Sub-domain for Corezoid Widget
-    widgetDomain: "widget-test.eks.control.company"
+    widgetSubDomain: "widget"
 
     connectors:
       # SyncApi API login
-      apiLogin: 117978
+      apiLogin: 123456
       # SyncApi API secret
-      apiSecret: "wGbnULhwvRn049lpmj8TE5P7AzxM7SSqwK5LrgmRcpZXY2R7B6"
-      convId: 953085
-      syncApiUrl: "https://sync-api.corezoid.company"
-    corezoidSyncApiUrl: "https://sync-api.corezoid.company"
+      apiSecret: "lnNhDfAWxCp6N1m7yLtiMtnCqhgkfsWSDau15WXGFv7xoaPiir"
+      convId: 54321
+      syncApiUrl: "https://sync-api.corezoid.local"
+    corezoidSyncApiUrl: "https://sync-api.corezoid.local"
 
     corezoid:
-      companyId: "i11111111"
+      companyId: "i123456789"
       apiSecret: "12345"
       processes:
         sendEmail:
-          directUrl: "https://corezoid.leobank.az/api/1/json/public/111/68cb9iusg5555ds36dc474ce987vds"
+          directUrl: "https://corezoid.local/api/1/json/public/111/ve67clroyo9teicrapbvorrb1unqf2npmnjx4u2b"
           convId: 111
         botNotifications:
-          directUrl: "https://corezoid.leobank.az/api/1/json/public/111/68cb9iusg5555ds36dc474ce987vds"
-          convId: 112
+          directUrl: "https://corezoid.local/api/1/json/public/222/o5grwe74qlxh75z51dmkdnkmpjzs09lnbitmzwrp"
+          convId: 222
         accRegistrations:
-          directUrl: "https://corezoid.leobank.az/api/1/json/public/112/e5068cb9iusg5555ds36dc474ce987vds"
-          convId: 112
+          directUrl: "https://corezoid.local/api/1/json/public/333/s1cl3amvf2jz9bcb271szxkuarroezrcgfzppovh"
+          convId: 333
 
     filesStorage:
       eventFiles: "/ebsmnt/attachments"
@@ -269,9 +223,9 @@ global:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       autoscaling:
-        enabled: true
+        enabled: false
         minReplicas: 1
-        maxReplicas: 10
+        maxReplicas: 4
       resources:
         limits:
           cpu: 200m
@@ -299,6 +253,7 @@ global:
 
     server:
       persistantVolumeClaimName: "server-pvc"
+      persistantVolumeClaimCreate: true
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       annotations:
@@ -351,6 +306,24 @@ global:
           cpu: 50m
           memory: 100Mi
 
+    control_tasks:
+      pullPolicy: IfNotPresent
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 1
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9000"
+        prometheus.io/scrape: "true"
+      resources:
+        limits:
+          cpu: 200m
+          memory: 600Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
     serviceAccount:
       # Specifies whether a service account should be created
       create: false
@@ -387,6 +360,7 @@ global:
 
     ingress:
       enabled: true
+      className: "internal-nginx"
 
     nodeSelector: {}
 

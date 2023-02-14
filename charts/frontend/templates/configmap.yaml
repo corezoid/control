@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.appName }}-nginx-configmap
   labels:
-{{- include "frontend.labels" . | nindent 4 }}
+{{- include "control.frontend.labels" . | nindent 4 }}
 data:
   nginx.conf: |
     user  nginx;
@@ -46,7 +46,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.appName }}-site-configmap
   labels:
-{{- include "frontend.labels" . | nindent 4 }}
+{{- include "control.frontend.labels" . | nindent 4 }}
 data:
   config.json: |
     {
@@ -58,7 +58,7 @@ data:
       error_log  /dev/stdout;
 
       listen {{ .Values.global.control.frontendPort }};
-      server_name {{ .Values.global.control.domain }};
+      server_name {{ template "control.Domain" . }};
 
       charset utf-8;
       etag off;
@@ -78,13 +78,17 @@ data:
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
       add_header Referrer-Policy "no-referrer-when-downgrade" always;
-      add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{ .Values.global.control.domain }} {{ .Values.global.control.auth.domain }} https://{{ .Values.global.control.domain }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com;";
+      add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} {{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com;";
 
       location ~ ^/ping$ {
         return 200 "pong";
         types         { }
         default_type  text/plain;
       }
+
+      # location ~* \.(jpg|pdf|jpeg|png|gif|webp|wav|mp3|js|css|woff2|json)$ {
+      #   expires 90d;
+      # }
 
       location / {
         # Security
@@ -122,13 +126,13 @@ data:
       }
 
     }
-{{- if .Values.global.control.apiDomain }}
+{{- if .Values.global.control.apiSubDomain }}
     server {
       access_log /dev/stdout main;
       error_log  /dev/stdout;
 
       listen {{ .Values.global.control.frontendPort }};
-      server_name {{ .Values.global.control.apiDomain }};
+      server_name {{ include "control.ApiDomain" . }};
 
       charset utf-8;
       etag off;

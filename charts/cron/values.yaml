@@ -3,4 +3,3 @@ appName: cron
 image:
   registry: docker-hub.middleware.biz
   repository: ctrl-server
-  version: 4.10.1

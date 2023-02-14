@@ -40,8 +40,6 @@ spec:
       initContainers:
         {{ include "InitWait.redis" . | nindent 8 }}
 
-        {{ include "InitWait.pubsubredis" . | nindent 8 }}
-
       containers:
         - name: {{ .Chart.Name }}-realtime
           securityContext:

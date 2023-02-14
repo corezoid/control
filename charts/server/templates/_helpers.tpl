@@ -13,7 +13,13 @@ chart: {{ include "control.fullname" . }}
 Image url
 */}}
 {{- define "server.imageUrl" -}}
-{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.server.tag | default .Values.image.version }}
+{{ .Values.image.registry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.server.tag | default .Chart.AppVersion }}
+{{- end }}
+
+{{- define "control.server.annotations" -}}
+{{- with .Values.global.control.server.annotations }}
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -45,3 +51,20 @@ livenessProbe:
   successThreshold: 1
   failureThreshold: 3
 {{- end }}
+
+
+{{- define "control.server.db.pool" -}}
+{{- if .Values.global.control.server.config -}}
+{{- if .Values.global.control.server.config.db -}}
+{{- if .Values.global.control.server.config.db.pool -}}
+{{- with .Values.global.control.server.config.db.pool -}}
+pool: {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+{{- else }}
+{{- with .Values.server.config.db.pool -}}
+pool: {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end -}}
+{{- end -}}

@@ -3,4 +3,4 @@ appName: widget
 image:
   registry: docker-hub.middleware.biz
   repository: ctrl-widget
-  version: "v1.0.19"
+  version: "v1.0.31"

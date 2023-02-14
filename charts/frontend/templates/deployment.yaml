@@ -3,14 +3,14 @@ kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
   labels:
-{{- include "frontend.labels" . | nindent 4 }}
+{{- include "control.frontend.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.global.control.frontend.autoscaling.enabled }}
   replicas: {{ .Values.global.control.frontend.autoscaling.minReplicas }}
   {{- end }}
   selector:
     matchLabels:
-{{- include "frontend.labels" . | nindent 6 }}
+{{- include "control.frontend.labels" . | nindent 6 }}
 {{- with .Values.global.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
@@ -25,7 +25,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
-{{- include "frontend.labels" . | nindent 8 }}
+{{- include "control.frontend.labels" . | nindent 8 }}
     spec:
       {{- if .Values.global.control.terminationGracePeriodSeconds.front }}
       terminationGracePeriodSeconds: {{ .Values.global.control.terminationGracePeriodSeconds.front }}
@@ -39,7 +39,7 @@ spec:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Values.appName }}
-          image: {{ include "frontend.imageUrl" . | quote }}
+          image: {{ include "control.frontend.imageUrl" . | quote }}
           imagePullPolicy: {{ .Values.global.control.frontend.pullPolicy }}
           ports:
             - name: http
@@ -84,7 +84,7 @@ spec:
         - name: config-site
           configMap:
             name: {{ .Values.appName }}-site-configmap
-        {{- if .Values.global.persistantVolumeClaimCreate }}
+        {{- if .Values.global.control.server.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
             claimName: {{ .Values.global.control.server.persistantVolumeClaimName }}

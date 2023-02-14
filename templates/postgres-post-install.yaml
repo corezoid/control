@@ -2,12 +2,16 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: postgres-post-install
+{{- if not .Values.global.argocd_deploy }}
   annotations:
     helm.sh/hook: "post-install,post-upgrade"
     helm.sh/hook-weight: "-5"
+{{- end }}
   labels:
     tier: postgres
 spec:
+  initContainers:
+    {{ include "InitWait.postgres" . | nindent 8 }}
   containers:
     - image: {{ .Values.global.db.image }}
       imagePullPolicy: {{ .Values.global.db.imagePullPolicy | default "IfNotPresent" }}

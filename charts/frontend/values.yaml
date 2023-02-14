@@ -3,4 +3,3 @@ appName: frontend
 image:
   registry: docker-hub.middleware.biz
   repository: ctrl-frontend
-  version: 4.11.0

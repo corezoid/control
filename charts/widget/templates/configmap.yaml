@@ -55,18 +55,18 @@ data:
     }
 
     server {
-      server_name {{ .Values.global.control.widgetDomain }};
       listen {{ .Values.global.control.widgetPort }};
+      server_name {{ template "control.WidgetDomain" . }};
 
       access_log /dev/stdout main;
       error_log  /dev/stdout;
 
       location ~ ^/api/(.*) {
-        proxy_pass https://{{ .Values.global.control.domain }}/api/$1$is_args$args;
+        proxy_pass https://{{ template "control.Domain" . }}/api/$1$is_args$args;
       }
 
       location = /realtime {
-        proxy_pass https://{{ .Values.global.control.domain }}/ws;
+        proxy_pass https://{{ template "control.Domain" . }}/ws;
         proxy_ignore_client_abort on;
 
         proxy_http_version 1.1;

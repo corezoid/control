@@ -4,6 +4,8 @@ metadata:
   name: {{ .Values.appName }}-service
   labels:
 {{- include "server.labels" . | nindent 4 }}
+  annotations:
+    {{- include "control.server.annotations" . | nindent 2 }}
 spec:
   selector:
 {{- include "server.labels" . | nindent 6 }}

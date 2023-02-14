@@ -30,11 +30,11 @@ spec:
   {{- if .Values.global.control.ingress.tls }}
   tls:
     - hosts:
-        - {{ .Values.global.control.domain }}
+        - {{- include "control.Domain" . -}}
       secretName: tls-control
   {{- end }}
   rules:
-    - host: {{ .Values.global.control.domain }}
+    - host: {{ include "control.Domain" . }}
       http:
         paths:
           - path: /
@@ -72,7 +72,7 @@ spec:
                 name: frontend-service
                 port:
                   number: {{ $frontendPort }}
-    - host: {{ .Values.global.control.widgetDomain }}
+    - host: {{ include "control.WidgetDomain" . }}
       http:
         paths:
           - path: /
@@ -82,8 +82,8 @@ spec:
                 name: widget-service
                 port:
                   number: {{ $widgetPort }}
-{{- if .Values.global.control.apiDomain }}
-    - host: {{ .Values.global.control.apiDomain }}
+{{- if .Values.global.control.apiSubDomain }}
+    - host: {{ include "control.ApiDomain" . }}
       http:
         paths:
           - path: /

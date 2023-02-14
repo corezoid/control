@@ -18,9 +18,11 @@ data:
 
     enableAPI: ${ENABLE_API} # Enable api mode
     enableCrons: false # Enable cron mode
+    logLevel: {{ .Values.global.control.loglevel | default "custom" }}
     http2: false
     session:
       ttl: {{ .Values.global.control.session.ttl }}
+      cookieName: {{ .Values.global.control.session.cookieName }}
 
     connectors:
       apiLogin: {{ .Values.global.control.connectors.apiLogin }}
@@ -34,7 +36,7 @@ data:
       saSecretKey: {{ .Values.global.control.auth.key }}
       url: https://{{ .Values.global.control.auth.domain }}
 
-    trackUrl: https://{{ .Values.global.control.domain }} # Control Admin domain
+    trackUrl: https://{{- include "control.Domain" . }} # Control Admin domain
     apiCorezoid: https://{{ .Values.global.control.apiCorezoidDomain }} # Corezoid Api domain
     adminCorezoid: https://{{ .Values.global.control.adminCorezoidDomain }} # Corezoid Admin domain
     corezoidSyncApiUrl: {{ .Values.global.control.corezoidSyncApiUrl }}
@@ -45,24 +47,20 @@ data:
         userName: {{ .Values.global.db.secret.data.dbuser }}
         password: {{ .Values.global.db.secret.data.dbpwd }}
         settings:
-          {{ if .Values.global.db.bouncer }}
+          {{- if .Values.global.db.bouncer }}
           host: pgbouncer-service
-          {{ else }}
+          {{- else }}
           host: {{ .Values.global.db.secret.data.dbhost }}
-          {{ end }}
+          {{- end }}
           port: {{ .Values.global.db.secret.data.dbport }}
           dialect: postgres
           logging: false
-          pool:
-            max: 5000
-            min: 0
-            idle: 20000
-            acquire: 60000
+          {{- include "control.server.db.pool" . | nindent 10 }}
 
     redis: # Redis cache settings
       host: {{ .Values.global.redis.secret.data.host }}
       port: {{ .Values.global.redis.secret.data.port }}
-      {{ if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
+      {{- if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
       pool:
         min: 2
         max: 50
@@ -71,33 +69,15 @@ data:
     redisPubSub: # Redis PubSub settings for Real-Time
       host: {{ .Values.global.redis.secret.data.host_PubSub }}
       port: {{ .Values.global.redis.secret.data.port_PubSub}}
-      {{ if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
+      {{- if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
       pool:
         min: 2
         max: 50
         idle: 30000
 
-    elasticsearch: # Elasticsearch settings
-      protocol: {{ .Values.global.elasticsearch.secret.data.schema }}
-      host: {{ .Values.global.elasticsearch.secret.data.host }}
-      port: {{ .Values.global.elasticsearch.secret.data.port }}
-      pool:
-        max: 20
-        min: 2
-        idle: 30000
-
-    elasticsearchLogs: # Elasticsearch settings for logs
-      host: {{ .Values.global.elasticsearchLogs.secret.data.host }}
-      port: {{ .Values.global.elasticsearchLogs.secret.data.port }}
-      userName: {{ .Values.global.elasticsearchLogs.secret.data.userName }}
-      password: {{ .Values.global.elasticsearchLogs.secret.data.password }}
-      index: {{ .Values.global.elasticsearchLogs.secret.data.index }}
-      bulkSize: 10
-      level: custom
-
     corezoid: # Corezoid processes settings
       apiSecret: "{{ .Values.global.control.corezoid.apiSecret }}"
-      companyId: {{ .Values.global.control.corezoid.companyId }} # Corezoid company Id with Control processes
+      companyId: {{ .Values.global.control.corezoid.companyId }} # Corezoid company ID with Control processes
       processes:
         sendEmail: # Corezoid process for send email
           directUrl: {{ .Values.global.control.corezoid.processes.sendEmail.directUrl }}
@@ -109,17 +89,17 @@ data:
     requestLimits:
       ip: {{ .Values.global.control.requestLimits.ip }}
 
-    filesStorage: # Shared forlder for uploaded files
+    filesStorage: # Shared folder for uploaded files
       eventFiles: {{ .Values.global.control.filesStorage.eventFiles }}
 
     webConfig: # Client settings while startup
       avatarPath: https://{{ .Values.global.control.auth.domain }}/avatars/52x52/{userId}.jpg # Avatar regexp
-      systemUserAvatar: https://{{ .Values.global.control.domain }}/static/systemUserAvatar.svg # System suer avatar
+      systemUserAvatar: https://{{- include "control.Domain" . }}/static/systemUserAvatar.svg # System suer avatar
       adminCorezoid: https://{{ .Values.global.control.adminCorezoidDomain }} # Corezoid Admin domain
-      widgetUrl: https://{{ .Values.global.control.widgetDomain }} # Control widget host
+      widgetUrl: https://{{- include "control.WidgetDomain" . }} # Control widget host
       supportEmail: {{ .Values.global.control.webConfig.supportEmail }} # Email for support
-      realtimeApi: wss://{{ .Values.global.control.domain }} # Control-realtime host
-      apiDoc: https://{{ .Values.global.control.domain }}/api.html # API doc host
+      realtimeApi: wss://{{- include "control.Domain" . }} # Control-realtime host
+      apiDoc: https://{{- include "control.Domain" . }}/api.html # API doc host
       maxFileSize: {{ .Values.global.control.webConfig.maxFileSize }} # Max filesize
       {{- if .Values.global.control.webConfig.controlWidgetId }}
       controlWidgetId: {{ .Values.global.control.webConfig.controlWidgetId }}
@@ -127,8 +107,9 @@ data:
       {{- if .Values.global.control.webConfig.googleAnalytics }}
       googleAnalytics: {{ .Values.global.control.webConfig.googleAnalytics }}
       {{- end }}
-    apmService:
-      enable: false
+      {{- if .Values.global.control.webConfig.fileMimeTypes }}
+      fileMimeTypes: {{ .Values.global.control.webConfig.fileMimeTypes }}
+      {{- end }}
 
     channels:
       gmail:

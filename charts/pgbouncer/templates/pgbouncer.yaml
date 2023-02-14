@@ -56,6 +56,8 @@ spec:
       labels:
 {{- include "pgbouncer.labels" . | nindent 8 }}
     spec:
+      initContainers:
+        {{ include "InitWait.postgres" . | nindent 8 }}
       containers:
         - name: {{ .Values.appName }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repotype}}{{ .Values.image.repository }}:{{ .Values.image.tag }}"
