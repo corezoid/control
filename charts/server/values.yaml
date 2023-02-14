@@ -5,4 +5,4 @@ hpa_mem: false
 image:
   registry: docker-hub.middleware.biz
   repository: ctrl-server
-  version: 4.8.0
+  version: 4.11.0
