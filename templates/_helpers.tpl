@@ -79,7 +79,9 @@ prometheus.io/scrape: "true"
 prometheus.io/port: "9113"
 prometheus.io/scheme: http
 {{- if .Values.global.control.ingress.className }}
+{{- if not .Values.global.argocd_deploy }}
 kubernetes.io/ingress.class: {{ .Values.global.control.ingress.className }}
+{{- end }}
 {{- end }}
 nginx.ingress.kubernetes.io/ssl-redirect: "true"
 nginx.ingress.kubernetes.io/proxy-body-size: "{{ .Values.global.control.webConfig.maxFileSize }}"
@@ -89,7 +91,7 @@ nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
       more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }};";
       if ($request_uri ~ "/index.html") {
-        more_set_headers "Cache-Control no-cache";
+        more_set_headers "Cache-Control: no-cache";
         more_set_headers "Cache-Control: no-store";
         expires 0;
       }

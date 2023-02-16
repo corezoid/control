@@ -8,7 +8,7 @@ data:
   config.yml: |
     {
       "control": {
-        "token": "mst_{{ .Values.global.control.superAdminApiKey }}",
+        "token": {{- include "control.token" . | quote }},
         "host": "{{- include "control.Domain" . }}"
       },
       "postgres": {
