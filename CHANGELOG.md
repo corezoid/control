@@ -44,3 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New application release
 - N.B.! For this version you need Single-Account application with Singlespace backend.
+
+## [0.3.5] - 2023-02-20
+
+### Major changes
+
+- New application release
