@@ -86,9 +86,10 @@ data:
         default_type  text/plain;
       }
 
-      # location ~* \.(jpg|pdf|jpeg|png|gif|webp|wav|mp3|js|css|woff2|json)$ {
-      #   expires 90d;
-      # }
+      location ~* \.(jpg|pdf|jpeg|png|gif|webp|wav|mp3|js|css|woff2|json)$ {
+        expires 90d;
+        root /usr/share/nginx/html;
+      }
 
       location / {
         # Security
@@ -96,7 +97,9 @@ data:
         add_header X-Content-Type-Options nosniff;
         add_header X-XSS-Protection "1; mode=block";
 
-        gzip_static on;
+        # gzip_static on;
+        add_header Cache-Control no-cache;
+        expires -1000;
         root /usr/share/nginx/html;
         try_files $uri /index.html;
       }

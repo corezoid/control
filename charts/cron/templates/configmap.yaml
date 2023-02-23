@@ -52,11 +52,7 @@ data:
           port: {{ .Values.global.db.secret.data.dbport }}
           dialect: postgres
           logging: false
-          pool:
-            max: 5000
-            min: 0
-            idle: 20000
-            acquire: 60000
+          {{- include "control.cron.db.pool" . | nindent 10 }}
 
     redis: # Redis cache settings
       host: {{ .Values.global.redis.secret.data.host }}

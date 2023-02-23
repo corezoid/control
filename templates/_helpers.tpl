@@ -88,6 +88,7 @@ nginx.ingress.kubernetes.io/proxy-body-size: "{{ .Values.global.control.webConfi
 nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers X-Content-Type-Options "nosniff" always;
       more_set_headers X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options nosniff;
       more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
       more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }};";
       if ($request_uri ~ "/index.html") {

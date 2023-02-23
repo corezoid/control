@@ -223,8 +223,8 @@ global:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       autoscaling:
-        enabled: false
-        minReplicas: 1
+        enabled: true
+        minReplicas: 2
         maxReplicas: 4
       resources:
         limits:
