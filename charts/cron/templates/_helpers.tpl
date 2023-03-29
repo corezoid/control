@@ -51,3 +51,19 @@ livenessProbe:
   successThreshold: 1
   failureThreshold: 3
 {{- end }}
+
+{{- define "control.cron.db.pool" -}}
+{{- if .Values.global.control.cron.config -}}
+{{- if .Values.global.control.cron.config.db -}}
+{{- if .Values.global.control.cron.config.db.pool -}}
+{{- with .Values.global.control.cron.config.db.pool -}}
+pool: {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+{{- else }}
+{{- with .Values.cron.config.db.pool -}}
+pool: {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end -}}
+{{- end -}}

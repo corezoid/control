@@ -8,7 +8,7 @@ data:
   config.yml: |
     {
       "control": {
-        "token": {{ include "control.token" . | quote }},
+        "token": {{- include "control.token" . | quote }},
         "host": "{{- include "control.Domain" . }}"
       },
       "postgres": {

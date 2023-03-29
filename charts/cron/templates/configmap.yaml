@@ -46,17 +46,14 @@ data:
         settings:
           {{- if .Values.global.db.bouncer }}
           host: pgbouncer-service
+          port: {{ .Values.global.db.bouncer_port }}
           {{- else }}
           host: {{ .Values.global.db.secret.data.dbhost }}
-          {{- end }}
           port: {{ .Values.global.db.secret.data.dbport }}
+          {{- end }}
           dialect: postgres
           logging: false
-          pool:
-            max: 5000
-            min: 0
-            idle: 20000
-            acquire: 60000
+          {{- include "control.cron.db.pool" . | nindent 10 }}
 
     redis: # Redis cache settings
       host: {{ .Values.global.redis.secret.data.host }}
@@ -75,24 +72,6 @@ data:
         min: 2
         max: 50
         idle: 30000
-
-    elasticsearch: # Elasticsearch settings
-      protocol: {{ .Values.global.elasticsearch.secret.data.schema }}
-      host: {{ .Values.global.elasticsearch.secret.data.host }}
-      port: {{ .Values.global.elasticsearch.secret.data.port }}
-      pool:
-        max: 20
-        min: 2
-        idle: 30000
-
-    elasticsearchLogs: # Elasticsearch settings for logs
-      host: {{ .Values.global.elasticsearchLogs.secret.data.host }}
-      port: {{ .Values.global.elasticsearchLogs.secret.data.port }}
-      userName: {{ .Values.global.elasticsearchLogs.secret.data.userName }}
-      password: {{ .Values.global.elasticsearchLogs.secret.data.password }}
-      index: {{ .Values.global.elasticsearchLogs.secret.data.index }}
-      bulkSize: 10
-      level: custom
 
     corezoid: # Corezoid processes settings
       apiSecret: "{{ .Values.global.control.corezoid.apiSecret }}"

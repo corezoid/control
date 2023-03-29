@@ -44,3 +44,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New application release
 - N.B.! For this version you need Single-Account application with Singlespace backend.
+
+## [0.3.6] - 2023-02-22
+
+### Major changes
+
+- New application release
+
+## [0.3.7] - 2023-03-01
+
+### Major changes
+
+- New application release
+
+## [0.3.8] - 2023-03-16
+
+### Major changes
+
+- New application release
+- Update Chart.yaml files for applications
+
+## [0.3.9] - 2023-03-29
+
+### Major changes
+
+- New application release
+- Update `imagePullSecret` - add if require
