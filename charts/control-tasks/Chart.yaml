@@ -1,5 +1,6 @@
-apiVersion: v1
-description: A Helm chart for Kubernetes
+apiVersion: v2
 name: control-tasks
-version: 0.0.5
-appVersion: 1.0.6
+description: A Helm chart for Control Tasks
+type: application
+version: 0.0.9
+appVersion: 1.0.10

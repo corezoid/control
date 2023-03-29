@@ -56,7 +56,6 @@ livenessProbe:
 {{- define "control.token" }}
 {{- if .Values.global.control.auth.disablePublicApiCheck }}
 {{- .Values.global.control.superAdminApiKey }}
-{{- else }}
-mst_{{ .Values.global.control.superAdminApiKey }}
+{{- else -}}mst_{{ .Values.global.control.superAdminApiKey }}
 {{- end }}
 {{- end }}
