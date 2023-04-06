@@ -30,7 +30,7 @@ data:
       "redis": {
         "host": "{{ .Values.global.redis.secret.data.host }}",
         "port": {{ .Values.global.redis.secret.data.port | default "6379" }},
-        "database": {{ .Values.global.redis.secret.data.database | default "0" }},
+        "database": {{ .Values.global.control.redisDb | default 0 }},
         "password": "{{ .Values.global.redis.secret.data.password | default "" }}"
       }
     }

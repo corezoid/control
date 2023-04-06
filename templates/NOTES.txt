@@ -27,3 +27,4 @@
   https://{{- include "control.ApiDomain" . }}
 {{- end }}
 {{- end }}
+

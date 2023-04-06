@@ -61,7 +61,12 @@ data:
     redis: # Redis cache settings
       host: {{ .Values.global.redis.secret.data.host }}
       port: {{ .Values.global.redis.secret.data.port }}
-      {{- if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
+      {{- if .Values.global.redis.secret.data.password }}
+      password: {{ .Values.global.redis.secret.data.password }}
+      {{- end }}
+      {{- if .Values.global.control.redisDb }}
+      db: {{ .Values.global.control.redisDb }}
+      {{- end }}
       pool:
         min: 2
         max: 50
@@ -70,7 +75,12 @@ data:
     redisPubSub: # Redis PubSub settings for Real-Time
       host: {{ .Values.global.redis.secret.data.host_PubSub }}
       port: {{ .Values.global.redis.secret.data.port_PubSub}}
-      {{- if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
+      {{- if .Values.global.redis.secret.data.password }}
+      password: {{ .Values.global.redis.secret.data.password }}
+      {{- end }}
+      {{- if .Values.global.control.redisDb }}
+      db: {{ .Values.global.control.redisDb }}
+      {{- end }}
       pool:
         min: 2
         max: 50
