@@ -11,6 +11,6 @@ spec:
 {{- include "control-tasks.labels" . | nindent 6 }}
   ports:
     - port: {{ .Values.appReadinessHttpPort }}
-      targetPort: {{ .appReadinessHttpPort }}
+      targetPort: {{ .Values.appReadinessHttpPort }}
       protocol: TCP
       name: http

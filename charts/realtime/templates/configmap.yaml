@@ -8,14 +8,24 @@ data:
     redis:
       host: {{ .Values.global.redis.secret.data.host }}
       port: {{ .Values.global.redis.secret.data.port }}
-      {{ if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
+      {{- if .Values.global.redis.secret.data.password }}
+      password: {{ .Values.global.redis.secret.data.password }}
+      {{- end }}
+      {{- if .Values.global.control.redisDb }}
+      db: {{ .Values.global.control.redisDb }}
+      {{- end }}
       pool:
         max: 50
         idle: 30000
     redisPubSub:
       host: {{ .Values.global.redis.secret.data.host }}
       port: {{ .Values.global.redis.secret.data.port }}
-      {{ if .Values.global.redis.secret.data.password }}password: {{ .Values.global.redis.secret.data.password }}{{ end }}
+      {{- if .Values.global.redis.secret.data.password }}
+      password: {{ .Values.global.redis.secret.data.password }}
+      {{- end }}
+      {{- if .Values.global.control.redisDb }}
+      db: {{ .Values.global.control.redisDb }}
+      {{- end }}
       pool:
         max: 50
         idle: 30000

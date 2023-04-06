@@ -3,6 +3,8 @@
 # Declare variables to be passed into your templates.
 global:
 
+  # second level domain only! / core domain (example: control.local)
+  domain: "control.local"
   #######  PostgreSQL  ########
   ## Supported version  from 9.6.* <
   ## for RDS minimum instance - db.t3.medium / master user set "postgres"
@@ -32,7 +34,10 @@ global:
         dbport: "5432"
         dbuser: "dbuser"
         dbpwd: "dbpwd"
-    # set false to disable if you don't want to use PGBouncer recommended - true
+        # sslmode: "require"
+
+    # Set false to disable if you don't want to use PGBouncer, recommended - true
+    # If true, will create pod with PGBouncer
     bouncer: true
     bouncer_port: 5432
     bouncer_minReplicas: 1
@@ -88,8 +93,10 @@ global:
   persistantVolumeClaimCreate: true
   ######## Settings AWS EFS filesystem   ########
   efs:
+    # Set AWS region
     awsRegion: "eu-west-1"
-    efsFileSystemId: "fs-0123456789abcdef"
+    # Set EFS id
+    efsFileSystemId: "fs-07465fb09693c837f"
     ## set true if you choose storage: efs
     enabled: true
   ######## Settings NFS filesystem   ########
@@ -97,18 +104,13 @@ global:
     ## set true if you choose storage: nfs
     enabled: false
 
-  # imageRegistry: "docker-hub.middleware.biz"
-
-  # Typy of repo with images, default - public
-  # repotype: ""
+  imageRegistry: "docker-hub.middleware.biz"
+  repotype: "public"
 
   imageInit:
     repository: docker-hub.middleware.biz/hub.docker.com/library/alpine
     pullPolicy: IfNotPresent
     tag: "3.13"
-
-  imagePullSecrets:
-    name: develop-middleware-registry-secret
 
   deploymentStrategy:
     type: RollingUpdate
@@ -128,56 +130,68 @@ global:
 
   control:
     product: "control"
+    # Applications ports
     serverPort: 9000
     cronPort: 9001
     realtimePort: 9005
     frontendPort: 80
     widgetPort: 80
     apiVersion: '1.0'
+    # Secret for submitting requests between Control applications.
     apiSecret: "sRk5FM;T(]WbUuFeP8)[f2p[cH9:+)Qm"
     browserExtensionsSecret: "IeV0j4i8ewSDT!FETZ@%69nDiiJ$BKmBCOVq!#%Q"
     googleApiKey: "AIzaSyA36Bi3n5IiQjGiXEGL4pxW0piqGp4nvOs"
+    # Superadmin API key
     superAdminApiKey: "P8NTWrKT2fkRjRKNyAm2QjYJa3nxnzhb9xqDxjVx"
+    # Supported localizations
     locales:
       - en
+    # Time zone from which time is calculated in notification letters.
     timeZone: 2
     session:
       ttl: "2592000"
+      cookieName: "sc_prod"
     requestLimits:
       ip: -1
 
-    auth: #single account
-      disablePublicApiCheck: false
+    auth:
+      # Auth settings via Single Account
+      disablePublicApiCheck: true
+      # Name of client in Single Account
       name: "control-auth-name-public"
-      key: "zD8llYwv7i8DeTNZqvzyHMEycBa1RRvJetIo8U8hE5YHgwphZ6TcZ9veVNo4AnDV"
-      domain: "account.pre.corezoid.company"
+      key: "aogeungoh3mohM3valu6Zu1ohdiighie1EemoophaequohMoovuanoJ3OhguKeiG"
+      domain: "account.corezoid.local"
 
-    mainDomain: "control.company" # Use for CORS
-    domain: "control-test.eks.control.company"
-    apiCorezoidDomain: "dev.corezoid.company"
-    adminCorezoidDomain: "admin.dev.corezoid.company"
-    widgetDomain: "widget-test.eks.control.company"
+    # Sub-domain for Control
+    controlSubDomain: "control"
+    # Domain for API Corezoid
+    adminCorezoidDomain: "admin.corezoid.local"
+    apiCorezoidDomain: "dev.corezoid.local"
+    # Sub-domain for Control Widget
+    widgetSubDomain: "widget"
 
     connectors:
-      apiLogin: 117978
-      apiSecret: "wGbnULhwvRn049lpmj8TE5P7AzxM7SSqwK5LrgmRcpZXY2R7B6"
-      convId: 953085
-      syncApiUrl: "https://sync-api.corezoid.company"
-    corezoidSyncApiUrl: "https://sync-api.corezoid.company"
+      # SyncApi API login
+      apiLogin: 123456
+      # SyncApi API secret
+      apiSecret: "lnNhDfAWxCp6N1m7yLtiMtnCqhgkfsWSDau15WXGFv7xoaPiir"
+      convId: 54321
+      syncApiUrl: "https://sync-api.corezoid.local"
+    corezoidSyncApiUrl: "https://sync-api.corezoid.local"
 
     corezoid:
-      companyId: "i24759340"
+      companyId: "i123456789"
       apiSecret: "12345"
       processes:
         sendEmail:
-          directUrl: "https://pre.corezoid.company/api/1/json/public/49253/9d5a909f2387ca29de06caa54862b16bd33a1258"
-          convId: 49253
+          directUrl: "https://corezoid.local/api/1/json/public/111/ve67clroyo9teicrapbvorrb1unqf2npmnjx4u2b"
+          convId: 111
         botNotifications:
-          directUrl: "https://pre.corezoid.company/api/1/json/public/79787/43655bfddfaf9037cce68281e19188c05a4295b5"
-          convId: 79787
+          directUrl: "https://corezoid.local/api/1/json/public/222/o5grwe74qlxh75z51dmkdnkmpjzs09lnbitmzwrp"
+          convId: 222
         accRegistrations:
-          directUrl: "https://pre.corezoid.company/api/1/json/public/91509/5b77762807491776160582e163fd6fe82c71941d"
-          convId: 91509
+          directUrl: "https://corezoid.local/api/1/json/public/333/s1cl3amvf2jz9bcb271szxkuarroezrcgfzppovh"
+          convId: 333
 
     filesStorage:
       eventFiles: "/ebsmnt/attachments"
@@ -188,8 +202,8 @@ global:
 
     channels:
       gmail:
-        clientId: "290556131007-Pn6DrBiuXOIuVAXiqBRLC7TcCMEmrOcu.apps.googleusercontent.com"
-        clientSecret: "EKtxLCZEU4zskcEGyevncUm9"
+        clientId: "290516331007-kdznbto71dls7fv2e43rovxpay6lmwp2.apps.googleusercontent.com"
+        clientSecret: "T19LiivOJ21QbxJvLHdFpMOx"
         ignoredDomains: []
 
 
@@ -201,7 +215,7 @@ global:
     frontend:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
-      # tag: "2f4b6f59"
+      # tag: ""
       autoscaling:
         enabled: false
         minReplicas: 1
@@ -219,7 +233,7 @@ global:
       # Overrides the image tag whose default is the chart appVersion.
       # tag: ""
       autoscaling:
-        enabled: true
+        enabled: false
         minReplicas: 1
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
@@ -234,6 +248,7 @@ global:
 
     server:
       persistantVolumeClaimName: "server-pvc"
+      persistantVolumeClaimCreate: true
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       # tag: ""
@@ -243,7 +258,7 @@ global:
         prometheus.io/scrape: "true"
       autoscaling:
         enabled: true
-        minReplicas: 1
+        minReplicas: 2
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
@@ -288,6 +303,24 @@ global:
           cpu: 50m
           memory: 100Mi
 
+    control_tasks:
+      pullPolicy: IfNotPresent
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 1
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9000"
+        prometheus.io/scrape: "true"
+      resources:
+        limits:
+          cpu: 200m
+          memory: 600Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
     serviceAccount:
       # Specifies whether a service account should be created
       create: false
@@ -324,6 +357,7 @@ global:
 
     ingress:
       enabled: true
+      className: "internal-nginx"
 
     nodeSelector: {}
 
@@ -338,4 +372,10 @@ global:
     #             - key: eks.amazonaws.com/nodegroup
     #               operator: In
     #               values:
-    #                 - ctrl-nodes-1
+    #                 - control-1
+
+  sa:
+    subDomain: "account.corezoid.local"
+    config:
+      # Bearer token from single-account.conf file
+      admin_bearer_token_secret: "aogeungoh3mohM3valu6Zu1ohdiighie1EemoophaequohMoovuanoJ3OhguKeiG"
