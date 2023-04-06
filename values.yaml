@@ -5,10 +5,9 @@ global:
 
   # second level domain only! / core domain (example: control.local)
   domain: "control.local"
-
   #######  PostgreSQL  ########
   ## Supported version  from 9.6.* <
-  ## for RDS minimum instance - db.t3.medium
+  ## for RDS minimum instance - db.t3.medium / master user set "postgres"
   db:
     image: "postgres:13.7-alpine"
     imagePullPolicy: "IfNotPresent"
@@ -28,13 +27,13 @@ global:
       ## for init db and roles dbsuperuser and dbuser cannot be changed (because used as plain text in sql)
       dbsuperuser: "master"
       ## password - for dbsuperuser
-      dbsuperuserpwd: "bZPgkBiZ75o36jLiqPW4f6APxM5YdQLT"
+      dbsuperuserpwd: "password"
       data:
         dbname: "control"
         dbhost: "postgres"
         dbport: "5432"
-        dbuser: "ddcktw2lwxnlhl8qo924lbk97flghneo"
-        dbpwd: "jtMFT9BxWLnG7h4aZwsWOsScNURRVcNrdSJ0IzCq1uJ0JafEfprMQt5M4FRnOc1F"
+        dbuser: "dbuser"
+        dbpwd: "dbpwd"
         # sslmode: "require"
 
     # Set false to disable if you don't want to use PGBouncer, recommended - true
@@ -85,61 +84,12 @@ global:
         port_PubSub: "6379"
         password_PubSub: ""
 
-  #######  Elasticsearch  ########
-  ## Supported version 7.17.*
-  elasticsearch:
-    tag: "7.17.5"
-    # if internal true - create and use internal elasticsearch container
-    # if internal false - enable external elasticsearch, like aws elasticsearch service
-    internal: false
-    ## secret configuration for elasticsearch
-    secret:
-      ## true - secret will be created automaticaly with provided values
-      ## false - secret should be created manualy
-      create: true
-      name: "elasticsearch-secret"
-      data:
-        # Set host with ElasticSearch if use external
-        host: "elasticsearch-local"
-        ## be careful with port - in internal install used 9200, in aws uses 443
-        port: 9200
-        schema: "http"
-      # Optional
-      auth_enabled: false
-      auth_data:
-        username: ""
-        password: ""
-
-  elasticsearchLogs:
-    tag: "7.17.5"
-    # if internal true - create and use internal elasticsearch container
-    # if internal false - enable external elasticsearch, like aws elasticsearch service
-    internal: false
-    ## secret configuration for elasticsearch
-    secret:
-      ## true - secret will be created automaticaly with provided values
-      ## false - secret should be created manualy
-      create: true
-      name: "elasticsearch-secret"
-      data:
-        # Set host with ElasticSearch if use external
-        host: "elasticsearch-local"
-        ## be careful with port - in internal install used 9200, in aws uses 443
-        port: 9200
-        schema: "http"
-        index: control
-      # Optional
-      auth_enabled: false
-      auth_data:
-        username: ""
-        password: ""
-
   ###########################################
   ######## Settings for filesystems #########
   # Define global storage class: efs / nfs / manual
   storage: efs
   # Define global storageClass name
-  storageClassName: "control-storage-class-prod"
+  storageClassName: "control-storage-class-public"
   persistantVolumeClaimCreate: true
   ######## Settings AWS EFS filesystem   ########
   efs:
@@ -201,7 +151,6 @@ global:
     session:
       ttl: "2592000"
       cookieName: "sc_prod"
-
     requestLimits:
       ip: -1
 
@@ -209,18 +158,16 @@ global:
       # Auth settings via Single Account
       disablePublicApiCheck: true
       # Name of client in Single Account
-      name: "control-test.eks.control.events_migration_001"
+      name: "control-auth-name-public"
       key: "aogeungoh3mohM3valu6Zu1ohdiighie1EemoophaequohMoovuanoJ3OhguKeiG"
       domain: "account.corezoid.local"
 
-
     # Sub-domain for Control
     controlSubDomain: "control"
-    # Sub-domain for API Corezoid
-    apiCorezoidDomain: "dev.corezoid.local"
-    # Sub-domain for Corezoid
+    # Domain for API Corezoid
     adminCorezoidDomain: "admin.corezoid.local"
-    # Sub-domain for Corezoid Widget
+    apiCorezoidDomain: "dev.corezoid.local"
+    # Sub-domain for Control Widget
     widgetSubDomain: "widget"
 
     connectors:
@@ -268,6 +215,7 @@ global:
     frontend:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
+      # tag: ""
       autoscaling:
         enabled: false
         minReplicas: 1
@@ -283,6 +231,7 @@ global:
     realtime:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
+      # tag: ""
       autoscaling:
         enabled: false
         minReplicas: 1
@@ -302,6 +251,7 @@ global:
       persistantVolumeClaimCreate: true
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
+      # tag: ""
       annotations:
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
@@ -340,6 +290,7 @@ global:
     widget:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
+      # tag: ""
       autoscaling:
         enabled: false
         minReplicas: 1
