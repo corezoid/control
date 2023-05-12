@@ -10,8 +10,8 @@ data:
       "control": {
         "token": {{- include "control.token" . | quote }},
         "host": "{{- include "control.Domain" . }}",
-        "protocol": "{{ .Values.control.protocol | default "https://" }}",
-        "insecure_skip_verify": "{{ .Values.control.insecure_skip_verify | default "false" }}"
+        "protocol": "{{ .Values.global.control.protocol | default "https://" }}",
+        "insecure_skip_verify": "{{ .Values.global.control.insecure_skip_verify | default "false" }}"
       },
       "postgres": {
       {{- if .Values.global.db.bouncer }}
