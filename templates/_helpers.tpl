@@ -153,3 +153,12 @@ Create block for init-wait containers
 {{- .Values.global.control.apiSubDomain }}.{{ .Values.global.domain }}
 {{- end -}}
 {{- end -}}
+
+
+{{- define "common.ServiceMonitor.apiVersion" -}}
+monitoring.coreos.com/v1
+{{- end -}}
+
+{{- define "common.ServiceMonitor.metadata.labes" -}}
+simulator.observability/scrape: "true"
+{{- end -}}

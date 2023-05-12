@@ -9,33 +9,26 @@ data:
     port: {{ .Values.global.control.cronPort }} # Application port
     apiVersion: "{{ .Values.global.control.apiVersion }}" # API version
     apiSecret: {{ .Values.global.control.apiSecret }} # Secret for submitting requests between Control applications.
-    browserExtensionsSecret: {{ .Values.global.control.browserExtensionsSecret }}
-    googleApiKey: {{ .Values.global.control.googleApiKey }}
     superAdminApiKey: {{ .Values.global.control.superAdminApiKey }} # Superadmin API key
-    locales: {{- range .Values.global.control.locales }} # Supported localizations
-      - {{.}}{{- end }}
-    timeZone: {{ .Values.global.control.timeZone }} # Time zone from which time is calculated in notification letters.
+    superAdminApiKeyPrifix: {{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }} # Prefix for Admin key
     enableAPI: true # Enable api mode
     enableCrons: true # Enable cron mode
     logLevel: {{ .Values.global.control.loglevel | default "custom" }}
-    session:
-      ttl: {{ .Values.global.control.session.ttl }}
-      cookieName: {{ .Values.global.control.session.cookieName }}
+    http2: false
 
     connectors:
       apiLogin: {{ .Values.global.control.connectors.apiLogin }}
       apiSecret: {{ .Values.global.control.connectors.apiSecret }}
       convId: {{ .Values.global.control.connectors.convId }}
-      syncApiUrl: {{ .Values.global.control.connectors.syncApiUrl }}
 
     auth: # Auth settings via Single Account
       disablePublicApiCheck: {{ .Values.global.control.auth.disablePublicApiCheck }}
       name: {{ .Values.global.control.auth.name }}
       saSecretKey: {{ .Values.global.control.auth.key }}
       url: https://{{ .Values.global.control.auth.domain }}
+
     trackUrl: https://{{- include "control.Domain" . }} # Control Admin domain
     apiCorezoid: https://{{ .Values.global.control.apiCorezoidDomain }} # Corezoid Api domain
-    adminCorezoid: https://{{ .Values.global.control.adminCorezoidDomain }} # Corezoid Admin domain
     corezoidSyncApiUrl: {{ .Values.global.control.corezoidSyncApiUrl }}
 
     db: # PostgreSQL settings
@@ -84,15 +77,11 @@ data:
         idle: 30000
 
     corezoid: # Corezoid processes settings
-      apiSecret: "{{ .Values.global.control.corezoid.apiSecret }}"
-      companyId: {{ .Values.global.control.corezoid.companyId }} # Corezoid company ID with Control processes
       processes:
         sendEmail: # Corezoid process for send email
           directUrl: {{ .Values.global.control.corezoid.processes.sendEmail.directUrl }}
-          convId: {{ .Values.global.control.corezoid.processes.sendEmail.convId }}
         accRegistrations: # Corezoid process for Control registrations
           directUrl: {{ .Values.global.control.corezoid.processes.accRegistrations.directUrl }}
-          convId: {{ .Values.global.control.corezoid.processes.accRegistrations.convId }}
 
     requestLimits:
       ip: {{ .Values.global.control.requestLimits.ip }}
@@ -102,7 +91,7 @@ data:
 
     webConfig: # Client settings while startup
       avatarPath: https://{{ .Values.global.control.auth.domain }}/avatars/52x52/{userId}.jpg # Avatar regexp
-      systemUserAvatar: https://{{- include "control.Domain" . }}/static/systemUserAvatar.svg # System suer avatar
+      systemUserAvatar: https://{{- include "control.Domain" . }}/static/systemUserAvatar.svg # System super avatar
       adminCorezoid: https://{{ .Values.global.control.adminCorezoidDomain }} # Corezoid Admin domain
       widgetUrl: https://{{- include "control.WidgetDomain" . }} # Control widget host
       supportEmail: {{ .Values.global.control.webConfig.supportEmail }} # Email for support
@@ -115,10 +104,6 @@ data:
       {{- if .Values.global.control.webConfig.googleAnalytics }}
       googleAnalytics: {{ .Values.global.control.webConfig.googleAnalytics }}
       {{- end }}
-
-    channels:
-      gmail:
-        clientId: {{ .Values.global.control.channels.gmail.clientId }}
-        clientSecret: {{ .Values.global.control.channels.gmail.clientSecret }}
-        ignoredDomains: {{- range .Values.global.control.channels.gmail.ignoredDomains }}
-          - {{.}}{{- end }}
+      {{- if .Values.global.control.webConfig.fileMimeTypes }}
+      fileMimeTypes: {{ .Values.global.control.webConfig.fileMimeTypes }}
+      {{- end }}

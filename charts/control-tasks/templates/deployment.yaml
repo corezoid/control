@@ -33,12 +33,9 @@ spec:
       securityContext:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
       initContainers:
-        {{ include "InitWait.postgres" . | nindent 8 }}
-
-        {{ include "InitWait.bouncer" . | nindent 8 }}
-
-        {{ include "InitWait.redis" . | nindent 8 }}
-
+        {{- include "InitWait.postgres" . | nindent 8 }}
+        {{- include "InitWait.bouncer" . | nindent 8 }}
+        {{- include "InitWait.redis" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -48,8 +45,14 @@ spec:
           env:
             - name: CONTROL_TASKS_CONFIG
               value: /ebsmnt/conf/config.yml
-          {{ include "control-tasks.liveness" . | nindent 10 }}
-          {{ include "control-tasks.readiness" . | nindent 10 }}
+          {{- if .Values.global.serviceMonitor }}
+          {{- if .Values.global.serviceMonitor.enabled }}
+          ports:
+            - containerPort: {{ .Values.appReadinessHttpPort | default "9100" }}
+          {{- end }}
+          {{- end }}
+          {{- include "control-tasks.liveness" . | nindent 10 }}
+          {{- include "control-tasks.readiness" . | nindent 10 }}
           volumeMounts:
             - name: {{ .Values.appName }}-config-volume
               mountPath: /ebsmnt/conf/config.yml
@@ -67,7 +70,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.global.control.tolerations }}
-
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

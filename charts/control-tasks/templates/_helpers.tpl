@@ -53,9 +53,6 @@ livenessProbe:
   failureThreshold: 3
 {{- end }}
 
-{{- define "control.token" }}
-{{- if .Values.global.control.auth.disablePublicApiCheck }}
-{{- .Values.global.control.superAdminApiKey }}
-{{- else -}}mst_{{ .Values.global.control.superAdminApiKey }}
-{{- end }}
-{{- end }}
+{{- define "control.token" -}}
+{{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }}{{ .Values.global.control.superAdminApiKey }}
+{{- end -}}

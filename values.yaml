@@ -153,7 +153,10 @@ global:
       cookieName: "sc_prod"
     requestLimits:
       ip: -1
-
+    # Schema of simulator domain: http|https (default: https)
+    protocol: https
+    # Skip or not ssl certificate verify: true|false (default: false)
+    insecure_skip_verify: false
     auth:
       # Auth settings via Single Account
       disablePublicApiCheck: true

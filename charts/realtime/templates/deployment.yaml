@@ -3,14 +3,14 @@ kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
   labels:
-{{- include "realtime.labels" . | nindent 4 }}
+    {{- include "realtime.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.global.control.realtime.autoscaling.enabled }}
   replicas: {{ .Values.global.control.realtime.autoscaling.minReplicas }}
   {{- end }}
   selector:
     matchLabels:
-{{- include "realtime.labels" . | nindent 6 }}
+      {{- include "realtime.labels" . | nindent 6 }}
 {{- with .Values.global.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
@@ -25,7 +25,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
-{{- include "realtime.labels" . | nindent 8 }}
+        {{- include "realtime.labels" . | nindent 8 }}
     spec:
       {{- if .Values.global.control.terminationGracePeriodSeconds.front }}
       terminationGracePeriodSeconds: {{ .Values.global.control.terminationGracePeriodSeconds.front }}
