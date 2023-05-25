@@ -274,6 +274,7 @@ global:
           memory: 500Mi
 
     cron:
+      app_enabled: true
       autoscaling:
         enabled: false
         minReplicas: 1

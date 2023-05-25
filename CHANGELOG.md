@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.17] - 2023-05-25
+### Helm changes
+- New applications versions:
+	server/cron - 5.14.0
+	frontend - 5.14.1
+	control-tasks - 1.0.13
+	realtime - 1.1.6
+
+- Add new parameter .`Values.global.control.cron.app_enabled` for future switch from `cron` to `tasks` (need add to values file with `true` value, e.g. `app_enabled: true`).
+- Add new parameter `Values.global.control.server.allow_autotests` for future autotest (no change in `values.yaml` need)
+
+#### Improvements
+ 1. In the Actors bag settings form, a new field called "owner" has been added to the filters. This allows filtering actors based on their owner.
+ In the public API "actors_filter," a new field called "ownerId" has been added.
+ 2. Transactions now include additional fields: "account_hold_amount" and "available_amount," providing more details about the transaction.
+ 3. The default size of the actor's sidebar panel has been increased. There is no longer a horizontal scroll on the tabs.
+ 4. Various bug fixes and optimizations have been implemented, resulting in improvements and enhancements.
+
+
 ## [0.3.15] - 2023-04-03
 ### Helm changes
 - New applications versions:

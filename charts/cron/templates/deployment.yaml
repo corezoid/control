@@ -55,7 +55,7 @@ spec:
             - name: ENABLE_API
               value: "true"
             - name: ENABLE_CRONS
-              value: "true"
+              value: "{{ if .Values.global.control.cron.app_enabled }}true{{ else }}false{{ end }}"
             - name: CONTROL_CONFIG_FILENAME
               value: control_{{ .Values.appName }}.yml
             - name: CONTROL_CONFIG_PATH

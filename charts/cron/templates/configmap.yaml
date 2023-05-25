@@ -12,7 +12,7 @@ data:
     superAdminApiKey: {{ .Values.global.control.superAdminApiKey }} # Superadmin API key
     superAdminApiKeyPrifix: {{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }} # Prefix for Admin key
     enableAPI: true # Enable api mode
-    enableCrons: true # Enable cron mode
+    enableCrons: {{ if .Values.global.control.cron.app_enabled }}true{{ else }}false{{ end }} # Enable cron mode
     logLevel: {{ .Values.global.control.loglevel | default "custom" }}
     http2: false
 

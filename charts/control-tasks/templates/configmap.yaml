@@ -34,5 +34,21 @@ data:
         "port": {{ .Values.global.redis.secret.data.port | default "6379" }},
         "database": {{ .Values.global.control.redisDb | default 0 }},
         "password": "{{ .Values.global.redis.secret.data.password | default "" }}"
+      }{{- if not .Values.global.control.cron.app_enabled }},
+      "metrics": {
+        "port": {{ .Values.appReadinessHttpPort | default "9100" }}
+      },
+      "sa": {
+        "url": "https://{{ .Values.global.control.auth.domain }}",
+        "secretKey": {{ .Values.global.control.auth.key | quote }},
+        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+      },
+      "connectors": {
+        "convId": {{ .Values.global.control.connectors.convId }},
+        "apiLogin": {{ .Values.global.control.connectors.apiLogin }},
+        "apiSecret": {{ .Values.global.control.connectors.apiSecret | quote }},
+        "url": {{ .Values.global.control.corezoidSyncApiUrl | quote }},
+        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
       }
+    {{- end }}
     }
