@@ -61,11 +61,11 @@ data:
       access_log /dev/stdout main;
       error_log  /dev/stdout;
 
-      # resolver kube-dns.kube-system.svc.cluster.local valid=10s;
+      resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
       location ~ ^/api/(.*) {
-        proxy_pass https://{{ template "control.Domain" . }}/api/$1$is_args$args;
-        # proxy_pass http://server-service.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.global.control.serverPort }}/api/$1$is_args$args;
+        # proxy_pass https://{{ template "control.Domain" . }}/api/$1$is_args$args;
+        proxy_pass http://server-service.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.global.control.serverPort }}/api/$1$is_args$args;
       }
 
       location = /realtime {

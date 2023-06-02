@@ -1,3 +1,4 @@
+{{ if .Values.global.control.cron.app_enabled }}
 {{- if .Values.global.serviceMonitor -}}
 {{- if .Values.global.serviceMonitor.enabled -}}
 apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
@@ -15,5 +16,6 @@ spec:
   - path: {{ .Values.prometheusPath | default "/metrics" }}
     targetPort: {{ .Values.global.control.cronPort | default "9100" }}
     interval: {{ .Values.prometheusInterval | default "15s" }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
