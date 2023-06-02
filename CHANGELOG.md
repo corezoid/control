@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.18] - 2023-05-31
+### Helm changes
+- New applications versions:
+	server/cron - 5.15.2
+	frontend - 5.15.1
+	realtime - 2.0.0
+	widget - v1.0.43
+
+#### Improvements
+1. Implemented actor copying functionality.
+1.1. The Actors bag provides 2 options:
+Make copy: creates a single copy of an actor.
+Multiple copy: specifies the number of copies, from 1 to 50, and launches an asynchronous process to create the required number of copies.
+1.2. Scripts: Only the Make copy option is available, which also copies the script content (pages, config, locale) and Corezoid process connection parameters.
+1.3. Communications: Only the Make copy option is available, working similarly to the Actors bag.
+When creating a copy of an actor, its ref, links, access rights, and attachments are not copied.
+However, the access rights from the form will be inherited, as in the normal actor creation conditions.
+2. By default, when granting access rights to workspace objects to the workspace owner, all access rights are given.
+3. Added functionality to create a new workspace from the Simulator interface, without switching to Single space.
+4. Updated the Manage access rules form. The Done button is inactive until Add is pressed.
+5. Bug fix implemented.
+
+Widget
+1. Implemented functionality to confirm that the conversation will not be anonymous:
+If a user accesses the chat widget installed on any website and already has an active session in that browser at https://admin.control.events/, they will see a window where they can choose to:
+
+Start an anonymous conversation
+Start a conversation under the current account
+This determines how the user profile will be displayed in the operator's admin panel (anonymously or not).
+2. Styled the system button "New Conversation" to match the widget's color.
+3. Added support for SSO authentication in the widget. Instructions for usage will be available in the upcoming documentation releases.
+4. Fixed a bug with chat activation on certain screen resolutions of mobile devices.
+Scripts
+1. Added hotkeys for undo/redo in the script editor.
+2. Implemented backend support for real-time script execution. The functionality will be available in upcoming versions.
+3. Bug fix implemented.
+
+
 ## [0.3.17] - 2023-05-25
 ### Helm changes
 - New applications versions:
@@ -24,6 +62,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  4. Various bug fixes and optimizations have been implemented, resulting in improvements and enhancements.
 
 
+## [0.3.16] - 2023-04-03
+### Helm changes
+- New applications versions:
+	server/cron - 5.12.0
+	frontend - 5.12.1
+	control-tasks - 1.0.11
+	widget - v1.0.42
+
+
 ## [0.3.15] - 2023-04-03
 ### Helm changes
 - New applications versions:
@@ -41,7 +88,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 "insecure_skip_verify": "{{ .Values.control.insecure_skip_verify | default "false" }}"
 ```
 - Add files `monitoring.yaml` for tasks, frontend, realtime, server templates and defines for future monitoring.
-- Remove `Service` for `control-tasks`.
 
 #### Improvements
 1. User profile functionality has been implemented to establish communication between any actor in the workspace and the user. In the left sidebar, a Profile section has been added, which is a system layer of an actor associated with the user. By default, it is a default actor without custom parameters.
