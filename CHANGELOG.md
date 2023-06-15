@@ -5,6 +5,115 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.19] - 2023-06-08
+### Helm changes
+- Applications versions:
+	server - 5.17.0
+	frontend - 5.17.2
+	realtime - 2.0.0
+	control-tasks - 2.1.0
+	widget - v1.0.45
+
+- `Cron` application is deprecated in current helm version. Before `helm upgrade ...` in values file set `.Values.global.control.cron.app_enabled` to `false`. 
+- Reatime: Add port for metrics. Can set `.Values.global.control.realtimeMetricsPort` or will be use default port `9100`
+- Ingress: Add 
+```
+more_set_headers X-Real-IP $remote_addr;
+more_set_headers X-Forwarded-For $http_x_forwarded_for;
+```
+for forward real user IP in widget.
+
+#### Improvements
+1. We have implemented the functionality for group actions on Accounts.
+
+In the Accounts section, you can select multiple accounts and grant access rights to all pairs associated with these accounts in bulk. Please note that access will only be granted to those pairs for which you have the Edit permission.
+If you navigate inside a specific Account, you can select multiple pairs and mass assign access rights to them or manage tags for these pairs in bulk.
+2. We have introduced access rules mapping during the import of .graph files.
+This feature allows you to inherit the access rights that were present in the exported file onto users and groups within the workspace where the import is being performed.
+Mapping can be performed in a one-to-many manner.
+
+3. In all sections where group actions are available, we have implemented the Multiple choice feature using the Shift key.
+
+4. We have developed a real-time expiration script for scripts running in events.
+
+5. We have added the functionality to drag and drop images onto the graph.
+
+6. We have replaced the control-crons service with control-tasks. This service is responsible for executing asynchronous tasks. It is more optimized than its predecessor.
+
+7. Added a comment stream on the graph:
+
+Layer's reactions: reactions related to the layer itself.
+Comment area: a stream of events with their comments created on this layer using the lasso tool.
+To open the stream, click on the "Stream" button on the bottom panel while on any layer.
+7.1. When creating an event using the lasso tool, a modal window now opens with a standard event creation form. This allows us to manage access rights to different events on the same layer.
+
+8. Added the ability to quickly switch between periods in transaction filters in the Transactions section. Switching is done using the < or > arrows. For example, if a 30-day period is selected and the arrow is pressed, the period will change forward or backward by 30 days in a single click, and the corresponding data list will be loaded.
+
+9. Added an API method to retrieve accounts for a list of actors.
+
+10. Implemented the backend for triggers on accounts. The functionality will be available in the next release on production.
+
+11. Fixed a bug.
+
+Scripts:
+1. In the notifications component, we have enabled line breaks in notifications.
+
+2. Added tooltip support as a property for components like labels and buttons. https://control.events/script.html#tag/label
+
+3. Implemented real-time functionality in Scripts:
+How it works: The server (Corezoid) can call the public API to send a real-time package of changes to a specific user on a specific script page.
+Any changes supported by the script protocol can be passed in real-time, including changes, notifications, and ctrl.
+Example request:
+POST
+{baseUrl}/pages/realtime/{scriptActorId}/{env}/{page}
+
+baseUrl: The host of the public API (e.g., https://api.control.events/v/1.0)
+scriptActorId: The actorId of the script
+env: production or develop
+page: The identifier of the page (e.g., index)
+
+Body:
+
+```json
+{
+    "data": {
+        "changes": [
+            {
+                "id": "component-id",
+                "formId": "info"
+            }
+        ],
+        "notifications": [
+            {
+                "title": "t1",
+                "type": "success"
+            }
+        ],
+        "ctrl": [
+            ["q", "w"]
+        ]
+    },
+    "receivers": [
+        {
+            "userId": 1
+        }
+    ]
+}
+```
+
+ - changes: Follows the protocol specified at documentation https://control.events/script.html#operation/sendForm. The difference is that the formId parameter is required in each object. This allows making changes to any form on the same page using real-time.
+ - notifications: Follows the protocol specified at
+ - ctrl: Follows the protocol specified
+ - receivers[].userId: Retrieved from requests: `sessionData.userInfo.id`. Multiple active script users can be targeted with a single request.
+
+The response to the request will always be 'ok', even if the client did not receive the package of changes. For example, if the browser tab is closed or the user is already on another page.
+
+*The user's API must have access to scriptActorId to execute these requests.*
+
+Widget:
+1. Removed the display of reactions (Signed, Done, Rate) in the widget. The corresponding text messages are now displayed instead of labels.
+2. Removed the automatic zoom-in of the chat widget when opened on iOS.
+
 ## [0.3.18] - 2023-05-31
 ### Helm changes
 - New applications versions:
@@ -51,7 +160,7 @@ Scripts
 	control-tasks - 1.0.13
 	realtime - 1.1.6
 
-- Add new parameter .`Values.global.control.cron.app_enabled` for future switch from `cron` to `tasks` (need add to values file with `true` value, e.g. `app_enabled: true`).
+- Add new parameter `.Values.global.control.cron.app_enabled` for future switch from `cron` to `tasks` (need add to values file with `true` value, e.g. `app_enabled: true`).
 - Add new parameter `Values.global.control.server.allow_autotests` for future autotest (no change in `values.yaml` need)
 
 #### Improvements

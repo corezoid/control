@@ -53,6 +53,9 @@ spec:
             - name: ws
               containerPort: {{ .Values.global.control.realtimePort }}
               protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /

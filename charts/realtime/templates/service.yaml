@@ -13,4 +13,7 @@ spec:
       targetPort: {{ .Values.global.control.realtimePort }}
       protocol: TCP
       name: ws
-
+    - port: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
+      targetPort: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
+      protocol: TCP
+      name: metrics

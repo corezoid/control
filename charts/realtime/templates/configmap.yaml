@@ -29,6 +29,9 @@ data:
       pool:
         max: 50
         idle: 30000
+    metrics:
+      port: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
+
 kind: ConfigMap
 metadata:
   name: {{ .Values.appName }}-configmap
