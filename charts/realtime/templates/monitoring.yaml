@@ -13,7 +13,7 @@ spec:
       {{- include "realtime.labels" . | nindent 6 }}
   endpoints:
   - path: {{ .Values.prometheusPath | default "/metrics" }}
-    targetPort: {{ .Values.global.control.realtimePort }}
+    targetPort: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
     interval: {{ .Values.prometheusInterval | default "15s" }}
 {{- end -}}
 {{- end -}}
