@@ -2,9 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 global:
-
   # second level domain only! / core domain (example: control.local)
   domain: "control.local"
+  serviceMonitor:
+    enabled: false
   #######  PostgreSQL  ########
   ## Supported version  from 9.6.* <
   ## for RDS minimum instance - db.t3.medium / master user set "postgres"
@@ -110,7 +111,7 @@ global:
   imageInit:
     repository: docker-hub.middleware.biz/hub.docker.com/library/alpine
     pullPolicy: IfNotPresent
-    tag: "3.13"
+    tag: "3.18"
 
   deploymentStrategy:
     type: RollingUpdate
@@ -132,7 +133,6 @@ global:
     product: "control"
     # Applications ports
     serverPort: 9000
-    cronPort: 9001
     realtimePort: 9005
     frontendPort: 80
     widgetPort: 80
@@ -274,22 +274,7 @@ global:
           memory: 500Mi
 
     cron:
-      app_enabled: true
-      autoscaling:
-        enabled: false
-        minReplicas: 1
-        maxReplicas: 1
-      annotations:
-        prometheus.io/path: /metrics
-        prometheus.io/port: "9000"
-        prometheus.io/scrape: "true"
-      resources:
-        limits:
-          cpu: 200m
-          memory: 600Mi
-        requests:
-          cpu: 50m
-          memory: 100Mi
+      app_enabled: false
 
     widget:
       pullPolicy: Always

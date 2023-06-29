@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.20] - 2023-06-21
+### Helm changes
+- Removed subchart for `Cron` and cron's parameters
+- Renamed `postgres-secret` and `postres-secret-root`
+- Add `annotations` in Secret for postgres
+- Add new parameter in values file for postgres annotation `.Values.global.control.secret.postgres.annotations`
+- Add `https://*.onfido.com` in `Content-Security-Policy`
+- Applications versions:
+	server - 5.19.0
+	frontend - 5.19.0
+	realtime - 2.0.0
+	control-tasks - 2.2.0
+	widget - v1.0.47
+
+#### Improvements
+1. Implemented Triggers functionality.
+Triggers are used to receive signals (via webhook API Key) about reaching target balances or transaction counts on accounts.
+A Trigger is an actor created in the system as AccountTriggers.
+A Trigger can be applied to an account balance or transaction count, as well as total, debit, or credit.
+A Trigger can have an end date, which is the date after which the trigger conditions will no longer be checked.
+A Trigger can be checked periodically.
+Triggers are divided into three zones: lower, normal, and upper. The zone settings are controlled by the parameters: Lower target value and Upper target value.
+Once a change in the zone occurs, corresponding to a change in the account balance or transaction count, a webhook with type "trigger" is sent with signal details.
+Triggers are added only to the accountName_currency pair. Therefore, any actor associated with that pair will have the trigger applied.
+To use a Trigger, access needs to be granted to the API key for the accountName_currency pair and the Trigger actor.
+In the interface, the trigger history can be viewed. To access the history, click on the Trigger history icon next to the accountName_currency parameter added to the actor. Alternatively, select the Trigger history section in the Trigger actor's menu.
+In the history, the delivery status of the webhook can be viewed, along with the details that were sent, and the signal can be resent.
+
+2. Increased the limit for sending atomic transactions to 20 per request. https://control.events/api.html#operation/createTransactionAtomic
+
+3. Optimized/improved the search for actors and forms in the interface.
+
+4. Implemented a balance display format - seconds. It can be configured in the accountName_currency pair creation/edit interface.
+The account balance is converted to seconds.
+For example:
+Balance: 100 - Displayed as 1 min 40 sec
+Balance: 3600 - Displayed as 1 hour
+Balance: 86,401 - Displayed as 1 day 1 sec
+
+5. Updated the component for working with emojis in the interface and fixed bugs related to emoji usage.
+
+6. Added a method description for creating an accountName_currency pair to the documentation. https://control.events/api.html#operation/postAccounts
+
+Scripts:
+1. Modified the settings for authorization of anonymous users to allow embedding the anonymous script (Anyone with the link) as an iFrame on any websites.
+
+2. Implemented the ability to customize the preloader on scripts using CSS:
+.progressBar
+
+{ color: red !important; }
+
+Widget:
+1. Added the ability to pass the real IP address of the user accessing via the widget in the meta info.
+
+2. Implemented a callback system for the widget events:
+
+When the messenger is opened, you can hook into the event using the following function argument:
+```
+ctrl('webWidget', 'onOpen', function() { // Do stuff }
+);
+```
+
+When the messenger is closed, you can hook into the event using the following function argument:
+```
+ctrl('webWidget', 'onClose', function() { // Do stuff }
+);
+```
+
+
 ## [0.3.19] - 2023-06-08
 ### Helm changes
 - Applications versions:
