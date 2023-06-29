@@ -92,7 +92,7 @@ nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers X-Forwarded-For $http_x_forwarded_for;
       add_header X-Content-Type-Options nosniff;
       more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
-      more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }};";
+      more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }};";
       if ($request_uri ~ "/index.html") {
         more_set_headers "Cache-Control: no-cache";
         more_set_headers "Cache-Control: no-store";
@@ -164,3 +164,21 @@ monitoring.coreos.com/v1
 {{- define "common.ServiceMonitor.metadata.labes" -}}
 simulator.observability/scrape: "true"
 {{- end -}}
+
+{{- define "control.postgresSecretName" -}}
+{{- .Release.Name }}-control-{{ .Values.global.db.secret.name }}
+{{- end -}}
+
+{{- define "control.postgresSecretNameRoot" -}}
+{{- .Release.Name }}-control-{{ .Values.global.db.secret.name }}-root
+{{- end -}}
+
+{{- define "control.postgresSecretAnnotations" -}}
+{{ if .Values.global.control.secret -}}
+{{ if .Values.global.control.secret.postgres -}}
+{{ if .Values.global.control.secret.postgres.annotations -}}
+{{ toYaml .Values.global.control.secret.postgres.annotations }}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{{- end }}

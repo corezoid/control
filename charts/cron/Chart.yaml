@@ -1,6 +1,0 @@
-apiVersion: v2
-name: cron
-description: A Helm chart for Control Server
-type: application
-version: 0.3.16
-appVersion: 5.13.1

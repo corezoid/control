@@ -21,10 +21,6 @@ spec:
 
         - podSelector:
             matchLabels:
-              tier: cron
-
-        - podSelector:
-            matchLabels:
               tier: realtime
 
         - namespaceSelector:
