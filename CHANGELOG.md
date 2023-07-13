@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `linkedInPartnerId` and `metaPixelId` optional parameters
 - Applications versions:
 	server - 5.22.0
-	frontend - 5.22.0
+	frontend - 5.22.1
 	realtime - 3.0.0
 	control-tasks - 2.4.0
 	widget - v1.0.50
