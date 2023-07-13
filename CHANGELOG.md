@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.22] - 2023-07-12
+### Helm changes
+- Add `opentelemetry` for future monitoring
+- Add `linkedInPartnerId` and `metaPixelId` optional parameters
+- Applications versions:
+	server - 5.22.0
+	frontend - 5.22.0
+	realtime - 3.0.0
+	control-tasks - 2.4.0
+	widget - v1.0.50
+
+#### Improvements
+1. Added functionality for group sharing of actors on the graph. Select multiple actors using Shift or lasso -> Share access and grant access rights.
+2. Newly created actors are now immediately added to the Recent section in Actors bag.
+3. Added support for formula calculations over a period of time.
+4. Implemented backend for transfers (transactions between multiple actors). A new section called Transfers will be available in future versions
+5. Created an API filter for parameters of nested actors.
+6. Implemented an API for searching by "ref" in nested actors.
+7. Started adding the newly created actor to the "Recent" section in the Actors bag.
+8. The text field does not resize during event description editing.
+9. By default, the workspace owner is granted "Edit" permissions for actors.
+10. Fixed the bug that prevented entering numbers with a dot or comma in the "amount" field of the transaction creation form.
+
+Scripts
+1. Added screenshots and more descriptions to each component in the documentation.
+2. Added a Style section to the documentation - https://control.events/script.html#tag/style - providing an example of how to change the color theme for your script. Also added CSS support to components that previously did not have it.
+3. Added input mask support for the Edit component.
+4. Added a script protocol parameter for controlling the opening of external links (in a new or current tab).
+5. Enabled the execution of changes on submit for any forms on the page. (Previously, changes could only be made to the form on which the submit occurred). The changes object should include a formId parameter for executing such changes.
+Example:
+```
+{
+  "code": 200,
+  "data": {
+    "changes": [
+      {
+        "id": "componentId",
+        "formId": "anotherFormId",
+        "visibility": "hidden"
+      }
+    ]
+  }
+}
+```
+6. Added support for resettable (removing selected value) in the select component - https://control.events/script.html#tag/select.
+7. Integrated with Onfido (Digital ID Verification) at the widget component level.
+https://control.events/script.html#tag/widget -> type: onfido
+8. Enabled applying changes to the extra attribute in the widget component.
+9. Added the "copy" component. The copy chip allows copying information to the clipboard. It can also be used within the table component. https://control.events/script.html#tag/copy
+10. Added tooltips to all folders and objects within folders in the script constructor.
+11. Added more examples in the style of: https://control.events/script.html#tag/style
+
+
 ## [0.3.20] - 2023-06-21
 ### Helm changes
 - Removed subchart for `Cron` and cron's parameters

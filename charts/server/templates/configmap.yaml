@@ -107,3 +107,23 @@ data:
       {{- if .Values.global.control.webConfig.fileMimeTypes }}
       fileMimeTypes: {{ .Values.global.control.webConfig.fileMimeTypes }}
       {{- end }}
+      {{- if .Values.global.control.webConfig.linkedInPartnerId }}
+      linkedInPartnerId: {{ .Values.global.control.webConfig.linkedInPartnerId }}
+      {{- end }}
+      {{- if .Values.global.control.webConfig.metaPixelId }}
+      metaPixelId: {{ .Values.global.control.webConfig.metaPixelId }}
+      {{- end }}
+    {{- if .Values.global.control.opentelemetry }}
+    {{- if .Values.global.control.opentelemetry.tracing }}
+    tracing:
+      enable: {{ .Values.global.control.opentelemetry.tracing.enabled | default false }}
+    {{- end }}
+    {{- if .Values.global.control.opentelemetry.profiling }}
+    {{- if .Values.global.control.opentelemetry.profiling.enabled }}
+    profiling:
+      pyroscope:
+        serverAddress: {{ .Values.global.control.opentelemetry.profiling.pyroscope.serverAddress }}
+        appName: control-server
+    {{- end }}
+    {{- end }}
+    {{- end }}
