@@ -14,7 +14,7 @@ data:
     enableAPI: ${ENABLE_API} # Enable api mode
     enableCrons: false # Enable cron mode
     logLevel: {{ .Values.global.control.loglevel | default "custom" }}
-    http2: false
+    http2: {{ .Values.global.control.http2 | default false }}
 
     connectors:
       apiLogin: {{ .Values.global.control.connectors.apiLogin }}
@@ -113,10 +113,11 @@ data:
       {{- if .Values.global.control.webConfig.metaPixelId }}
       metaPixelId: {{ .Values.global.control.webConfig.metaPixelId }}
       {{- end }}
-    {{- if .Values.global.control.opentelemetry }}
+    {{- if .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}
     tracing:
       enable: {{ .Values.global.control.opentelemetry.tracing.enabled | default false }}
+      serverAddress: {{ .Values.global.control.opentelemetry.tracing.serverAddress }}
     {{- end }}
     {{- if .Values.global.control.opentelemetry.profiling }}
     {{- if .Values.global.control.opentelemetry.profiling.enabled }}

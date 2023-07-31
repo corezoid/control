@@ -362,6 +362,11 @@ global:
     #               operator: In
     #               values:
     #                 - control-1
+    opentelemetry:
+      enabled: false
+      tracing:
+        enabled: false
+        serverAddress: ''
 
   sa:
     subDomain: "account.corezoid.local"
