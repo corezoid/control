@@ -28,10 +28,14 @@ Readiness
 {{- define "server.readiness" -}}
 readinessProbe:
   httpGet:
+{{- if .Values.global.control.http2 }}
+    scheme: HTTPS
+{{- else }}
     scheme: HTTP
+{{- end }}
     path: /api/sa/1.0/check/readiness
     port: {{ .Values.global.control.serverPort }}
-  initialDelaySeconds: 10
+  initialDelaySeconds: 20
   periodSeconds: 5
   timeoutSeconds: 5
   successThreshold: 1
@@ -45,7 +49,7 @@ Liveness
 livenessProbe:
   tcpSocket:
     port: {{ .Values.global.control.serverPort }}
-  initialDelaySeconds: 15
+  initialDelaySeconds: 25
   periodSeconds: 10
   timeoutSeconds: 5
   successThreshold: 1
