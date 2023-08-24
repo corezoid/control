@@ -113,6 +113,9 @@ data:
       {{- if .Values.global.control.webConfig.metaPixelId }}
       metaPixelId: {{ .Values.global.control.webConfig.metaPixelId }}
       {{- end }}
+      {{- if .Values.global.control.webConfig.apiGateway }}
+      apiGateway: {{ .Values.global.control.webConfig.apiGateway }}
+      {{- end }}
     {{- if .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}
     tracing:
