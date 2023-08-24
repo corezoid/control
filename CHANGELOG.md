@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.24] - 2023-08-19
+### Helm changes
+- Add `apiGateway` parameter in `server` configmap
+- Applications versions:
+    server - 5.27.2
+    frontend - 5.27.0
+    realtime - 3.0.3
+    control-tasks - 2.8.0
+    widget - v1.4.0
+
+#### Improvements
+[Release notes Simulator (5.25.0)](https://doc.corezoid.com/docs/simulator-5250) 02.08.2023
+1. Implemented the Actor card view functionality. You can configure the actor card on the actor creation/edit form under the "Actors Card" tab. In the constructor, you can specify what information from the actor will be displayed on the card. Available options include:
+
+Avatar
+Preview of any selected layer
+Account balances (up to 3)
+Actor fields (up to 2)
+Actor description
++ You can add a button that will trigger a selected online chat widget.
+To open an actor's card on the graph, select "Show actor card" from the context menu. This way, for selected actors, their card can be displayed on the graph, providing more informative content than just avatar + title.
+2. Implemented graph loading from cache. While synchronization of changes is ongoing, the graph is available in read-only mode. After synchronization is complete, the graph can be edited. This is done to speed up the loading of large graphs.
+3. Started adding actor change history:
+Event about sharing rights during actor creation.
+The initial value of a field.
+Scripts
+1. Added the ability to embed a comments widget in scripts.
+To do this:
+
+In the script constructor, add the actorId of the comments widget to the widgets file:
+```
+{ "ctrlSettings": Unknown macro: \{ "webComments"}
+}
+```
+
+To add the comments widget to a page, add a widget component of type webComments. [Script Widget Documentation](https://control.events/script.html#tag/widget)
+2. Introduced a new OTP component - [OTP Component Documentation](https://control.events/script.html#tag/otp)
+ 
+
+[Release notes Simulator (5.26.0)](https://doc.corezoid.com/docs/simulator-5260) 09.08.2023
+1. Added a progress bar when adding images to a layer.
+
+Bugfix
+1. Fixed an issue with duplicating actors when moving them between layers.
+2. Fixed the display of dropdown lists when they were hidden behind a form. They should now open above the form.
+  
+
+[Release notes Simulator (5.27.2)](https://doc.corezoid.com/docs/simulator-5270) 19.08.2023
+1. Implemented an API endpoint for uploading base64-encoded images:
+`/upload/base64/{accId}`
+Input data example:
+
+```
+{ "file": "iVBORw0KGgoA...", "originalName": "fileName.png" }
+```
+
+2. Enabled the ability to edit currencies for all users who have the permission `ACCOUNTS_MANAGEMENT` in the single space.
+
+Bugfix
+1. Fixed a case where sharing did not work when cloning an actor if a participant was removed from the workspace.
+2. Fixed errors that occurred when editing a transaction filter.
+3. Fixed email sending when creating a new event in https://admin.control.events/.
+
+
 ## [0.3.23] - 2023-07-26
 ### Helm changes
 - Switch to a public `redis` image
