@@ -16,13 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - widget - v1.5.0  
 
 #### Improvements
-####1. Implemented dashboard functionality.  
+#### 1. Implemented dashboard functionality.  
 Dashboards are graphical panels with data sources that include account balances or the number of transactions on them. Dashboards can be displayed as charts on graphs. Dashboard chart is an actor in the Dashboards system form.  
 
 How to add/create a chart:  
-#####1.1. In the Actors bag, create an actor in the system form: Dashboards.  
-#####1.2. Click the "Add chart" button on the layer.  
-#####1.3. On the graph, use lasso to select actors, choose "Add chart," and a chart will be automatically created using the selected account_currency pair on this graph (top right). You can then edit and refine this dashboard.  
+##### 1.1. In the Actors bag, create an actor in the system form: Dashboards.  
+##### 1.2. Click the "Add chart" button on the layer.  
+##### 1.3. On the graph, use lasso to select actors, choose "Add chart," and a chart will be automatically created using the selected account_currency pair on this graph (top right). You can then edit and refine this dashboard.  
 
  - Title: Dashboard name
  - Chart type: Bar, Line, Pie, Doughnut, Funnel, Table
@@ -34,20 +34,20 @@ How to add/create a chart:
  - Use actor's color: If checked, the dashboard will use actor colors; if not, random colors from the library will be used for dashboard construction.
  - Display the total: If checked, the dashboard will display the total, which is the automatically calculated sum of all added metrics. If not checked, the total will not be displayed.
 
-####2. Added the ability to export transactions and transfers along with accounts.
+#### 2. Added the ability to export transactions and transfers along with accounts.
    This is an optional feature configured in the Import & Export section -> Export -> Edit (on an already formed selection). Check the "Export accounts with transactions and transfers" option.
-####3. Implemented an error page. In case the service is not working, the user will be directed to this page with the option to refresh it.
-####4. Set the default graph and layer name based on the name of the first actor added to the layer.
-####5. Improved the rename function throughout the system.
-####6. Added a search function for extra parameters in the transaction list interface.
-####7. Enabled customization of actor images added to the graph. To do this, go to the contextual menu of the actor-image on the graph -> Customize image. Available actions include changing opacity, bringing to the front or sending to the back, and resizing.
-####8. Added an "Invite users" button in the left sidebar for quick user collaboration.
-####9. Added an API icon for users. Now, near the API user's avatar in any part of the system, a mini API icon is displayed to quickly visually distinguish regular users from API users.
-####10. Scripts: Added support for the "skipSubmitOnChange" parameter to all components that support "submitOnChange." To ignore the next "submitOnChange," set "skipSubmitOnChange": true in the changes for the relevant component. To stop ignoring, set "skipSubmitOnChange": false. After ignoring a submit, the component will work in standard mode.
-####11. Implemented the ability to export the entire workspace. This can be done in the Import & Export section. Workspace export is available for roles Owner and Admin. It exports all entities in the workspace without additional access rights checks. The generated file will be no different from the one formed during partial export and can be imported into another workspace or environment.
-####12. Improved export considering the case when deleted actors are present in the data of an actor. Now, in such cases, there will be no error, and the export will proceed based on the "as is" principle, and it will be imported the same way.
-####13. Bugfix: Fixed a bug where file export failed due to permissions granted to a group.
-####14. Bugfix: Fixed UI bugs in the actor card constructor and its display on the graph.
+#### 3. Implemented an error page. In case the service is not working, the user will be directed to this page with the option to refresh it.
+#### 4. Set the default graph and layer name based on the name of the first actor added to the layer.
+#### 5. Improved the rename function throughout the system.
+#### 6. Added a search function for extra parameters in the transaction list interface.
+#### 7. Enabled customization of actor images added to the graph. To do this, go to the contextual menu of the actor-image on the graph -> Customize image. Available actions include changing opacity, bringing to the front or sending to the back, and resizing.
+#### 8. Added an "Invite users" button in the left sidebar for quick user collaboration.
+#### 9. Added an API icon for users. Now, near the API user's avatar in any part of the system, a mini API icon is displayed to quickly visually distinguish regular users from API users.
+#### 10. Scripts: Added support for the "skipSubmitOnChange" parameter to all components that support "submitOnChange." To ignore the next "submitOnChange," set "skipSubmitOnChange": true in the changes for the relevant component. To stop ignoring, set "skipSubmitOnChange": false. After ignoring a submit, the component will work in standard mode.
+#### 11. Implemented the ability to export the entire workspace. This can be done in the Import & Export section. Workspace export is available for roles Owner and Admin. It exports all entities in the workspace without additional access rights checks. The generated file will be no different from the one formed during partial export and can be imported into another workspace or environment.
+#### 12. Improved export considering the case when deleted actors are present in the data of an actor. Now, in such cases, there will be no error, and the export will proceed based on the "as is" principle, and it will be imported the same way.
+#### 13. Bugfix: Fixed a bug where file export failed due to permissions granted to a group.
+#### 14. Bugfix: Fixed UI bugs in the actor card constructor and its display on the graph.
 
 
 ## [0.3.24] - 2023-08-19
