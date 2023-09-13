@@ -30,7 +30,7 @@ spec:
   {{- if .Values.global.control.ingress.tls }}
   tls:
     - hosts:
-        - {{- include "control.Domain" . -}}
+        - {{ include "control.Domain" . }}
       secretName: tls-control
   {{- end }}
   rules:
