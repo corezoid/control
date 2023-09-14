@@ -15,6 +15,9 @@ data:
     enableCrons: false # Enable cron mode
     logLevel: {{ .Values.global.control.loglevel | default "custom" }}
     http2: {{ .Values.global.control.http2 | default false }}
+    {{- if .Values.global.control.simulatorCloudUrl }}
+    simulatorCloudUrl: {{ .Values.global.control.simulatorCloudUrl }}
+    {{- end }}
 
     connectors:
       apiLogin: {{ .Values.global.control.connectors.apiLogin }}
@@ -115,6 +118,9 @@ data:
       {{- end }}
       {{- if .Values.global.control.webConfig.apiGateway }}
       apiGateway: {{ .Values.global.control.webConfig.apiGateway }}
+      {{- end }}
+      {{- if .Values.global.control.webConfig.gtagAnalytics }}
+      gtagAnalytics: {{ .Values.global.control.webConfig.gtagAnalytics }}
       {{- end }}
     {{- if .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}

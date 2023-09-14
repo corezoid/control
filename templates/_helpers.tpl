@@ -72,6 +72,9 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "control.ingressAnnotations" -}}
+{{- if .Values.global.control.ingress.tls }}
+cert-manager.io/cluster-issuer: letsencrypt
+{{- end }}
 {{- if (semverCompare ">=1.24-0" .Capabilities.KubeVersion.GitVersion) }}
 ingress.class: {{ .Values.global.control.ingress.className }}
 {{- end }}
