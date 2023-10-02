@@ -5,7 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.26] - 2023-09-06
+
+## [0.3.26] - 2023-09-27
+### Helm changes
+- Applications versions:
+	- server - 5.33.0
+	- frontend - 5.33.0
+	- realtime - 3.0.4
+	- control-tasks - 2.13.0
+	- widget - v1.7.0
+
+### Improvements
+
+#### 1. New types of accounts have been introduced: String and Actor ID, and the Accounts page in the actor's panel has been redesigned.  
+#### 2. Improved the display of icons on user avatars through the API. They now appear in all places in the Simulator.  
+#### 3. Added a new section in the Simulator - Outer Graph.  
+   Outer Graph is a public graph where any company (workspace) owner can configure their company's card and publish it to the public graph for interaction with clients and partners.
+#### 4. Implemented the opening of custom actor creation forms through the Actors bag.  
+   If a system form is selected when creating an actor in the Actors bag:  
+   Dashboards, TransfersFilter, AccountTriggers, ActorFilters, TransactionFilters  
+   Then a non-standard custom form will automatically open for these forms, as this form is specific to each of these types of actors.
+#### 5. Dashboards improvements:  
+##### 5.1. In the dashboard constructor, the ability to sort accounts on the chart has been added.  
+##### 5.2. In the dashboard constructor, the ability to configure a legend that will be displayed on the chart has been added.  
+#### 6. In the mobile version, a "Make transfer" button has been added to the main screen for quick transfer creation from a smartphone or tablet.  
+#### 7. Import/export:  
+   Made it possible to import without deleted objects in the actor's data.  
+   If there are deleted objects in the actor's data:  
+   Objects: actors, currencies, actor names  
+   They are deleted from the structure during export, and the export is done without these fields. Accordingly, during import, these fields will not be present in the actor's model.  
+#### 8. Optimized the API for retrieving transactions and transfers. Response time has significantly decreased.  
+
+### Scripts:  
+#### 1. Added functionality for auto-submit for the Button component.  
+   https://control.events/script.html#tag/button  
+   extra.autoSubmit  
+#### 2. Introduced a new toggle component.  
+   https://control.events/script.html#tag/toggle  
+#### 3. Introduced a new slider component.  
+   https://control.events/script.html#tag/slider  
+#### 4. In the table component, added functionality for clickable rows in the table.  
+   https://control.events/script.html#tag/table  
+   body[].clickable  
+
+### Bug Fixes:  
+#### 1. Fixed a case where it was impossible to revoke access rights to an actor for a user.  
+#### 2. Fixed a bug where custom actor colors were not saved when creating a new actor.  
+#### 3. Fixed the display of the select component. Sometimes, an empty space was added at the end of the list.  
+
+
+## [0.3.25] - 2023-09-06
 ### Helm changes
 - Add `apiGateway` parameter in `server` configmap  
 - Applications versions:  

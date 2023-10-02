@@ -63,7 +63,7 @@ data:
       charset utf-8;
       etag off;
       index index.html;
-      client_max_body_size 50m;
+      client_max_body_size {{ printf "%dm" (div .Values.global.control.webConfig.maxFileSize 1048576) }};
 
       # gzip
       gzip on;
@@ -140,7 +140,7 @@ data:
       charset utf-8;
       etag off;
 
-      client_max_body_size 50m;
+      client_max_body_size {{ printf "%dm" (div .Values.global.control.webConfig.maxFileSize 1048576) }};
 
       # gzip
       gzip on;
@@ -169,7 +169,7 @@ data:
       }
 
       location /v/1.0 {
-        client_max_body_size 50m;
+        client_max_body_size {{ printf "%dm" (div .Values.global.control.webConfig.maxFileSize 1048576) }};
         proxy_pass http://server-service:{{ .Values.global.control.serverPort }}/papi/1.0;
       }
     }

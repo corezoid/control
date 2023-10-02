@@ -13,6 +13,16 @@ data:
         "protocol": "{{ .Values.global.control.protocol | default "https" }}",
         "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
       },
+      "corezoid": {
+        "host": "https://{{ .Values.global.control.apiCorezoidDomain }}",
+        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+      },
+      {{- if .Values.global.control.apiGWDomain }}
+      "apigw": {
+        "host": "https://{{ .Values.global.control.apiGWDomain }}",
+        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+      },
+      {{- end }}
       "postgres": {
       {{- if .Values.global.db.bouncer }}
         "host": "pgbouncer-service",
@@ -38,16 +48,18 @@ data:
       "metrics": {
         "port": {{ .Values.appReadinessHttpPort | default "9100" }}
       },
-      "sa": {
-        "url": "https://{{ .Values.global.control.auth.domain }}",
-        "secretKey": {{ .Values.global.control.auth.key | quote }},
-        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
-      },
+    {{- if .Values.global.control.connectors }}
       "connectors": {
         "convId": {{ .Values.global.control.connectors.convId }},
         "apiLogin": {{ .Values.global.control.connectors.apiLogin }},
         "apiSecret": {{ .Values.global.control.connectors.apiSecret | quote }},
         "url": {{ .Values.global.control.corezoidSyncApiUrl | quote }},
+        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+      },
+    {{- end }}
+      "sa": {
+        "url": "https://{{ .Values.global.control.auth.domain }}",
+        "secretKey": {{ .Values.global.control.auth.key | quote }},
         "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
       }
     {{- end }}
