@@ -19,11 +19,6 @@ data:
     simulatorCloudUrl: {{ .Values.global.control.simulatorCloudUrl }}
     {{- end }}
 
-    connectors:
-      apiLogin: {{ .Values.global.control.connectors.apiLogin }}
-      apiSecret: {{ .Values.global.control.connectors.apiSecret }}
-      convId: {{ .Values.global.control.connectors.convId }}
-
     auth: # Auth settings via Single Account
       disablePublicApiCheck: {{ .Values.global.control.auth.disablePublicApiCheck }}
       name: {{ .Values.global.control.auth.name }}
@@ -117,7 +112,9 @@ data:
       metaPixelId: {{ .Values.global.control.webConfig.metaPixelId }}
       {{- end }}
       {{- if .Values.global.control.webConfig.apiGateway }}
-      apiGateway: {{ .Values.global.control.webConfig.apiGateway }}
+      apiGateway:
+        ref: {{ .Values.global.control.webConfig.apiGateway.ref }}
+        workspaceId: {{ .Values.global.control.webConfig.apiGateway.workspaceId }}
       {{- end }}
       {{- if .Values.global.control.webConfig.gtagAnalytics }}
       gtagAnalytics: {{ .Values.global.control.webConfig.gtagAnalytics }}

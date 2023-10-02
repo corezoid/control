@@ -173,13 +173,13 @@ global:
     # Sub-domain for Control Widget
     widgetSubDomain: "widget"
 
-    connectors:
-      # SyncApi API login
-      apiLogin: 123456
-      # SyncApi API secret
-      apiSecret: "lnNhDfAWxCp6N1m7yLtiMtnCqhgkfsWSDau15WXGFv7xoaPiir"
-      convId: 54321
-      syncApiUrl: "https://sync-api.corezoid.local"
+    # connectors:
+    #   # SyncApi API login
+    #   apiLogin: 123456
+    #   # SyncApi API secret
+    #   apiSecret: "lnNhDfAWxCp6N1m7yLtiMtnCqhgkfsWSDau15WXGFv7xoaPiir"
+    #   convId: 54321
+    #   syncApiUrl: "https://sync-api.corezoid.local"
     corezoidSyncApiUrl: "https://sync-api.corezoid.local"
 
     corezoid:
