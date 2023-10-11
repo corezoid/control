@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.3.27] - 2023-10-04
+### Helm changes
+- Applications versions:
+	- server - 5.34.0
+	- frontend - 5.34.1
+	- realtime - 3.0.4
+	- control-tasks - 2.14.0
+	- widget - v1.8.0
+
+### Improvements
+
+#### 1. Added new functionality Filters in Events  
+   Filters are applied based on the event creation date and event owner.  
+   The filter can be applied to all events (All stream) and within a specific stream.  
+   The filter resets when the Events section is closed or when the page is refreshed.  
+
+#### 2. Improved Import/Export functionality. Now, all actor relationships with the hierarchy type are exported and imported along with the actors.  
+
+#### 3. Added a new attachment component. Suitable for simultaneous uploading of multiple files. https://control.events/script.html#tag/attachment  
+
+#### 4. Increased the maximum file size that can be uploaded to the cloud version to 100 MB. https://admin.control.events/  
+
+#### 5. For event types: updateReaction and deleteReaction received via the user API webhook, added the parameter payload.treeInfo.rootActorFormId to the data model.  
+
+#### 6. For public API methods:  
+   getAccountNames - https://control.events/api.html#operation/getAccountNames  
+   getCurrencies - https://control.events/api.html#operation/getCurrencies  
+   Changed the default value of the withStats parameter.  
+   The new default value for withStats is false.  
+   Note: If you pass withStats: false, the method will work much faster.  
+
+### Bug Fixes:  
+#### 1. Fixed the display of the API key avatar in the chat widget.  
+
+#### 2. Fixed bulk tag replacement in the settings for the Currency_Account pair.  
+
+#### 3. Fixed the formation of the sessionData object for SSO users, which is sent to the script process receiver. Now, the sessionData structure is consistent with what is sent for users with other types of authorization.  
+
+
 ## [0.3.26] - 2023-09-27
 ### Helm changes
 - Applications versions:
