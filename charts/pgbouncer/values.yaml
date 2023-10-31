@@ -3,4 +3,4 @@ image:
   registry: docker-hub.middleware.biz
   repository: /pgbouncer
   repotype: public
-  tag: 1.14.0-alpine3.15
+  tag: 1.20.1-alpine3.18-2

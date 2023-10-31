@@ -1,66 +1,58 @@
+{{- $global_data := .Values.global }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.appName }}-configmap
+  name: {{ include "control.tasks.configmap.name" . }}
   labels:
-{{- include "control-tasks.labels" . | nindent 4 }}
+    {{- include "control-tasks.labels" . | nindent 4 }}
 data:
-  config.yml: |
+  {{ .Values.configName }}: |
     {
       "control": {
-        "token": {{- include "control.token" . | quote }},
-        "host": "{{- include "control.Domain" . }}",
-        "protocol": "{{ .Values.global.control.protocol | default "https" }}",
-        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+        "token": "${CONTROL_TOKEN}",
+        "host": "${CONTROL_HOST}",
+        "protocol": "${CONTROL_PROTOCOL}",
+        "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
       "corezoid": {
         "host": "https://{{ .Values.global.control.apiCorezoidDomain }}",
-        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+        "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
       {{- if .Values.global.control.apiGWDomain }}
       "apigw": {
         "host": "https://{{ .Values.global.control.apiGWDomain }}",
-        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+        "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
       {{- end }}
       "postgres": {
-      {{- if .Values.global.db.bouncer }}
-        "host": "pgbouncer-service",
-      {{- else }}
-        "host": "{{ .Values.global.db.secret.data.dbhost }}",
-      {{- end }}
-      {{- if .Values.global.db.bouncer }}
-        "port": {{ .Values.global.db.bouncer_port }},
-      {{- else }}
-        "port": {{ .Values.global.db.secret.data.dbport }},
-      {{- end }}
-        "database": "{{ .Values.global.db.secret.data.dbname | default "control" }}",
-        "user": "{{ .Values.global.db.secret.data.dbuser }}",
-        "password": "{{ .Values.global.db.secret.data.dbpwd }}",
-        "sslMode": "{{ .Values.global.db.secret.data.sslmode | default "disable" }}"
+        "host": "${DB_HOST}",
+        "port": ${DB_PORT},
+        "database": "${DB_NAME}",
+        "user": "${DB_USER}",
+        "password": "${DB_PASSWORD}",
+        "sslMode": "${DB_SSLMODE}"
       },
       "redis": {
-        "host": "{{ .Values.global.redis.secret.data.host }}",
-        "port": {{ .Values.global.redis.secret.data.port | default "6379" }},
-        "database": {{ .Values.global.control.redisDb | default 0 }},
-        "password": "{{ .Values.global.redis.secret.data.password | default "" }}"
-      }{{- if not .Values.global.control.cron.app_enabled }},
+        "host": "${REDIS_HOST}",
+        "port": ${REDIS_PORT},
+        "database": ${REDIS_DATABASE},
+        "password": "${REDIS_PASSWORD}"
+      },
       "metrics": {
         "port": {{ .Values.appReadinessHttpPort | default "9100" }}
       },
-    {{- if .Values.global.control.connectors }}
+      {{- if $global_data.control.connectors }}
       "connectors": {
-        "convId": {{ .Values.global.control.connectors.convId }},
-        "apiLogin": {{ .Values.global.control.connectors.apiLogin }},
-        "apiSecret": {{ .Values.global.control.connectors.apiSecret | quote }},
-        "url": {{ .Values.global.control.corezoidSyncApiUrl | quote }},
-        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+        "convId": ${CONFIG_CONNECTORS_CONVID},
+        "apiLogin": ${CONFIG_CONNECTORS_APILOGIN},
+        "apiSecret": "${CONFIG_CONNECTORS_APISECRET}",
+        "url": "${CONFIG_CONNECTORS_COREZOID_SYNCAPI_URL}",
+        "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
-    {{- end }}
+      {{- end }}
       "sa": {
-        "url": "https://{{ .Values.global.control.auth.domain }}",
-        "secretKey": {{ .Values.global.control.auth.key | quote }},
-        "insecure_skip_verify": {{ .Values.global.control.insecure_skip_verify | default false }}
+        "url": "${CONFIG_SA_URL}",
+        "secretKey": "${CONFIG_SA_SECRETKEY}",
+        "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       }
-    {{- end }}
     }

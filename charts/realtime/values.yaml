@@ -5,3 +5,5 @@ image:
   repository: ctrl-realtime
 
 hpa_mem: false
+configPath: "/ebsmnt/conf"
+configName: "control_realtime.yml"

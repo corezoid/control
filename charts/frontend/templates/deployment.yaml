@@ -1,21 +1,24 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $control_data_frontend := $global_data.control.frontend }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
   labels:
-{{- include "control.frontend.labels" . | nindent 4 }}
+    {{- include "control.frontend.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.global.control.frontend.autoscaling.enabled }}
-  replicas: {{ .Values.global.control.frontend.autoscaling.minReplicas }}
+  {{- if not $control_data_frontend.autoscaling.enabled }}
+  replicas: {{ $control_data_frontend.autoscaling.minReplicas }}
   {{- end }}
   selector:
     matchLabels:
-{{- include "control.frontend.labels" . | nindent 6 }}
-{{- with .Values.global.deploymentStrategy }}
+      {{- include "control.frontend.labels" . | nindent 6 }}
+{{- with $global_data.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-    {{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+    {{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
@@ -25,25 +28,25 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
-{{- include "control.frontend.labels" . | nindent 8 }}
+        {{- include "control.frontend.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.global.control.terminationGracePeriodSeconds.front }}
-      terminationGracePeriodSeconds: {{ .Values.global.control.terminationGracePeriodSeconds.front }}
+      {{- if $control_data.terminationGracePeriodSeconds.front }}
+      terminationGracePeriodSeconds: {{ $control_data.terminationGracePeriodSeconds.front }}
       {{- end }}
-      {{- if not (eq .Values.global.repotype "public") }}
+      {{- if not (eq $global_data.repotype "public") }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}
+        - name: {{ $global_data.imagePullSecrets.name }}
       {{- end }}
       serviceAccountName: ""
       securityContext:
-        {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
+        {{- toYaml $control_data.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Values.appName }}
           image: {{ include "control.frontend.imageUrl" . | quote }}
-          imagePullPolicy: {{ .Values.global.control.frontend.pullPolicy }}
+          imagePullPolicy: {{ $control_data_frontend.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.global.control.frontendPort }}
+              containerPort: {{ $control_data.frontendPort }}
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -64,7 +67,7 @@ spec:
             successThreshold: 1
             failureThreshold: 3
           resources:
-            {{- toYaml .Values.global.control.frontend.resources | nindent 12 }}
+            {{- toYaml $control_data_frontend.resources | nindent 12 }}
           volumeMounts:
             - name: config-nginx
               mountPath: /etc/nginx/nginx.conf
@@ -76,7 +79,7 @@ spec:
               mountPath: /usr/share/nginx/html/config.json
               subPath: config.json
             - name: {{ .Values.appName }}-attachments
-              mountPath: {{ .Values.global.control.filesStorage.eventFiles }}
+              mountPath: {{ $control_data.filesStorage.eventFiles }}
       volumes:
         - name: config-nginx
           configMap:
@@ -84,21 +87,21 @@ spec:
         - name: config-site
           configMap:
             name: {{ .Values.appName }}-site-configmap
-        {{- if .Values.global.control.server.persistantVolumeClaimCreate }}
+        {{- if $control_data.server.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
-            claimName: {{ .Values.global.control.server.persistantVolumeClaimName }}
+            claimName: {{ $control_data.server.persistantVolumeClaimName }}
             readOnly: true
         {{- end }}
-      {{- with .Values.global.control.nodeSelector }}
+      {{- with $control_data.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.affinity }}
+      {{- with $control_data.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.tolerations }}
+      {{- with $control_data.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

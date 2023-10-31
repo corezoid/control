@@ -1,6 +1,9 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $realtime_data := $control_data.realtime }}
 {{- if eq .Values.hpa_mem true }}
 {{- if semverCompare "<=1.22-0" .Capabilities.KubeVersion.Version -}}
-{{- if .Values.global.control.realtime.autoscaling.enabled }}
+{{- if $realtime_data.autoscaling.enabled }}
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -12,16 +15,16 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ .Values.appName }}-deployment
-  minReplicas: {{ .Values.global.control.realtime.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.global.control.realtime.autoscaling.maxReplicas }}
+  minReplicas: {{ $realtime_data.autoscaling.minReplicas }}
+  maxReplicas: {{ $realtime_data.autoscaling.maxReplicas }}
   metrics:
-    {{- if .Values.global.control.realtime.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if $realtime_data.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.global.control.realtime.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ $realtime_data.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
   behavior:
     scaleUp:

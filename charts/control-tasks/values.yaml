@@ -7,3 +7,5 @@ image:
 appReadinessHttpPort: 9000
 appReadinessHttpPath: "/ready"
 appLivenessHttpPath: "/ready"
+configPath: "/ebsmnt/conf"
+configName: "config.yml"

@@ -5,15 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.28] - 2023-10-19
+### Helm changes
+- Parameters in applications configs are moved to deployment via env, transmitted through secrets
+- Optimization of nginx config and image reduction
+- Added additional settings and ingress for moving from one domain to another
+- Applications versions:
+    - server - 5.36.0
+    - frontend - 5.36.0
+    - realtime - 3.0.4
+    - control-tasks - 2.16.0
+    - widget - v1.9.0
+
+### Improvements
+
+#### 1. The visualization of an actor's history was improved
+#### 2. You can open the Events menu without using the left sidebar: Add the ?hideSidebar=true appendix to the event URL.
+#### 3. In the Preview mode of the Actors Card constructor, you can change the card opacity.
+#### 4. You can collapse and expand the dashboard actor on the graph.
+#### 5. YouTube Integration: Now, when an actor description or reaction text contains a link to a YouTube video, you'll see a YouTube video preview widget and will be able to launch the video directly from the platform.
+#### 6. In the Events split view mode, the Info and Details tabs have been merged into the Details tab with the Chat tab moved to the first position in the details window.
+#### 7. The Get list of transactions by account id method was added to the API documentation
+#### 8. Full-text search for actors has been optimized and works faster now.
+#### 9. Requests for granting and receiving access permissions are sent faster now.
+#### 10. On the Transactions page, you can export transactions as .csv and .xls files. When clicking Export, the export of all transactions that fully match the specified filter in the Transactions section starts.
+#### 11. On the Events page, you can receive sound and push notifications that you can configure in Notifications of the Settings section.
+#### 12. You can add reactions to actors within a third-party system, enhancing your engagement and interaction capabilities
+#### 13. You can filter events by:
+- Multiple owners simultaneously
+- To Do and To Sign categories
+#### 14. When creating a transaction against a text or actor ID account, the transaction value is now sent to the user's API webhook.
+#### 15. For the updateActor event type, the user's API webhook will now receive the additional diff field with the change object.
+#### 16. The Import & Export feature has been upgraded: Now, all types of connections are exported and imported along with the actor, making data management even more comprehensive.
+
+### Scripts
+#### 1. You can embed dashboards into scripts using the widget component. `extra.widgetUrl` must be formed this way: `{{{simulatorEnvUrl}/dashboard/{accId}/view/{actorId}}}`, where:
+##### a. `simulatorEnvUrl` is your Simulator’s URL (for example, https://admin.control.events).
+##### b. `accId` is your Workspace ID.
+##### c. `actorId` is your dashboard actor ID.
+#### 2. Use the modalHeader array for modal type sections. If the array isn't empty, the standard modal close cross won't be displayed, allowing you to customize the modal header and track cross clicks in your Process
+
 
 ## [0.3.27] - 2023-10-04
 ### Helm changes
 - Applications versions:
-	- server - 5.34.0
-	- frontend - 5.34.1
-	- realtime - 3.0.4
-	- control-tasks - 2.14.0
-	- widget - v1.8.0
+    - server - 5.34.0
+    - frontend - 5.34.1
+    - realtime - 3.0.4
+    - control-tasks - 2.14.0
+    - widget - v1.8.0
 
 ### Improvements
 
@@ -48,11 +88,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.26] - 2023-09-27
 ### Helm changes
 - Applications versions:
-	- server - 5.33.0
-	- frontend - 5.33.0
-	- realtime - 3.0.4
-	- control-tasks - 2.13.0
-	- widget - v1.7.0
+    - server - 5.33.0
+    - frontend - 5.33.0
+    - realtime - 3.0.4
+    - control-tasks - 2.13.0
+    - widget - v1.7.0
 
 ### Improvements
 
@@ -241,11 +281,11 @@ Scripts:
 - Add `opentelemetry` for future monitoring
 - Add `linkedInPartnerId` and `metaPixelId` optional parameters
 - Applications versions:
-	server - 5.22.0
-	frontend - 5.22.1
-	realtime - 3.0.0
-	control-tasks - 2.4.0
-	widget - v1.0.50
+    server - 5.22.0
+    frontend - 5.22.1
+    realtime - 3.0.0
+    control-tasks - 2.4.0
+    widget - v1.0.50
 
 #### Improvements
 1. Added functionality for group sharing of actors on the graph. Select multiple actors using Shift or lasso -> Share access and grant access rights.
@@ -297,11 +337,11 @@ https://control.events/script.html#tag/widget -> type: onfido
 - Add new parameter in values file for postgres annotation `.Values.global.control.secret.postgres.annotations`
 - Add `https://*.onfido.com` in `Content-Security-Policy`
 - Applications versions:
-	server - 5.19.0
-	frontend - 5.19.0
-	realtime - 2.0.0
-	control-tasks - 2.2.0
-	widget - v1.0.47
+    server - 5.19.0
+    frontend - 5.19.0
+    realtime - 2.0.0
+    control-tasks - 2.2.0
+    widget - v1.0.47
 
 #### Improvements
 1. Implemented Triggers functionality.
@@ -361,11 +401,11 @@ ctrl('webWidget', 'onClose', function() { // Do stuff }
 ## [0.3.19] - 2023-06-08
 ### Helm changes
 - Applications versions:
-	server - 5.17.0
-	frontend - 5.17.2
-	realtime - 2.0.0
-	control-tasks - 2.1.0
-	widget - v1.0.45
+    server - 5.17.0
+    frontend - 5.17.2
+    realtime - 2.0.0
+    control-tasks - 2.1.0
+    widget - v1.0.45
 
 - `Cron` application is deprecated in current helm version. Before `helm upgrade ...` in values file set `.Values.global.control.cron.app_enabled` to `false`. 
 - Reatime: Add port for metrics. Can set `.Values.global.control.realtimeMetricsPort` or will be use default port `9100`
@@ -470,10 +510,10 @@ Widget:
 ## [0.3.18] - 2023-05-31
 ### Helm changes
 - New applications versions:
-	server/cron - 5.15.2
-	frontend - 5.15.1
-	realtime - 2.0.0
-	widget - v1.0.43
+    server/cron - 5.15.2
+    frontend - 5.15.1
+    realtime - 2.0.0
+    widget - v1.0.43
 
 #### Improvements
 1. Implemented actor copying functionality.
@@ -508,10 +548,10 @@ Scripts
 ## [0.3.17] - 2023-05-25
 ### Helm changes
 - New applications versions:
-	server/cron - 5.14.0
-	frontend - 5.14.1
-	control-tasks - 1.0.13
-	realtime - 1.1.6
+    server/cron - 5.14.0
+    frontend - 5.14.1
+    control-tasks - 1.0.13
+    realtime - 1.1.6
 
 - Add new parameter `.Values.global.control.cron.app_enabled` for future switch from `cron` to `tasks` (need add to values file with `true` value, e.g. `app_enabled: true`).
 - Add new parameter `Values.global.control.server.allow_autotests` for future autotest (no change in `values.yaml` need)
@@ -527,19 +567,19 @@ Scripts
 ## [0.3.16] - 2023-04-03
 ### Helm changes
 - New applications versions:
-	server/cron - 5.12.0
-	frontend - 5.12.1
-	control-tasks - 1.0.11
-	widget - v1.0.42
+    server/cron - 5.12.0
+    frontend - 5.12.1
+    control-tasks - 1.0.11
+    widget - v1.0.42
 
 
 ## [0.3.15] - 2023-04-03
 ### Helm changes
 - New applications versions:
-	server/cron - 5.12.0
-	frontend - 5.12.1
-	control-tasks - 1.0.11
-	widget - v1.0.42
+    server/cron - 5.12.0
+    frontend - 5.12.1
+    control-tasks - 1.0.11
+    widget - v1.0.42
 
 - Add new block in `control-tasks` to work with `http` protocol (use `https://` by default):
 ```
@@ -578,16 +618,16 @@ If a file is attached to an actor, it cannot be deleted directly. First, the act
 2. The size of the text input field in the widget has been increased to accommodate up to 5 lines.
 
 #### Widget:
-1. The select component, type: autocomplete, has been improved. A 0.5-second delay has been added after text input completion before sending a "send" request to Corezoid.	
+1. The select component, type: autocomplete, has been improved. A 0.5-second delay has been added after text input completion before sending a "send" request to Corezoid.  
 
 
 ## [0.3.14] - 2023-04-19
 
 ### Helm changes
 - New applications versions:
-	server/cron - 5.10.2
-	frontend - 5.10.0
-	control-tasks - 1.0.11
+    server/cron - 5.10.2
+    frontend - 5.10.0
+    control-tasks - 1.0.11
 
 - Removed from server and cron configmaps next parameters:
 
@@ -601,13 +641,13 @@ session:
 connectors:
   syncApiUrl:
 corezoid:
-	apiSecret:
-	companyId:
-	processes:
-		sendEmail:
-			convId:
-		accRegistrations
-			convId:
+    apiSecret:
+    companyId:
+    processes:
+        sendEmail:
+            convId:
+        accRegistrations
+            convId:
 
 channels:
   gmail:
@@ -638,9 +678,9 @@ channels:
 
 ### Helm changes
 - New applications versions:
-	server/cron - 5.9.0
-	frontend - 5.9.0
-	widget - v1.0.38
+    server/cron - 5.9.0
+    frontend - 5.9.0
+    widget - v1.0.38
 
 #### Improvements
 1. Added the ability to use ">" and "<" in actor filters for custom fields with calendar type.
@@ -665,9 +705,9 @@ channels:
 ### Helm changes
 
 - New applications versions:
-	server/cron - 5.8.4
-	frontend - 5.8.0
-	widget - v1.0.38
+    server/cron - 5.8.4
+    frontend - 5.8.0
+    widget - v1.0.38
 - Add `wss://global.vss.twilio.com` to `Content-Security-Policy`
 - Fix `service` for `control-tasks` - set correct `targetPort`
 - Add possibility to set redis database - `.Values.global.control.redisDb` - set from 0 to 15 (default: 0 )

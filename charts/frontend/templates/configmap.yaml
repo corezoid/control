@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.appName }}-nginx-configmap
   labels:
-{{- include "control.frontend.labels" . | nindent 4 }}
+    {{- include "control.frontend.labels" . | nindent 4 }}
 data:
   nginx.conf: |
     user  nginx;
@@ -12,12 +12,12 @@ data:
     pid        /var/run/nginx.pid;
 
     events {
-        worker_connections  512000;
+        worker_connections  32000;
         multi_accept on;
     }
 
     http {
-        client_max_body_size 25m;
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         server_names_hash_bucket_size 128;
         include       /etc/nginx/mime.types;
         default_type  application/octet-stream;
@@ -46,24 +46,42 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.appName }}-site-configmap
   labels:
-{{- include "control.frontend.labels" . | nindent 4 }}
+    {{- include "control.frontend.labels" . | nindent 4 }}
 data:
   config.json: |
     {
       "apmHost": ""
     }
   control_{{ .Values.appName }}.conf: |
+    {{ if .Values.global.control.apiOld -}}
+    {{- if .Values.global.control.apiOld.enabled -}}
+    server {
+      listen {{ .Values.global.control.frontendPort }};
+      server_name {{ .Values.global.control.apiOld.controlSubDomainOld }}.{{ .Values.global.control.apiOld.mainDomain }};
+      client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
+
+      location / {
+        if ($request_method = POST) {
+          proxy_pass https://{{ include "control.Domain" . }};
+        }
+        if ($request_method != POST) {
+          return 301 https://{{ include "control.Domain" . }}$request_uri;
+        }
+      }
+    }
+    {{- end -}}
+    {{- end }}
     server {
       access_log /dev/stdout main;
       error_log  /dev/stdout;
 
       listen {{ .Values.global.control.frontendPort }};
-      server_name {{ template "control.Domain" . }};
+      server_name {{ include "control.Domain" . }};
 
       charset utf-8;
       etag off;
       index index.html;
-      client_max_body_size {{ printf "%dm" (div .Values.global.control.webConfig.maxFileSize 1048576) }};
+      client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
 
       # gzip
       gzip on;
@@ -105,14 +123,14 @@ data:
       }
 
       location /ws {
-        proxy_pass http://realtime-service:{{ .Values.global.control.realtimePort }};
+        proxy_pass http://realtime-service:{{ include "control.realtime.app_port" . }};
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
       }
 
       location ~ ^/api/1.0/download/(.*)?$request_uri$ {
-        client_max_body_size 50m;
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         proxy_set_header Connection "keep-alive";
         proxy_pass http://server-service:{{ .Values.global.control.serverPort }};
       }
@@ -122,25 +140,33 @@ data:
         alias {{ .Values.global.control.filesStorage.eventFiles }}/$1;
       }
 
-      location /api {
-        client_max_body_size 50m;
+      location ~ ^/(api|papi) {
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         proxy_set_header Connection "keep-alive";
         proxy_pass http://server-service:{{ .Values.global.control.serverPort }};
       }
 
     }
-{{- if .Values.global.control.apiSubDomain }}
+    {{- if .Values.global.control.apiSubDomain }}
     server {
       access_log /dev/stdout main;
       error_log  /dev/stdout;
 
       listen {{ .Values.global.control.frontendPort }};
+      {{ if .Values.global.control.apiOld -}}
+      {{- if .Values.global.control.apiOld.enabled -}}
+      server_name {{ include "control.ApiDomain" . }} {{ .Values.global.control.apiSubDomain }}.{{ .Values.global.control.apiOld.mainDomain }};
+      {{- else -}}
       server_name {{ include "control.ApiDomain" . }};
+      {{- end -}}
+      {{- else -}}
+      server_name {{ include "control.ApiDomain" . }};
+      {{- end }}
 
       charset utf-8;
       etag off;
 
-      client_max_body_size {{ printf "%dm" (div .Values.global.control.webConfig.maxFileSize 1048576) }};
+      client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
 
       # gzip
       gzip on;
@@ -169,8 +195,8 @@ data:
       }
 
       location /v/1.0 {
-        client_max_body_size {{ printf "%dm" (div .Values.global.control.webConfig.maxFileSize 1048576) }};
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         proxy_pass http://server-service:{{ .Values.global.control.serverPort }}/papi/1.0;
       }
     }
-{{- end }}
+    {{- end }}

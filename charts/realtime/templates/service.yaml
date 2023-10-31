@@ -9,11 +9,11 @@ spec:
     {{- include "realtime.labels" . | nindent 6 }}
   type: {{ .Values.global.control.service.type }}
   ports:
-    - port: {{ .Values.global.control.realtimePort }}
-      targetPort: {{ .Values.global.control.realtimePort }}
+    - port: {{ include "control.realtime.app_port" . }}
+      targetPort: {{ include "control.realtime.app_port" . }}
       protocol: TCP
       name: ws
-    - port: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
-      targetPort: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
+    - port: {{ include "control.realtime.metrics_port" . }}
+      targetPort: {{ include "control.realtime.metrics_port" . }}
       protocol: TCP
       name: metrics

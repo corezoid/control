@@ -1,0 +1,83 @@
+{{- define "control.container_envs_db" -}}
+{{- $db_secret_data := .Values.global.db.secret.data }}
+{{- if .Values.global.db.secret.create }}
+{{- $db_secret_name := ( include "control.postgresSecretName" . ) }}
+{{- if .Values.global.db.bouncer }}
+- name: DB_HOST
+  value: pgbouncer-service
+- name: DB_PORT
+  value: {{ .Values.global.db.bouncer_port }}
+{{- else }}
+- name: DB_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbhost
+- name: DB_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbport
+{{- end }}
+- name: DB_USER
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbuser
+- name: DB_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbpwd
+{{- if $db_secret_data.dbname }}
+- name: DB_NAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbname
+{{- else }}
+- name: DB_NAME
+  value: control
+{{- end }}
+{{- if $db_secret_data.sslmode }}
+- name: DB_SSLMODE
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: sslmode
+{{- else }}
+- name: DB_SSLMODE
+  value: disable
+{{- end }}
+{{- else }}
+{{- if .Values.global.db.bouncer }}
+- name: DB_HOST
+  value: pgbouncer-service
+- name: DB_PORT
+  value: {{ .Values.global.db.bouncer_port }}
+{{- else }}
+- name: DB_HOST
+  value: {{ $db_secret_data.dbhost }}
+- name: DB_PORT
+  value: {{ $db_secret_data.dbport }}
+{{- end }}
+- name: DB_USER
+  value: {{ $db_secret_data.dbuser }}
+- name: DB_PASSWORD
+  value: {{ $db_secret_data.dbpwd }}
+{{- if $db_secret_data.dbname }}
+- name: DB_NAME
+  value: {{ $db_secret_data.dbname }}
+{{- else }}
+- name: DB_NAME
+  value: control
+{{- end }}
+{{- if $db_secret_data.sslmode }}
+- name: DB_SSLMODE
+  value: {{ $db_secret_data.sslmode }}
+{{- else }}
+- name: DB_SSLMODE
+  value: disable
+{{- end }}
+{{- end }}
+{{- end }}

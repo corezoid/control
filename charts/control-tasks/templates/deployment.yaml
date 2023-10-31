@@ -1,75 +1,119 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
-  labels:
-{{- include "control-tasks.labels" . | nindent 4 }}
+  labels: {{- include "control-tasks.labels" . | nindent 4 }}
 spec:
   selector:
-    matchLabels:
-{{- include "control-tasks.labels" . | nindent 6 }}
-{{- with .Values.global.deploymentStrategy }}
+    matchLabels: {{- include "control-tasks.labels" . | nindent 6 }}
+{{- with $global_data.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+    {{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-{{- end }}
+    {{- end }}
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- include "control.control-tasks.annotations" . | nindent 4 }}
-      labels:
-{{- include "control-tasks.labels" . | nindent 8 }}
+      labels: {{- include "control-tasks.labels" . | nindent 8 }}
     spec:
-  {{- if not (eq .Values.global.repotype "public") }}
+      {{- if not (eq $global_data.repotype "public") }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}
-  {{- end }}
-      serviceAccountName: ""
+        - name: {{ $global_data.imagePullSecrets.name }}
+      {{- end }}
+      serviceAccountName: {{ .Values.appName }}-serviceaccount
       securityContext:
-        {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
+        {{- toYaml $control_data.podSecurityContext | nindent 8 }}
       initContainers:
         {{- include "InitWait.postgres" . | nindent 8 }}
         {{- include "InitWait.bouncer" . | nindent 8 }}
         {{- include "InitWait.redis" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.global.control.securityContext | nindent 12 }}
+          securityContext: {{- toYaml $control_data.securityContext | nindent 12 }}
           image: {{ include "control-tasks.imageUrl" . | quote }}
-          imagePullPolicy: {{ .Values.global.control.control_tasks.pullPolicy | default "IfNotPresent" }}
+          imagePullPolicy: {{ $control_data.control_tasks.pullPolicy | default "IfNotPresent" }}
           env:
             - name: CONTROL_TASKS_CONFIG
-              value: /ebsmnt/conf/config.yml
-          {{- if .Values.global.serviceMonitor }}
-          {{- if .Values.global.serviceMonitor.enabled }}
+              value: {{ include "control.tasks.app.configFullPath" . }}
+
+            - name: CONTROL_TOKEN
+              value: {{ include "control.token" . }}
+
+            - name: CONTROL_HOST
+              value: {{ include "control.Domain" . | quote }}
+
+            - name: CONTROL_PROTOCOL
+              value: {{ $control_data.protocol | default "https" | quote }}
+
+            - name: CONTROL_INSECURE_SKIP_VERIFY
+              value: "{{ $control_data.insecure_skip_verify | default false }}"
+
+            - name: CONFIG_SA_URL
+              value: "https://{{ $control_data.auth.domain }}"
+            - name: CONFIG_SA_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.configSecretName" . }}
+                  key: configSaSecretKey
+
+            - name: CONFIG_CONNECTORS_COREZOID_SYNCAPI_URL
+              value: {{ $control_data.corezoidSyncApiUrl | quote }}
+            {{- if .Values.global.control.connectors }}
+            - name: CONFIG_CONNECTORS_CONVID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.configSecretName" . }}
+                  key: configConnectorsConvId
+            - name: CONFIG_CONNECTORS_APILOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.configSecretName" . }}
+                  key: configConnectorsApiLogin
+            - name: CONFIG_CONNECTORS_APISECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.configSecretName" . }}
+                  key: configConnectorsApiSecret
+            {{- end }}
+            {{- include "control.container_envs_db" . | nindent 12 }}
+            {{- include "control.container_envs_redis" . | nindent 12 }}
+          {{- if $global_data.serviceMonitor }}
+          {{- if $global_data.serviceMonitor.enabled }}
           ports:
-            - containerPort: {{ .Values.appReadinessHttpPort | default "9100" }}
+            - name: readiness
+              containerPort: {{ .Values.appReadinessHttpPort | default "9100" }}
+              protocol: TCP
           {{- end }}
           {{- end }}
           {{- include "control-tasks.liveness" . | nindent 10 }}
           {{- include "control-tasks.readiness" . | nindent 10 }}
+          resources:
+            {{- toYaml $control_data.control_tasks.resources | nindent 12 }}
           volumeMounts:
             - name: {{ .Values.appName }}-config-volume
-              mountPath: /ebsmnt/conf/config.yml
-              subPath: config.yml
+              mountPath: {{ include "control.tasks.app.configFullPath" . }}
+              subPath: {{ .Values.configName }}
       volumes:
         - name: {{ .Values.appName }}-config-volume
           configMap:
-            name: {{ .Values.appName }}-configmap
-      {{- with .Values.global.control.nodeSelector }}
+            name: {{ include "control.tasks.configmap.name" .}}
+      {{- with $control_data.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.affinity }}
+      {{- with $control_data.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.tolerations }}
+      {{- with $control_data.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

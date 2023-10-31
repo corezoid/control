@@ -1,21 +1,21 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
-  labels:
-    {{- include "realtime.labels" . | nindent 4 }}
+  labels: {{- include "realtime.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.global.control.realtime.autoscaling.enabled }}
-  replicas: {{ .Values.global.control.realtime.autoscaling.minReplicas }}
-  {{- end }}
   selector:
-    matchLabels:
-      {{- include "realtime.labels" . | nindent 6 }}
-{{- with .Values.global.deploymentStrategy }}
+    matchLabels: {{- include "realtime.labels" . | nindent 6 }}
+{{- with $global_data.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-    {{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+  {{- if not $control_data.realtime.autoscaling.enabled }}
+  replicas: {{ $control_data.realtime.autoscaling.minReplicas }}
+  {{- end }}
+    {{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
@@ -24,17 +24,16 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-      labels:
-        {{- include "realtime.labels" . | nindent 8 }}
+      labels: {{- include "realtime.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.global.control.terminationGracePeriodSeconds.front }}
-      terminationGracePeriodSeconds: {{ .Values.global.control.terminationGracePeriodSeconds.front }}
-      {{- end }}
-      {{- if not (eq .Values.global.repotype "public") }}
+      {{- if not (eq $global_data.repotype "public") }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}
+        - name: {{ $global_data.imagePullSecrets.name }}
       {{- end }}
-      serviceAccountName: ""
+      {{- if $control_data.terminationGracePeriodSeconds.front }}
+      terminationGracePeriodSeconds: {{ $control_data.terminationGracePeriodSeconds.front }}
+      {{- end }}
+      serviceAccountName: {{ .Values.appName }}-serviceaccount
       securityContext:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
       initContainers:
@@ -42,20 +41,31 @@ spec:
 
       containers:
         - name: {{ .Chart.Name }}-realtime
-          securityContext:
-            {{- toYaml .Values.global.control.securityContext | nindent 12 }}
+          securityContext: {{- toYaml $control_data.securityContext | nindent 12 }}
           image: {{ include "realtime.imageUrl" . | quote }}
-          imagePullPolicy: {{ .Values.global.control.realtime.pullPolicy }}
+          imagePullPolicy: {{ $control_data.realtime.pullPolicy | default "IfNotPresent" }}
           env:
             - name: K8S
               value: "true"
+            - name: CONTROL_REALTIME_PORT
+              value: {{ include "control.realtime.app_port" . | quote }}
+            - name: CONTROL_REALTIME_SESSION_TTL
+              value: {{ .Values.global.control.session.ttl | quote }}
+            - name: CONTROL_REALTIME_SESSION_COOKIENAME
+              value: {{ .Values.global.control.session.cookieName | quote }}
+
+            {{- include "control.container_envs_redis" . | nindent 12 }}
           ports:
             - name: ws
-              containerPort: {{ .Values.global.control.realtimePort }}
+              containerPort: {{ include "control.realtime.app_port" . }}
               protocol: TCP
+          {{- if $global_data.serviceMonitor }}
+          {{- if $global_data.serviceMonitor.enabled }}
             - name: metrics
-              containerPort: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
+              containerPort: {{ include "control.realtime.metrics_port" . }}
               protocol: TCP
+          {{- end }}
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /
@@ -72,21 +82,21 @@ spec:
             {{- toYaml .Values.global.control.realtime.resources | nindent 12 }}
           volumeMounts:
             - name: {{ .Values.appName }}-config-volume
-              mountPath: /ebsmnt/conf/control_{{ .Values.appName }}.yml
-              subPath: control_realtime.yml
+              mountPath: {{ include "control.realtime.app.configFullPath" . }}
+              subPath: {{ .Values.configName }}
       volumes:
         - name: {{ .Values.appName }}-config-volume
           configMap:
-            name: {{ .Values.appName }}-configmap
-      {{- with .Values.global.control.nodeSelector }}
+            name: {{ include "control.realtime.configmap.name" . }}
+      {{- with $control_data.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.affinity }}
+      {{- with $control_data.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.tolerations }}
+      {{- with $control_data.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

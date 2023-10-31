@@ -1,39 +1,43 @@
+{{- $global_data := .Values.global }}
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "control.realtime.configmap.name" . }}
+  labels:
+{{- include "realtime.labels" . | nindent 4 }}
 data:
   control_realtime.yml: |
-    port: {{ .Values.global.control.realtimePort }}
+    port: ${CONTROL_REALTIME_PORT}
     session:
-      ttl: {{ .Values.global.control.session.ttl }}
-      cookieName: {{ .Values.global.control.session.cookieName }}
+      ttl: ${CONTROL_REALTIME_SESSION_TTL}
+      cookieName: ${CONTROL_REALTIME_SESSION_COOKIENAME}
     redis:
-      host: {{ .Values.global.redis.secret.data.host }}
-      port: {{ .Values.global.redis.secret.data.port }}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
       {{- if .Values.global.redis.secret.data.password }}
-      password: {{ .Values.global.redis.secret.data.password }}
+      password: ${REDIS_PASSWORD}
       {{- end }}
       {{- if .Values.global.control.redisDb }}
-      db: {{ .Values.global.control.redisDb }}
+      db: ${REDIS_DATABASE}
       {{- end }}
       pool:
         max: 50
         idle: 30000
     redisPubSub:
-      host: {{ .Values.global.redis.secret.data.host }}
-      port: {{ .Values.global.redis.secret.data.port }}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
       {{- if .Values.global.redis.secret.data.password }}
-      password: {{ .Values.global.redis.secret.data.password }}
+      password: ${REDIS_PASSWORD}
       {{- end }}
       {{- if .Values.global.control.redisDb }}
-      db: {{ .Values.global.control.redisDb }}
+      db: ${REDIS_DATABASE}
       {{- end }}
       pool:
         max: 50
         idle: 30000
+    {{- if $global_data.serviceMonitor }}
+    {{- if $global_data.serviceMonitor.enabled }}
     metrics:
-      port: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
-
-kind: ConfigMap
-metadata:
-  name: {{ .Values.appName }}-configmap
-  labels:
-{{- include "realtime.labels" . | nindent 4 }}
+      port: {{ include "control.realtime.metrics_port" . }}
+    {{- end }}
+    {{- end }}

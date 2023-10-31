@@ -1,4 +1,6 @@
 {{- if .Values.global.control.ingress.enabled -}}
+{{- if .Values.global.control.apiOld -}}
+{{- if .Values.global.control.apiOld.enabled -}}
 {{- $fullName := include "control.fullname" . -}}
 {{- $serverPort := .Values.global.control.serverPort -}}
 {{- $frontendPort := .Values.global.control.frontendPort -}}
@@ -18,7 +20,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ $fullName }}-widget-old
   labels:
     {{- include "control.labels" . | nindent 4 }}
   annotations:
@@ -30,49 +32,11 @@ spec:
   {{- if .Values.global.control.ingress.tls }}
   tls:
     - hosts:
-        - {{ include "control.Domain" . }}
+        - {{ .Values.global.control.widgetSubDomain | default "widget" }}.{{ .Values.global.control.apiOld.mainDomain }}
       secretName: tls-control
   {{- end }}
   rules:
-    - host: {{ include "control.Domain" . }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: {{ $frontendPort }}
-          - path: /ws
-            pathType: Exact
-            backend:
-              service:
-                name: realtime-service
-                port:
-                  number: {{ $realtimePort }}
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: server-service
-                port:
-                  number: {{ $serverPort }}
-          - path: /papi
-            pathType: Prefix
-            backend:
-              service:
-                name: server-service
-                port:
-                  number: {{ $serverPort }}
-          - path: "/api/1.0/download"
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: {{ $frontendPort }}
-    - host: {{ include "control.WidgetDomain" . }}
+    - host: {{ .Values.global.control.widgetSubDomain | default "widget" }}.{{ .Values.global.control.apiOld.mainDomain }}
       http:
         paths:
           - path: /
@@ -82,16 +46,6 @@ spec:
                 name: widget-service
                 port:
                   number: {{ $widgetPort }}
-{{- if .Values.global.control.apiSubDomain }}
-    - host: {{ include "control.ApiDomain" . }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: {{ $frontendPort }}
-{{- end }}
+{{- end -}}
+{{- end -}}
 {{- end -}}
