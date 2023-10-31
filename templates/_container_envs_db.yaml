@@ -6,7 +6,7 @@
 - name: DB_HOST
   value: pgbouncer-service
 - name: DB_PORT
-  value: {{ .Values.global.db.bouncer_port }}
+  value: "{{ .Values.global.db.bouncer_port }}"
 {{- else }}
 - name: DB_HOST
   valueFrom:
@@ -54,7 +54,7 @@
 - name: DB_HOST
   value: pgbouncer-service
 - name: DB_PORT
-  value: {{ .Values.global.db.bouncer_port }}
+  value: "{{ .Values.global.db.bouncer_port }}"
 {{- else }}
 - name: DB_HOST
   value: {{ $db_secret_data.dbhost }}
