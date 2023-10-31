@@ -3,5 +3,5 @@ name: control
 description: A Helm chart for Control
 icon: https://admin.control.events/static/logo.svg
 type: application
-version: 0.3.27
-appVersion: 5.34.1
+version: 0.3.28
+appVersion: 5.36.0

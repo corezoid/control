@@ -272,6 +272,13 @@ global:
         requests:
           cpu: 100m
           memory: 500Mi
+      config:
+        db:
+          pool:
+            acquire: 60000
+            idle: 20000
+            max: 200
+            min: 10
 
     cron:
       app_enabled: false

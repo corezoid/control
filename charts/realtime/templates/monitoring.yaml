@@ -1,5 +1,6 @@
-{{- if .Values.global.serviceMonitor -}}
-{{- if .Values.global.serviceMonitor.enabled -}}
+{{- $global_data := .Values.global }}
+{{- if $global_data.serviceMonitor -}}
+{{- if $global_data.serviceMonitor.enabled -}}
 apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
 kind: ServiceMonitor
 metadata:
@@ -13,7 +14,7 @@ spec:
       {{- include "realtime.labels" . | nindent 6 }}
   endpoints:
   - path: {{ .Values.prometheusPath | default "/metrics" }}
-    targetPort: {{ .Values.global.control.realtimeMetricsPort | default "9100" }}
+    targetPort: {{ include "control.realtime.metrics_port" . }}
     interval: {{ .Values.prometheusInterval | default "15s" }}
 {{- end -}}
 {{- end -}}

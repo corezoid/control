@@ -1,4 +1,7 @@
-{{- if .Values.global.control.realtime.autoscaling.enabled }}
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $realtime_data := $control_data.realtime }}
+{{- if $realtime_data.autoscaling.enabled }}
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
@@ -10,9 +13,9 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ .Values.appName }}-deployment
-  minReplicas: {{ .Values.global.control.realtime.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.global.control.realtime.autoscaling.maxReplicas }}
-  {{- if .Values.global.control.realtime.autoscaling.targetCPUUtilizationPercentage }}
-  targetCPUUtilizationPercentage: {{ .Values.global.control.realtime.autoscaling.targetCPUUtilizationPercentage }}
+  minReplicas: {{ $realtime_data.autoscaling.minReplicas }}
+  maxReplicas: {{ $realtime_data.autoscaling.maxReplicas }}
+  {{- if $realtime_data.autoscaling.targetCPUUtilizationPercentage }}
+  targetCPUUtilizationPercentage: {{ $realtime_data.autoscaling.targetCPUUtilizationPercentage }}
   {{- end }}
 {{- end }}

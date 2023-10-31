@@ -1,5 +1,6 @@
-{{- if .Values.global.serviceMonitor -}}
-{{- if .Values.global.serviceMonitor.enabled -}}
+{{- $global_data := .Values.global }}
+{{- if $global_data.serviceMonitor -}}
+{{- if $global_data.serviceMonitor.enabled -}}
 apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
 kind: PodMonitor
 metadata:

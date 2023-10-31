@@ -95,7 +95,7 @@ nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers X-Forwarded-For $http_x_forwarded_for;
       add_header X-Content-Type-Options nosniff;
       more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
-      more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://connect.facebook.net https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }};";
+      more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://*.control.events https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://connect.facebook.net https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }}{{ if .Values.global.control.apiOld -}}{{- if .Values.global.control.apiOld.enabled }} https://*.{{ .Values.global.control.apiOld.mainDomain }} https://{{ .Values.global.control.apiOld.mainDomain }}{{- end -}}{{- end -}};";
       if ($request_uri ~ "/index.html") {
         more_set_headers "Cache-Control: no-cache";
         more_set_headers "Cache-Control: no-store";
@@ -185,3 +185,35 @@ simulator.observability/scrape: "true"
 {{ end -}}
 {{ end -}}
 {{- end }}
+
+{{- define "control.redisSecretName" -}}
+{{- .Release.Name }}-control-{{ .Values.global.redis.secret.name }}
+{{- end -}}
+
+{{- define "control.redisSecretAnnotations" -}}
+{{ if .Values.global.control.secret -}}
+{{ if .Values.global.control.secret.redis -}}
+{{ if .Values.global.control.secret.redis.annotations -}}
+{{ toYaml .Values.global.control.secret.redis.annotations }}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{{- end }}
+
+{{- define "control.configSecretAnnotations" -}}
+{{ if .Values.global.control.secret -}}
+{{ if .Values.global.control.secret.config -}}
+{{ if .Values.global.control.secret.config.annotations -}}
+{{ toYaml .Values.global.control.secret.config.annotations }}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{{- end }}
+
+{{- define "control.configSecretName" -}}
+control-config-secret
+{{- end -}}
+
+{{- define "control.realtime.app_port" -}}
+{{ .Values.global.control.realtimePort | default 9005 }}
+{{- end -}}

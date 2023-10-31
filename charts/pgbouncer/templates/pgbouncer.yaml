@@ -130,7 +130,7 @@ spec:
             failureThreshold: 3
 
         - name: pgbouncer-exporter
-          image: docker-hub.middleware.biz/public/prometheus-pgbouncer-exporter:2.1.1-python3.7.13-alpine3.15
+          image: docker-hub.middleware.biz/public/prometheus-pgbouncer-exporter:2.1.1-python3.7.17-alpine3.18
           env:
             - name: PGBOUNCER_EXPORTER_HOST
               value: 0.0.0.0

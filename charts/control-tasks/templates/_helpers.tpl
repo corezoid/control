@@ -56,3 +56,11 @@ livenessProbe:
 {{- define "control.token" -}}
 {{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }}{{ .Values.global.control.superAdminApiKey }}
 {{- end -}}
+
+{{- define "control.tasks.configmap.name" -}}
+{{ .Values.appName }}-configmap
+{{- end -}}
+
+{{- define "control.tasks.app.configFullPath" -}}
+{{ .Values.configPath }}/{{ .Values.configName }}
+{{- end -}}

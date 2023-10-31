@@ -1,0 +1,66 @@
+{{- define "control.container_envs_redis" -}}
+{{- $redis_secret_data := .Values.global.redis.secret.data }}
+{{- if .Values.global.redis.secret.create }}
+{{- $redis_secret_name := ( include "control.redisSecretName" . ) }}
+- name: REDIS_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: host
+- name: REDIS_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: port
+- name: REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: password
+{{- if $redis_secret_data.database }}
+- name: REDIS_DATABASE
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: database
+{{- else }}
+- name: REDIS_DATABASE
+  value: "0"
+{{- end }}
+- name: REDIS_PUBSUB_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: host_PubSub
+- name: REDIS_PUBSUB_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: port_PubSub
+- name: REDIS_PUBSUB_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: password_PubSub
+{{- else }}
+- name: REDIS_HOST
+  value: {{ $redis_secret_data.host }}
+- name: REDIS_PORT
+  value: {{ $redis_secret_data.port }}
+- name: REDIS_PASSWORD
+  value: {{ $redis_secret_data.password }}
+{{- if $redis_secret_data.database }}
+- name: REDIS_DATABASE
+  value: {{ $redis_secret_data.database }}
+{{- else }}
+- name: REDIS_DATABASE
+  value: "0"
+{{- end }}
+- name: REDIS_PUBSUB_HOST
+  value: {{ $redis_secret_data.host_PubSub }}
+- name: REDIS_PUBSUB_PORT
+  value: {{ $redis_secret_data.port_PubSub }}
+- name: REDIS_PUBSUB_PASSWORD
+  value: {{ $redis_secret_data.password_PubSub }}
+{{- end }}
+{{- end }}
