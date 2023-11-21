@@ -69,6 +69,22 @@ data:
         }
       }
     }
+    {{- if .Values.global.control.apiOld.controlSubDomainOldOld -}}
+    server {
+      listen {{ .Values.global.control.frontendPort }};
+      server_name {{ .Values.global.control.apiOld.controlSubDomainOldOld }}.{{ .Values.global.control.apiOld.mainDomain }};
+      client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
+
+      location / {
+        if ($request_method = POST) {
+          proxy_pass https://{{ include "control.Domain" . }};
+        }
+        if ($request_method != POST) {
+          return 301 https://{{ include "control.Domain" . }}$request_uri;
+        }
+      }
+    }
+    {{- end -}}
     {{- end -}}
     {{- end }}
     server {

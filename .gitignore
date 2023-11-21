@@ -1,2 +1,5 @@
 #templates/control-secret.yaml
 ./values.yaml
+/.idea/
+.idea/
+.gitlab/
