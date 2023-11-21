@@ -119,6 +119,11 @@ data:
       {{- if .Values.global.control.webConfig.gtagAnalytics }}
       gtagAnalytics: {{ .Values.global.control.webConfig.gtagAnalytics }}
       {{- end }}
+      {{- if .Values.global.control.webConfig.hotjar }}
+      hotjar:
+        hjid: {{ .Values.global.control.webConfig.hotjar.hjid }}
+        hjsv: {{ .Values.global.control.webConfig.hotjar.hjsv }}
+      {{- end }}
     {{- if .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}
     tracing:

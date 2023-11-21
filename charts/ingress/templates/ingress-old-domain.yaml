@@ -33,6 +33,9 @@ spec:
   tls:
     - hosts:
         - {{ .Values.global.control.apiOld.controlSubDomainOld }}.{{ .Values.global.control.apiOld.mainDomain }}
+        {{- if .Values.global.control.apiOld.controlSubDomainOldOld -}}
+        - {{ .Values.global.control.apiOld.controlSubDomainOldOld }}.{{ .Values.global.domain }}
+        {{- end }}
       secretName: tls-control
   {{- end }}
   rules:
@@ -46,6 +49,18 @@ spec:
                 name: frontend-service
                 port:
                   number: {{ $frontendPort }}
+{{- if .Values.global.control.apiOld.controlSubDomainOldOld }}
+    - host: {{ .Values.global.control.apiOld.controlSubDomainOldOld }}.{{ .Values.global.domain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: {{ $frontendPort }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

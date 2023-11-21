@@ -225,7 +225,6 @@ global:
         maxReplicas: 10
       resources:
         limits:
-          cpu: 200m
           memory: 600Mi
         requests:
           cpu: 50m
@@ -243,7 +242,6 @@ global:
         targetMemoryUtilizationPercentage: 80
       resources:
         limits:
-          cpu: 200m
           memory: 600Mi
         requests:
           cpu: 50m
@@ -267,7 +265,6 @@ global:
         targetMemoryUtilizationPercentage: 80
       resources:
         limits:
-          cpu: 500m
           memory: 500Mi
         requests:
           cpu: 100m
@@ -293,7 +290,6 @@ global:
         maxReplicas: 2
       resources:
         limits:
-          cpu: 200m
           memory: 600Mi
         requests:
           cpu: 50m
@@ -311,7 +307,6 @@ global:
         prometheus.io/scrape: "true"
       resources:
         limits:
-          cpu: 200m
           memory: 600Mi
         requests:
           cpu: 50m
