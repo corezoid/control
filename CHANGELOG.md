@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.31] - 2023-12-21
+### Helm changes
+- Applications versions:
+    - server - 5.45.0
+    - frontend - 5.45.1
+    - realtime - 3.0.4
+    - control-tasks - 2.21.0
+    - widget - v1.17.0
+
+### Improvements / New Features
+
+#### 1. Implemented the capability to resize panels in the Events section in split mode.
+#### 2. Updated the structure of the left-side menu.
+#### 3. Optimization of access rights management.
+#### 4. Fixed the real-time functionality in scripts.
+
+
 ## [0.3.30] - 2023-12-18
 ### Helm changes
 - Applications versions:
