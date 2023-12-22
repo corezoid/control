@@ -11,7 +11,7 @@ spec:
 {{- include "server.labels" . | nindent 6 }}
   type: {{ .Values.global.control.service.type }}
   ports:
-    - port: {{ .Values.global.control.serverPort }}
-      targetPort: {{ .Values.global.control.serverPort }}
+    - port: {{ include "server.port" . }}
+      targetPort: {{ include "server.port" . }}
       protocol: TCP
       name: http

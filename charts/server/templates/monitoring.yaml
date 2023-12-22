@@ -13,7 +13,7 @@ spec:
       {{- include "server.labels" . | nindent 6 }}
   endpoints:
   - path: {{ .Values.prometheusPath | default "/metrics" }}
-    targetPort: {{ .Values.global.control.serverPort }}
+    targetPort: {{ include "server.port" . }}
     interval: {{ .Values.prometheusInterval | default "15s" }}
 {{- end -}}
 {{- end -}}

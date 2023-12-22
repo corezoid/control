@@ -1,3 +1,4 @@
+{{- $cfg := .Values.global.control.server.config }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,7 +7,7 @@ metadata:
 {{- include "server.labels" . | nindent 4 }}
 data:
   control.yml: |
-    port: {{ .Values.global.control.serverPort }} # Application port
+    port: {{ include "server.port" . }} # Application port
     apiVersion: "{{ .Values.global.control.apiVersion }}" # API version
     apiSecret: {{ .Values.global.control.apiSecret }} # Secret for submitting requests between Control applications.
     superAdminApiKey: {{ .Values.global.control.superAdminApiKey }} # Superadmin API key
@@ -45,6 +46,10 @@ data:
           dialect: postgres
           logging: false
           {{- include "control.server.db.pool" . | nindent 10 }}
+{{- if $cfg.scylladb }}
+      scylladb:
+{{ $cfg.scylladb | toYaml | trim | nindent 8 }}
+{{- end }}
 
     redis: # Redis cache settings
       host: {{ .Values.global.redis.secret.data.host }}

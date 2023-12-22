@@ -69,6 +69,8 @@ data:
       access_log /dev/stdout main;
       error_log  /dev/stdout;
 
+      {{ include "control.nginx.add_header" . | nindent 6 }}
+
       resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
       location ~ ^/api/(.*) {
@@ -97,23 +99,29 @@ data:
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
         add_header X-Content-Type-Options nosniff;
         add_header X-XSS-Protection "1; mode=block";
+        {{ include "control.nginx.add_header" . | nindent 8 }}
 
-        if ($url_full ~ ^(\/+)?shim.js(\/+)?$) {
+        if ($url_full ~ ^(\/+)?(shim\.js|launcher\.html|messenger\.html|redirect\.html)(\/+)?$) {
           add_header Cache-Control "no-cache, no-store, must-revalidate";
+          {{ include "control.nginx.add_header.cors" . | nindent 10 }}
           expires modified -1;
         }
-        if ($url_full ~ ^(\/+)?launcher.html(\/+)?$) {
-          add_header Cache-Control "no-cache, no-store, must-revalidate";
-          expires modified -1;
-        }
-        if ($url_full ~ ^(\/+)?messenger.html(\/+)?$) {
-          add_header Cache-Control "no-cache, no-store, must-revalidate";
-          expires modified -1;
-        }
-        if ($url_full ~ ^(\/+)?redirect.html(\/+)?$) {
-          add_header Cache-Control "no-cache, no-store, must-revalidate";
-          expires modified -1;
-        }
+
+        # if ($url_full ~ ^(\/+)?launcher.html(\/+)?$) {
+        #   add_header Cache-Control "no-cache, no-store, must-revalidate";
+        #   expires modified -1;
+        # }
+
+        # if ($url_full ~ ^(\/+)?messenger.html(\/+)?$) {
+        #   add_header Cache-Control "no-cache, no-store, must-revalidate";
+        #   expires modified -1;
+        # }
+
+        # if ($url_full ~ ^(\/+)?redirect.html(\/+)?$) {
+        #   add_header Cache-Control "no-cache, no-store, must-revalidate";
+        #   expires modified -1;
+        # }
+
         expires modified +24h;
 
         gzip_static on;

@@ -9,6 +9,10 @@ api: "true"
 chart: {{ include "control.fullname" . }}
 {{- end }}
 
+{{- define "server.port" -}}
+{{- default .Values.global.control.serverPort .Values.serverPort }}
+{{- end }}
+
 {{/*
 Image url
 */}}
@@ -34,7 +38,7 @@ readinessProbe:
     scheme: HTTP
 {{- end }}
     path: /api/sa/1.0/check/readiness
-    port: {{ .Values.global.control.serverPort }}
+    port: {{ include "server.port" . }}
   initialDelaySeconds: 20
   periodSeconds: 5
   timeoutSeconds: 5
@@ -48,7 +52,7 @@ Liveness
 {{- define "server.liveness" -}}
 livenessProbe:
   tcpSocket:
-    port: {{ .Values.global.control.serverPort }}
+    port: {{ include "server.port" . }}
   initialDelaySeconds: 25
   periodSeconds: 10
   timeoutSeconds: 5

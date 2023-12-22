@@ -19,5 +19,5 @@ spec:
               tire: frontend
       ports:
         - protocol: TCP
-          port: {{ .Values.global.control.serverPort }}
+          port: {{ include "server.port" . }}
 {{- end}}
