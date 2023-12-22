@@ -68,7 +68,7 @@ spec:
             {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.global.control.serverPort }}
+              containerPort: {{ include "server.port" . }}
               protocol: TCP
           {{ include "server.liveness" . | nindent 10 }}
           {{ include "server.readiness" . | nindent 10 }}

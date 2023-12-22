@@ -88,19 +88,25 @@ kubernetes.io/ingress.class: {{ .Values.global.control.ingress.className }}
 {{- end }}
 nginx.ingress.kubernetes.io/ssl-redirect: "true"
 nginx.ingress.kubernetes.io/proxy-body-size: "{{ .Values.global.control.webConfig.maxFileSize }}"
-nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_set_headers X-Content-Type-Options "nosniff" always;
-      more_set_headers X-Frame-Options "SAMEORIGIN" always;
-      more_set_headers X-Real-IP $remote_addr;
-      more_set_headers X-Forwarded-For $http_x_forwarded_for;
-      add_header X-Content-Type-Options nosniff;
-      more_set_headers Referrer-Policy "no-referrer-when-downgrade" always;
-      more_set_headers "Content-Security-Policy: default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://*.control.events https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://connect.facebook.net https://*.hotjar.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }}{{ if .Values.global.control.apiOld -}}{{- if .Values.global.control.apiOld.enabled }} https://*.{{ .Values.global.control.apiOld.mainDomain }} https://{{ .Values.global.control.apiOld.mainDomain }}{{- end -}}{{- end -}};";
-      if ($request_uri ~ "/index.html") {
-        more_set_headers "Cache-Control: no-cache";
-        more_set_headers "Cache-Control: no-store";
-        expires 0;
-      }
+nginx.ingress.kubernetes.io/enable-cors: "true"
+nginx.ingress.kubernetes.io/cors-expose-headers: "*"
+{{- end }}
+
+{{- define "control.nginx.add_header.cors" -}}
+# CORS headers
+add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://*.control.events https://{{- include "control.Domain" . }} https://simulator.company https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://connect.facebook.net https://*.hotjar.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }}{{ if .Values.global.control.apiOld -}}{{- if .Values.global.control.apiOld.enabled }} https://*.{{ .Values.global.control.apiOld.mainDomain }} https://{{ .Values.global.control.apiOld.mainDomain }}{{- end -}}{{- end -}};" always;
+{{- end }}
+
+{{- define "control.nginx.add_header" -}}
+# security headers
+add_header X-XSS-Protection "1; mode=block" always;
+add_header X-Content-Type-Options "nosniff" always;
+#add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Real-IP $remote_addr always;
+add_header X-Forwarded-For $http_x_forwarded_for always;
+add_header X-Content-Type-Options nosniff;
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header Referrer-Policy "no-referrer-when-downgrade" always;
 {{- end }}
 
 {{/*

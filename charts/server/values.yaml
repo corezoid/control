@@ -1,4 +1,5 @@
 appName: server
+serverPort: 9000
 
 image:
   registry: docker-hub.middleware.biz

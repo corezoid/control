@@ -106,13 +106,8 @@ data:
       gzip_comp_level 5;
       gzip_types text/plain text/css text/xml application/json application/javascript application/rss+xml application/atom+xml image/svg+xml image/jpeg image/png text/javascript;
 
-      # security headers
-      add_header X-XSS-Protection "1; mode=block" always;
-      add_header X-Content-Type-Options "nosniff" always;
-      add_header X-Frame-Options "SAMEORIGIN" always;
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-      add_header Referrer-Policy "no-referrer-when-downgrade" always;
-      add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} {{ .Values.global.control.auth.domain }} https://{{- include "control.Domain" . }} https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com;";
+      {{ include "control.nginx.add_header" . | nindent 6 }}
+      {{ include "control.nginx.add_header.cors" . | nindent 6 }}
 
       location ~ ^/ping$ {
         return 200 "pong";
@@ -130,6 +125,15 @@ data:
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
         add_header X-Content-Type-Options nosniff;
         add_header X-XSS-Protection "1; mode=block";
+        {{ include "control.nginx.add_header" . | nindent 8 }}
+        {{ include "control.nginx.add_header.cors" . | nindent 8 }}
+
+        if ($request_uri ~ "/index.html") {
+          add_header Cache-Control "no-cache, no-store";
+          {{ include "control.nginx.add_header" . | nindent 10 }}
+          {{ include "control.nginx.add_header.cors" . | nindent 10 }}
+          expires 0;
+        }
 
         # gzip_static on;
         add_header Cache-Control no-cache;
@@ -153,6 +157,8 @@ data:
 
       location ~ ^/api/1.0/download/(.*)$ {
         add_header Content-disposition "attachment";
+        {{ include "control.nginx.add_header" . | nindent 8 }}
+        {{ include "control.nginx.add_header.cors" . | nindent 8 }}
         alias {{ .Values.global.control.filesStorage.eventFiles }}/$1;
       }
 
@@ -191,12 +197,8 @@ data:
       gzip_comp_level 5;
       gzip_types text/plain text/css text/xml application/json application/javascript application/rss+xml application/atom+xml image/svg+xml image/jpeg image/png;
 
-      # security headers
-      add_header X-XSS-Protection "1; mode=block" always;
-      add_header X-Content-Type-Options "nosniff" always;
-      add_header X-Frame-Options "SAMEORIGIN" always;
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-      add_header Referrer-Policy "no-referrer-when-downgrade" always;
+      {{ include "control.nginx.add_header" . | nindent 6 }}
+      {{ include "control.nginx.add_header.cors" . | nindent 6 }}
 
       location ~ ^/ping$ {
         return 200 "ok";

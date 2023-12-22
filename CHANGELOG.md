@@ -5,6 +5,83 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.30] - 2023-12-18
+### Helm changes
+- Applications versions:
+    - server - 5.44.0
+    - frontend - 5.44.1
+    - realtime - 3.0.4
+    - control-tasks - 2.20.0
+    - widget - v1.16.0
+
+### Improvements / New Features
+
+#### 1. When clicking the push notification on a new reaction in an event with the Split view enabled on the Events page, the Split view remains, and the event with the new reaction becomes active.
+#### 2. By using the API method actors_filter, you can filter actors by account balance
+#### 3. All the GET API method accounts have the filter parameter. For example:
+   filter=id,amount,incomeType … , where you have the list of comma-separated fields to receive for every account in response data  
+#### 4. With the new API Get account value info method, you can get the details of actors listed on the balance of the Actor ID account in one request
+#### 5. On the dashboard, you can add up to 30 accounts.
+#### 6. By using the API Filter actors by form method, you can sort actors by any field: the request gets the orderByKey field where you have to enter the key to make a sorting. For more information, go to [Filters actors](https://control.events/api.html#operation/filterActors)
+#### 7. The redesigned transfer details page allows you to see the details of changes against text and actor ID accounts that occurred within a transfer.
+#### 8. On Dashboard charts, you can see the values for each part.
+#### 9. The display of the Events page and all your events’ details are a better fit for your mobile device browsers.
+#### 10. Localization support was added. In the locale file, you can configure your localization
+
+```
+{
+ "legacy": "Зворотня сумісність",
+ "label": {
+   "en": "Hello page",
+   "uk": "Привіт сторінка"
+ }
+}
+```
+
+Where: uk and en are the keys with any value; you can have any number of such keys.The old keys remain operable as before.To use a particular localization language, you need to send the language parameter together with the language value from Corezoid in response to the /get request. For more information, go to Get page https://control.events/script.html#tag/get-page  and Locale.  
+#### 11. The protocol for working with widget commands from scripts that run in the widget has been changed:
+
+```
+{
+"data": {
+    "ctrl": [
+        {
+            "namespace": "webWidget",
+            "method": "close"
+        }
+    ]
+},
+"code": 200
+}
+```
+
+#### 12. In the Actor filter, you can filter actors by account balance:
+   Select an account and enter the needed values to the Balance from and Balance to fields.  
+   (Optional) Select the needed sorting in the Sort by dropdown list.  
+   As a result, you can see the list of actors with the Account-Currency column displaying the selected account balances for actors.  
+#### 13. In the Edit Chart dialog, you can:
+   Customize the colors for your chart by entering the needed color codes.  
+   Regenerate all colors by clicking the refresh icon next to the Color field to set random colors for each part of your chart.  
+   Note: The Use actors colors option has been removed.  
+#### 14. The calculation of balances in account trees has been optimized.
+#### 15. Enabled the ability to embed events into scripts without unnecessary components.
+
+###  Scripts
+
+#### 1. You can use the mapping functionality when importing scripts: If the file that you are importing has at least one script, when mapping, the Corezoid credentials tab appears where you can specify new corresponding credentials for each script. This feature simplifies the import of scripts and makes it possible to use them immediately after the import is complete.
+#### 2. The following components have the context menu:
+   Button: options are described in extra.options.  
+   For more information, go to [Button](https://control.events/script.html#tag/button).  
+   Table: options are described in body[].options[].button.extra.options.  
+   For more information, go to [Table](https://control.events/script.html#tag/table).  
+
+   More information:
+   https://doc.corezoid.com/docs/simulator-541
+   https://doc.corezoid.com/docs/simulator-542
+   https://doc.corezoid.com/docs/simulator-543
+   https://doc.corezoid.com/docs/simulator-544
+
+
 ## [0.3.29] - 2023-11-16
 ### Helm changes
 - Parameters in applications configs are moved to deployment via env, transmitted through secrets

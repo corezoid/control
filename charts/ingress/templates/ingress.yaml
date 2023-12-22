@@ -57,14 +57,14 @@ spec:
               service:
                 name: server-service
                 port:
-                  number: {{ $serverPort }}
+                  number: {{ include "server.port" . }}
           - path: /papi
             pathType: Prefix
             backend:
               service:
                 name: server-service
                 port:
-                  number: {{ $serverPort }}
+                  number: {{ include "server.port" . }}
           - path: "/api/1.0/download"
             pathType: Prefix
             backend:
