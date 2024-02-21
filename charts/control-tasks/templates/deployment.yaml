@@ -1,5 +1,6 @@
 {{- $global_data := .Values.global }}
 {{- $control_data := $global_data.control }}
+{{- $control_tasks_data := $global_data.control.control_tasks }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,6 +25,9 @@ spec:
         {{- include "control.control-tasks.annotations" . | nindent 4 }}
       labels: {{- include "control-tasks.labels" . | nindent 8 }}
     spec:
+      {{- if $control_tasks_data.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $control_tasks_data.terminationGracePeriodSeconds }}
+      {{- end }}
       {{- if not (eq $global_data.repotype "public") }}
       imagePullSecrets:
         - name: {{ $global_data.imagePullSecrets.name }}
@@ -39,7 +43,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext: {{- toYaml $control_data.securityContext | nindent 12 }}
           image: {{ include "control-tasks.imageUrl" . | quote }}
-          imagePullPolicy: {{ $control_data.control_tasks.pullPolicy | default "IfNotPresent" }}
+          imagePullPolicy: {{ $control_tasks_data.pullPolicy | default "IfNotPresent" }}
           env:
             - name: CONTROL_TASKS_CONFIG
               value: {{ include "control.tasks.app.configFullPath" . }}
@@ -96,7 +100,7 @@ spec:
           {{- include "control-tasks.liveness" . | nindent 10 }}
           {{- include "control-tasks.readiness" . | nindent 10 }}
           resources:
-            {{- toYaml $control_data.control_tasks.resources | nindent 12 }}
+            {{- toYaml $control_tasks_data.resources | nindent 12 }}
           volumeMounts:
             - name: {{ .Values.appName }}-config-volume
               mountPath: {{ include "control.tasks.app.configFullPath" . }}

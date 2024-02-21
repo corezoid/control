@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.32] - 2024-01-17
+### Helm changes
+- Applications versions:
+    - server - 5.48.0
+    - frontend - 5.48.0
+    - realtime - 3.0.4
+    - control-tasks - 2.23.0
+    - widget - v1.19.0
+
+### Attention!!!
+
+- **This version adds the required ScyllaDB component for the control_server application to work (ScyllaDB must be installed on a separate server. For production environments, we recommend the ScyllaDB cluster)**
+- **there will be 3 migrations 5.46.0, 5.47.0, 5.48.0**
+- **migration 5.47.0 will have a long-term migration of the transfers table with batches, which should be completed after repack**
+
+### Improvements / New Features
+
+#### 1. When you create or edit a dashboard, you can select the default account and currency in the Account by default field of the Add chart dialog. After that, you need to select actors with the account-currency chosen pair in the Actor field to build a chart.
+   Note. Default account availability for the selected actors  
+   If an actor you've selected has the chosen account-currency pair, it will have the account value displayed to the right of the Account field (1). If the selected actor doesn't have the chosen account-currency pair, the "i" info icon will be displayed to the right of the Account field (2), informing that you must select an actor with the account-currency pair set by default.
+
+#### 2. The dashboard widget now has the Settings dropdown menu where you can select an interval and switch the account and account value type (amount or count of transactions), thus viewing the same dashboard for different accounts.
+   Note. Settings for dashboards with no Account by default selected  
+   On the dashboards with no Account by default selected, the Settings menu allows selecting a time interval and switching between the amount and transaction count values.  
+   The Settings menu configuration does not affect the dashboard creation/editing menu configuration.  
+#### 3. The feature of creating dynamic dashboards based on actor filters was added. To create a dynamic dashboard, in the Dashboard type field of the Add chart dialog, select Dynamic by ActorFilters.
+   After creating this dashboard type:  
+   - Select the specific filter you want to use to build your dashboard in the Select Actors Filters dropdown list.  
+   Note: The selected Actor Filter must have an account to build a dashboard.  
+   - Select the Top number that defines the number of top actor accounts from the filter range, which values will be displayed on the dashboard.
+   You can't build a Line chart type with the Dynamic by ActorFilters dashboard type  
+#### 4. Now, you can add images and gifs anywhere in the text when editing an event or actor description, which makes editing big event descriptions easier. With that, the cursor maintains a correct position.
+#### 5. API methods for getting account names were optimized.
+
+#### 6. Improved readability of actors and connections on the graph:
+   - Increased the size of actors on the graph
+   - Enhanced the contrast of connections between actors
+   - Added a background to the title of actors
+
+#### 7. Scripts: Now, with each /get and /send request, a new parameter sessionData.fingerprint is included.
+   The fingerprint is provided independently of the script authorization settings. This parameter can be used as a session ID.  
+
+#### 8. Enabled the ability to perform transfers on the graph.
+   To initiate a transfer, hover over the connection between actors, and a "+" sign will appear.  
+   Click on the "+" sign, and in the transfer creation form, specify the amount and, if necessary, switch the sender and receiver.  
+   Transfers are executed based on the account selected in the layer settings.  
+   If any of the selected actors do not have an account, it will be automatically opened.  
+   If there are transfers between two actors added to the layer on the selected account, they are displayed as green arrows. The thicker the arrow, the larger the transfer amount. The amount is calculated relative to all transfers on this layer.  
+
+#### 9. Added support for the "filter" parameter in all GET methods for transactions.
+   https://control.events/api.html#tag/transactions  
+   It is recommended to use it for response size optimization.
+
+#### 10. Add new component ScyllaDB
+
+#### 11. You can specify the default account-currency pair for a graph layer
+
+#### 12. You can view a Line type Dashboard for any account in the actor panel of the Accounts tab by clicking the account menu icon and selecting the Show dashboard in the menu.
+
+#### 13. The feature of saving a multilayer position on a graph has been added.
+
+
+### Bugfix
+
+In the scripts, fixed the redirect for the 302 code to the same page_id where the user is currently located. Now, such redirects work as expected.
+
+
 ## [0.3.31] - 2023-12-21
 ### Helm changes
 - Applications versions:

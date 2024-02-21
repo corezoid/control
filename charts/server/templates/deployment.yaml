@@ -1,3 +1,6 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $server_data := $global_data.control.server }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,17 +8,17 @@ metadata:
   labels:
 {{- include "server.labels" . | nindent 4 }}
 spec:
-{{- if .Values.global.control.server.autoscaling.enabled }}
-  replicas: {{ .Values.global.control.server.autoscaling.minReplicas }}
+{{- if $server_data.autoscaling.enabled }}
+  replicas: {{ $server_data.autoscaling.minReplicas }}
 {{- end }}
   selector:
     matchLabels:
 {{- include "server.labels" . | nindent 6 }}
-{{- with .Values.global.deploymentStrategy }}
+{{- with $global_data.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+{{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
@@ -28,17 +31,20 @@ spec:
       labels:
 {{- include "server.labels" . | nindent 8 }}
     spec:
-  {{- if not (eq .Values.global.repotype "public") }}
-  {{- if .Values.global.imagePullSecrets -}}
-  {{- if .Values.global.imagePullSecrets.name }}
+      {{- if $server_data.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $server_data.terminationGracePeriodSeconds }}
+      {{- end }}
+  {{- if not (eq $global_data.repotype "public") }}
+  {{- if $global_data.imagePullSecrets -}}
+  {{- if $global_data.imagePullSecrets.name }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}
+        - name: {{ $global_data.imagePullSecrets.name }}
   {{- end }}
   {{- end -}}
   {{- end }}
       serviceAccountName: ""
       securityContext:
-        {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
+        {{- toYaml $control_data.podSecurityContext | nindent 8 }}
       initContainers:
         {{ include "InitWait.postgres" . | nindent 8 }}
 
@@ -48,9 +54,9 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.global.control.securityContext | nindent 12 }}
+            {{- toYaml $control_data.securityContext | nindent 12 }}
           image: {{ include "server.imageUrl" . | quote }}
-          imagePullPolicy: {{ .Values.global.control.server.pullPolicy }}
+          imagePullPolicy: {{ $server_data.pullPolicy }}
           env:
             - name: ENABLE_API
               value: "true"
@@ -58,13 +64,13 @@ spec:
               value: "false"
             - name: K8S
               value: "true"
-            {{- if .Values.global.control.server.selfsigned }}
+            {{- if $server_data.selfsigned }}
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: "0"
             {{- end }}
-            {{- if .Values.global.control.server.allow_autotests }}
+            {{- if $server_data.allow_autotests }}
             - name: ALLOW_AUTOTESTS
-              value: {{ .Values.global.control.server.allow_autotests | quote }}
+              value: {{ $server_data.allow_autotests | quote }}
             {{- end }}
           ports:
             - name: http
@@ -73,32 +79,32 @@ spec:
           {{ include "server.liveness" . | nindent 10 }}
           {{ include "server.readiness" . | nindent 10 }}
           resources:
-            {{- toYaml .Values.global.control.server.resources | nindent 12 }}
+            {{- toYaml $server_data.resources | nindent 12 }}
           volumeMounts:
             - name: {{ .Values.appName }}-config-volume
               mountPath: /ebsmnt/conf/control.yml
               subPath: control.yml
             - name: {{ .Values.appName }}-attachments
-              mountPath: {{ .Values.global.control.filesStorage.eventFiles }}
+              mountPath: {{ $control_data.filesStorage.eventFiles }}
       volumes:
         - name: {{ .Values.appName }}-config-volume
           configMap:
             name: {{ .Values.appName }}-configmap
-        {{- if .Values.global.control.server.persistantVolumeClaimCreate }}
+        {{- if $server_data.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
-            claimName: {{ .Values.global.control.server.persistantVolumeClaimName }}
+            claimName: {{ $server_data.persistantVolumeClaimName }}
             readOnly: false
         {{- end }}
-      {{- with .Values.global.control.nodeSelector }}
+      {{- with $control_data.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.affinity }}
+      {{- with $control_data.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.control.tolerations }}
+      {{- with $control_data.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

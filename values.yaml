@@ -7,7 +7,6 @@ global:
   serviceMonitor:
     enabled: false
   #######  PostgreSQL  ########
-  ## Supported version  from 9.6.* <
   ## for RDS minimum instance - db.t3.medium / master user set "postgres"
   db:
     image: "postgres:13.7-alpine"
@@ -36,10 +35,9 @@ global:
         dbuser: "dbuser"
         dbpwd: "dbpwd"
         # sslmode: "require"
-
     # Set false to disable if you don't want to use PGBouncer, recommended - true
     # If true, will create pod with PGBouncer
-    bouncer: true
+    bouncer: false
     bouncer_port: 5432
     bouncer_minReplicas: 1
     bouncer_maxReplicas: 6
@@ -58,7 +56,6 @@ global:
     # Server is released back to pool after transaction finishes. default: session, see man https://wiki.postgresql.org/wiki/PgBouncer
     # transaction | session
     default_pool_mode: transaction
-
   ## NO CLUSTER Mode!
   redis:
     # if internal true - create and use internal k8s redis container
@@ -84,7 +81,6 @@ global:
         host_PubSub: "redis-master"
         port_PubSub: "6379"
         password_PubSub: ""
-
   ###########################################
   ######## Settings for filesystems #########
   # Define global storage class: efs / nfs / manual
@@ -104,18 +100,14 @@ global:
   nfs:
     ## set true if you choose storage: nfs
     enabled: false
-
   imageRegistry: "docker-hub.middleware.biz"
   repotype: "public"
-
   imageInit:
     repository: docker-hub.middleware.biz/hub.docker.com/library/alpine
     pullPolicy: IfNotPresent
     tag: "3.18"
-
   deploymentStrategy:
     type: RollingUpdate
-
   networkPolicy:
     enabled: false
     monitoring:
@@ -125,10 +117,8 @@ global:
       # Selector for prometheus deploymnets
       podSelector:
         release: prometheus-stack
-
   nameOverride: ""
   fullnameOverride: ""
-
   control:
     product: "control"
     # Applications ports
@@ -181,7 +171,6 @@ global:
     #   convId: 54321
     #   syncApiUrl: "https://sync-api.corezoid.local"
     corezoidSyncApiUrl: "https://sync-api.corezoid.local"
-
     corezoid:
       companyId: "i123456789"
       apiSecret: "12345"
@@ -195,26 +184,19 @@ global:
         accRegistrations:
           directUrl: "https://corezoid.local/api/1/json/public/333/s1cl3amvf2jz9bcb271szxkuarroezrcgfzppovh"
           convId: 333
-
     filesStorage:
       eventFiles: "/ebsmnt/attachments"
-
     webConfig:
       supportEmail: ''
       maxFileSize: '26214400'
-
     channels:
       gmail:
         clientId: "290516331007-kdznbto71dls7fv2e43rovxpay6lmwp2.apps.googleusercontent.com"
         clientSecret: "T19LiivOJ21QbxJvLHdFpMOx"
         ignoredDomains: []
-
-
     service:
       type: ClusterIP
-
     terminationGracePeriodSeconds: {}
-
     frontend:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
@@ -229,7 +211,6 @@ global:
         requests:
           cpu: 50m
           memory: 100Mi
-
     realtime:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
@@ -246,7 +227,6 @@ global:
         requests:
           cpu: 50m
           memory: 100Mi
-
     server:
       persistantVolumeClaimName: "server-pvc"
       persistantVolumeClaimCreate: true
@@ -276,7 +256,10 @@ global:
             idle: 20000
             max: 200
             min: 10
-
+        scylladb:
+          contactPoints: [SCYLLADB_HOST]
+          localDataCenter: eu-west
+          keyspace: simulator
     cron:
       app_enabled: false
 
