@@ -3,5 +3,5 @@ name: control
 description: A Helm chart for Control
 icon: https://sim.simulator.company/static/logo.svg
 type: application
-version: 0.3.32
-appVersion: 5.48.0
+version: 0.3.33
+appVersion: 5.49.1
