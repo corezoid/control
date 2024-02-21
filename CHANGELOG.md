@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.33] - 2024-01-24
+### Helm changes
+- Applications versions:
+    - server - 5.49.1
+    - frontend - 5.49.0
+    - realtime - 3.0.4
+    - control-tasks - 2.23.0
+    - widget - v1.19.0
+
+### Attention!!!
+
+- **First, perform an update to Chart 0.3.32, only after that proceed with the update to 0.3.33 !**
+- **The migration of the 'transactions' table is very lengthy. If there are 100 million records, the migration may take approximately 72 hours.**
+- **It is imperative to perform pg_repack on all partitions.**
+
+### Improvements / New Features
+
+#### 1. You can go to the needed transaction history by clicking the corresponding sector on the Dashboard. The transaction history opens as a list in a modal window.
+#### 2. The sounds for the following actions have been updated:
+   - Adding an actor to a graph
+   - Creating a link (edge) between actors on a graph
+   - Removing an actor from a graph
+#### 3. Online Dashboards are updated if the Real-time option is selected in the Period by default dropdown list
+#### 4. When sharing an object, you can see the list of recommended users that includes the users with whom you have shared your previous object.
+
 
 ## [0.3.32] - 2024-01-17
 ### Helm changes
