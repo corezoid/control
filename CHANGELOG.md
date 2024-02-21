@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.34] - 2024-02-07
+### Helm changes
+- Applications versions:
+    - server - 5.51.0
+    - frontend - 5.51.1
+    - realtime - 3.0.4
+    - control-tasks - 2.24.0
+    - widget - v1.21.0
+
+### Attention!!!
+
+- **First, perform an update to Chart 0.3.33, only after that proceed with the update to 0.3.34 !**
+- **Migration of transaction data snapshots from PostgresQL to ScyllaDB. The lengthy migration of 65 million queries takes approximately ~4 hours.**
+- **As there will be increased load on PostgresQL and the control server, it is preferable to conduct the migration outside of business hours.**
+
+### Improvements / New Features
+
+#### 1. The support of GET parameters in the Simulator URL has been implemented to manage the visibility of the Events page UI elements when in the switch view mode:
+   - **plainMode**: true/false. If set to true, the split view on the Events page is forced regardless of user settings.
+   - **focusMode**: true/false. Turns off the top panel and all the selected event tabs in the split view mode on the Events page.
+   - **manageUI**. Allows to manage the following blocks:
+     - **sidebar**
+     - **streamsTabs**: true/false
+     - **streamsControls**: true/false
+     - **eventControls**: true/false
+     - **eventInfo**: true/false
+     - **eventTabs**: true/false is the list of tabs separated by «_», for example: chat_details_attachments.
+
+You can manage the visibility of the following tabs: Details, Info, Chat, Shared, Attachments, Accounts, Events, Actors.  
+
+Inside the manageUI, elements are separated by «:», while keys and values are separated by «_», for example:  
+
+```
+"manageUI=eventTabs_chat_details:eventInfo_false:eventControls_false"
+// The eventInfo and eventControls are turned off, tabs are reduced to chat and details"focusMode=true&manageUI=eventTabs_chat_details:eventInfo_true:eventControls_true"
+//The focusMode is used to turn off all elements except those allowed in the parametermanageUI "plainMode=true&focusMode=true&manageUI=sidebar_true"
+// The split view mode is activated, and all the elements are turned off except the sidebar allowed in the manageUI"manageUI=eventTabs_false"
+//All the tabs are turned off
+```
+
+**Note**: When using any of the mentioned GET parameters, the type: viewActor request type is sent to the API user webhook with access to the event. This info allows Corezoid processes to determine which event is in the user focus now.
+This feature comes in handy when you embed the Events page as a [widget](https://doc.simulator.company/cdu#tag/widget) into Scripts.
+
+#### 2. The My verse page on which you can quickly access your graph with main user resources and objects in the selected workspace has been updated.
+#### 3. Work with dashboards has been improved
+   You can add the same account with different incomeType parameters (debit,credit) to a dashboard: select the Income type checkbox in the Legend settings section of the dashboard settings menu.  
+   Resizing became more convenient: Only the side that you are dragging is being resized.  
+   The dashboard title was removed from the dashboard expanded view.  
+#### 4. Transaction filter API requests have been optimized to run much faster.
+#### 5. The new [signature](https://doc.simulator.company/cdu#tag/signature) component was added. The component implements a whiteboard on which you can make a drawing and save it as an image. For example, you can use it to create a client signature.
+
+
 ## [0.3.33] - 2024-01-24
 ### Helm changes
 - Applications versions:
