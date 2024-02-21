@@ -18,6 +18,20 @@
     secretKeyRef:
       name: {{ $db_secret_name }}
       key: dbport
+    {{- if .Values.global.db.secret.slave }}
+    {{- if .Values.global.db.secret.slave.enabled }}
+- name: DB_SLAVE_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbslavehost
+- name: DB_SLAVE_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbslaveport
+    {{- end }}
+    {{- end }}
 {{- end }}
 - name: DB_USER
   valueFrom:
@@ -60,6 +74,14 @@
   value: {{ $db_secret_data.dbhost }}
 - name: DB_PORT
   value: {{ $db_secret_data.dbport }}
+    {{- if .Values.global.db.secret.slave }}
+    {{- if .Values.global.db.secret.slave.enabled }}
+- name: DB_SLAVE_HOST
+  value: {{ $db_secret_data.dbslavehost }}
+- name: DB_SLAVE_PORT
+  value: {{ $db_secret_data.dbslaveport }}
+    {{- end }}
+    {{- end }}
 {{- end }}
 - name: DB_USER
   value: {{ $db_secret_data.dbuser }}

@@ -30,7 +30,23 @@ data:
         "database": "${DB_NAME}",
         "user": "${DB_USER}",
         "password": "${DB_PASSWORD}",
+        {{- if .Values.global.db.secret.slave }}
+        {{- if .Values.global.db.secret.slave.enabled }}
+        "sslMode": "${DB_SSLMODE}",
+        {{- end }}
+        {{- else }}
         "sslMode": "${DB_SSLMODE}"
+        {{- end }}
+        {{- if .Values.global.db.secret.slave }}
+        {{- if .Values.global.db.secret.slave.enabled }}
+        "slaves": [
+          {
+            "host": "${DB_SLAVE_HOST}",
+            "port": ${DB_SLAVE_PORT}
+          }
+        ]
+        {{- end }}
+        {{- end }}
       },
       "redis": {
         "host": "${REDIS_HOST}",
@@ -38,6 +54,14 @@ data:
         "database": ${REDIS_DATABASE},
         "password": "${REDIS_PASSWORD}"
       },
+      {{- if $global_data.control.control_tasks.config }}
+      {{- if $global_data.control.control_tasks.config.scylladb }}
+      "scylladb": {
+        "contactPoints": ["{{ .Values.global.control.control_tasks.config.scylladb.contactPoints }}"],
+        "keyspace": "{{ .Values.global.control.control_tasks.config.scylladb.keyspace }}"
+      },
+      {{- end }}
+      {{- end }}
       "metrics": {
         "port": {{ .Values.appReadinessHttpPort | default "9100" }}
       },

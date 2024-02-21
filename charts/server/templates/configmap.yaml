@@ -46,6 +46,15 @@ data:
           dialect: postgres
           logging: false
           {{- include "control.server.db.pool" . | nindent 10 }}
+        {{- if .Values.global.db.secret.slave }}
+        {{- if .Values.global.db.secret.slave.enabled }}
+        replication:
+            read:
+              - host: {{ .Values.global.db.secret.data.dbslavehost }}
+            write:
+              - host: {{ .Values.global.db.secret.data.dbhost }}
+        {{- end }}
+        {{- end }}
 {{- if $cfg.scylladb }}
       scylladb:
 {{ $cfg.scylladb | toYaml | trim | nindent 8 }}
