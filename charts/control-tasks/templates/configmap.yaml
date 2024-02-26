@@ -57,7 +57,13 @@ data:
       {{- if $global_data.control.control_tasks.config }}
       {{- if $global_data.control.control_tasks.config.scylladb }}
       "scylladb": {
-        "contactPoints": ["{{ .Values.global.control.control_tasks.config.scylladb.contactPoints }}"],
+        {{- $contactPoints := .Values.global.control.control_tasks.config.scylladb.contactPoints }}
+        "contactPoints": [
+          {{- range $index, $element := splitList "," $contactPoints }}
+            "{{ trim $element }}"
+            {{- if ne $index (sub (len (splitList "," $contactPoints)) 1) }},{{ end }}
+          {{- end }}
+        ],
         "keyspace": "{{ .Values.global.control.control_tasks.config.scylladb.keyspace }}"
       },
       {{- end }}
