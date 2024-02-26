@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.35] - 2024-02-21
+### Helm changes
+- Applications versions:
+    - server - 5.53.3
+    - frontend - 5.53.0
+    - realtime - 3.0.4
+    - control-tasks - 2.25.0
+    - widget - v1.23.0
+
+### Attention!!!
+- **This version adds the required ScyllaDB component for the control_tasks application to work (The keyspace must be the same as the control_server)**
+- **First, perform an update to Chart 0.3.34, only after that proceed with the update to 0.3.35 !**
+- **Migration of transaction data slices from PostgreSQL to ScyllaDB from the latest migration checkpoint.**
+- **Transfer of balance cache from Redis to Scylla. It will heavily impact account trees, dashboards, formulas, triggers. If there are large trees in the environment, there will be a risk of their recalculations and storing in ScyllaDB, which will impose a heavy load on PostgreSQL in this case.**
+
+### Improvements / New Features
+
+#### 1. Created an access graph for the actor.
+#### 2. Migrated current snapshots of account balances from PostgreSQL to ScyllaDB.
+#### 3. Transferred tree counters of accounts from Redis to ScyllaDB.
+#### 4. Migration Documentation URL
+   API: https://doc.simulator.company/  
+   Scripts: https://doc.simulator.company/cdu  
+#### 5. Removed the ability to delete transactions in the interface
+
+
 ## [0.3.34] - 2024-02-07
 ### Helm changes
 - Applications versions:

@@ -294,6 +294,10 @@ global:
         requests:
           cpu: 50m
           memory: 100Mi
+      config:
+        scylladb:
+          contactPoints: SCYLLADB_HOST
+          keyspace: simulator
 
     serviceAccount:
       # Specifies whether a service account should be created
