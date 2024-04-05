@@ -336,6 +336,7 @@ global:
     ingress:
       enabled: true
       className: "internal-nginx"
+      annotations: {}
 
     nodeSelector: {}
 

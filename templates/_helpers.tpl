@@ -81,6 +81,9 @@ ingress.class: {{ .Values.global.control.ingress.className }}
 prometheus.io/scrape: "true"
 prometheus.io/port: "9113"
 prometheus.io/scheme: http
+{{ if .Values.global.control.ingress.annotations -}}
+{{ toYaml .Values.global.control.ingress.annotations }}
+{{ end -}}
 {{- if and .Values.global.control.ingress.className (semverCompare "<=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
 {{- if not .Values.global.argocd_deploy }}
 kubernetes.io/ingress.class: {{ .Values.global.control.ingress.className }}
@@ -94,7 +97,7 @@ nginx.ingress.kubernetes.io/cors-expose-headers: "*"
 
 {{- define "control.nginx.add_header.cors" -}}
 # CORS headers
-add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://*.control.events https://{{- include "control.Domain" . }} https://simulator.company https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://frames.a-bank.com.ua https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://connect.facebook.net https://*.hotjar.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }}{{ if .Values.global.control.apiOld -}}{{- if .Values.global.control.apiOld.enabled }} https://*.{{ .Values.global.control.apiOld.mainDomain }} https://{{ .Values.global.control.apiOld.mainDomain }}{{- end -}}{{- end -}};" always;
+add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://*.control.events https://{{- include "control.Domain" . }} https://simulator.company https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://*.on.aws https://*.ngrok-free.app https://frames.a-bank.com.ua https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://connect.facebook.net https://*.hotjar.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }}{{ if .Values.global.control.apiOld -}}{{- if .Values.global.control.apiOld.enabled }} https://*.{{ .Values.global.control.apiOld.mainDomain }} https://{{ .Values.global.control.apiOld.mainDomain }}{{- end -}}{{- end -}};" always;
 {{- end }}
 
 {{- define "control.nginx.add_header" -}}
@@ -146,6 +149,15 @@ Create block for init-wait containers
   image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
   imagePullPolicy: IfNotPresent
   command: ["sh", "-c", "until nc -zw1 {{ .Values.global.redis.secret.data.host_PubSub }} {{ .Values.global.redis.secret.data.port_PubSub }}; do echo waiting for Redis_PubSub; sleep 2; done;"]
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+{{- end }}
+
+{{- define "InitWait.scylla" -}}
+- name: init-wait-scylla
+  image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
+  imagePullPolicy: IfNotPresent
+  command: ["sh", "-c", "until nc -zvw1 $(echo '{{ .Values.global.control.server.config.scylladb.contactPoints }}' | sed 's/[][]//g' | cut -d' ' -f1) {{ .Values.global.control.server.config.scylladb.scyllaport | default 9042 }}; do echo waiting for ScyllaDB; sleep 2; done;"]
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
 {{- end }}

@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.37] - 2024-04-04 
+### Helm changes
+- Applications versions:
+    - server - 5.59.1
+    - frontend - 5.59.1
+    - realtime - 3.0.5
+    - control-tasks - 2.29.0
+    - widget - v1.28.1
+
+#### Attention! Please pay attention to the description in chart 0.3.36.
+
+### Improvements / New Features
+
+#### 1. In System accounts > Coordinates, transactions reflecting actor coordinate changes were implemented on the graph.
+#### 2. Sorting by actor fields was added to the actors bag.
+#### 3. In the Create transfer interface, the ability to make transfers from multiple senders to multiple recipients was added. Previously, only one sender was allowed.
+#### 4. Real-time graph rendering was optimized.
+#### 5. The ability to recalculate settlement balances was added.
+#### 6. The API now allows filtering in actors_filters based on associated actors.
+
+Scripts:
+#### 1. Components upload and signature were refined, and the file upload protocol was changed to an external API.
+#### 2. A mechanism for running public scripts under a different domain was implemented.
+#### 3. Control over query parameters at the page configuration level and via send request with a 200 response code was enabled.
+#### 4. Transition to another page via a 205 response code without reloading the entire page was implemented.
+
+
+## [0.3.36] - 2024-03-28 (The chart was not released, will be included in 0.3.37)
+### Helm changes
+- Applications versions:
+    - server - 5.58.1
+    - frontend - 5.58.0
+    - realtime - 3.0.5
+    - control-tasks - 2.28.0
+    - widget - v1.27.0
+- added the ability to specify annotations on the ingress in values.yaml
+
+### Improvements / New Features
+
+#### 1. Added image resize to the short menu of actor-image on the graph.
+#### 2. Implemented a public API to retrieve the form by formRef.
+#### 3. Introduced a new type of dashboards - Line > Dynamics of balance changes.
+#### 4. Enabled the ability to control the display of values in sections on dashboards. Previously, values were always displayed and couldn't be turned off.
+#### 5. Added display of the Ref field in Actors bag and Forms.
+#### 6. Enhanced image resize on the graph.
+#### 7. Implemented the ability to view all graph connections with other actors and add new parent actors for this graph.
+#### 8. Developed visualization for the dashboard loading process if the dashboard is not displayed instantly.
+#### 9. Added extra for each field editable in the method https://doc.simulator.company/#operation/updateActor.
+#### 10. Create API for multi-transfers
+
+### Scripts:
+#### 1. Added the ability to set changeRules for components carousel, select, radio, tab, multiselect, table, and stepper when responding to a send request. https://doc.simulator.company/cdu#operation/sendForm.
+#### 2. Improved the OTP component - now the deletion of values from cells works correctly.
+
+
 ## [0.3.35] - 2024-02-21
 ### Helm changes
 - Applications versions:
