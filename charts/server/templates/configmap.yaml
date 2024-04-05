@@ -133,6 +133,9 @@ data:
       {{- if .Values.global.control.webConfig.gtagAnalytics }}
       gtagAnalytics: {{ .Values.global.control.webConfig.gtagAnalytics }}
       {{- end }}
+      {{- if .Values.global.control.webConfig.scriptPath }}
+      scriptPath: {{ .Values.global.control.webConfig.scriptPath }}
+      {{- end }}
       {{- if .Values.global.control.webConfig.hotjar }}
       hotjar:
         hjid: {{ .Values.global.control.webConfig.hotjar.hjid }}

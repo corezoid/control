@@ -51,6 +51,8 @@ spec:
         {{ include "InitWait.bouncer" . | nindent 8 }}
 
         {{ include "InitWait.redis" . | nindent 8 }}
+
+        {{ include "InitWait.scylla" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -72,6 +74,8 @@ spec:
             - name: ALLOW_AUTOTESTS
               value: {{ $server_data.allow_autotests | quote }}
             {{- end }}
+            - name: CONTROL_DOMAIN
+              value: {{ include "control.Domain" . }}
           ports:
             - name: http
               containerPort: {{ include "server.port" . }}
