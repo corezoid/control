@@ -121,6 +121,15 @@ global:
   fullnameOverride: ""
   control:
     product: "control"
+    scylladb:
+      # if internal true - create and use internal ScyllaDB
+      # if internal false - enable external server with ScyllaDB
+      internal: false
+      # if internal false - must be a list of external server or servers with ScyllaDB
+      contactPoints: [SCYLLADB_HOST]
+      localDataCenter: eu-west
+      # Kayspace name
+      keyspace: simulator
     # Applications ports
     serverPort: 9000
     realtimePort: 9005

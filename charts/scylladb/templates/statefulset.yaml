@@ -1,0 +1,41 @@
+{{- $global := .Values.global }}
+{{- $control_data := $global.control }}
+{{- if eq $control_data.scylladb.internal true }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: scylla-cluster
+spec:
+  serviceName: "scylla"
+  replicas: {{ $control_data.scylladb.replicas }}
+  selector:
+    matchLabels:
+      app: scylla
+  template:
+    metadata:
+      labels:
+        app: scylla
+    spec:
+      containers:
+      - name: scylla
+        image: scylladb/scylla
+        ports:
+        - containerPort: 9042
+        - containerPort: 9160
+        - containerPort: 7000
+        - containerPort: 7001
+        - containerPort: 7199
+        volumeMounts:
+        - mountPath: /var/lib/scylla
+          name: scylla-data
+  volumeClaimTemplates:
+  - metadata:
+      name: scylla-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ $global.storageClassName }}
+      resources:
+        requests:
+          storage: 10Gi
+
+{{- end }}

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.38] - 2024-04-12
+### Helm changes
+- Applications versions:
+    - server - 5.59.2
+    - frontend - 5.59.1
+    - realtime - 3.0.5
+    - control-tasks - 2.29.0
+    - widget - v1.28.1
+- Add sub-chart for scyllaDB (support only one node, will be update in future)
+- Attention! ScyllaDB moved to global.control block (view example in [values.yaml](./values.yaml#L124) )
+- Switch to bitnami image for PgBouncer
+- Code refactoring
+
+### Improvements / New Features
+
+Bug fixes/enhancements on the server
+
+
 ## [0.3.37] - 2024-04-04 
 ### Helm changes
 - Applications versions:

@@ -1,3 +1,6 @@
+{{- $global := .Values.global }}
+{{- $control_data := $global.control }}
+{{- $control_server_data := $control_data.server.config }}
 {{- $cfg := .Values.global.control.server.config }}
 apiVersion: v1
 kind: ConfigMap
@@ -14,6 +17,10 @@ data:
     superAdminApiKeyPrifix: {{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }} # Prefix for Admin key
     enableAPI: ${ENABLE_API} # Enable api mode
     enableCrons: false # Enable cron mode
+    {{- if .Values.global.control.accountsTreeNocache }}
+    accountsTree:
+      nocache: true
+    {{- end }}
     logLevel: {{ .Values.global.control.loglevel | default "custom" }}
     http2: {{ .Values.global.control.http2 | default false }}
     {{- if .Values.global.control.simulatorCloudUrl }}
@@ -37,7 +44,7 @@ data:
         password: {{ .Values.global.db.secret.data.dbpwd }}
         settings:
           {{- if .Values.global.db.bouncer }}
-          host: pgbouncer-service
+          host: {{ include "pgbouncer.service.name" . }}
           port: {{ .Values.global.db.bouncer_port }}
           {{- else }}
           host: {{ .Values.global.db.secret.data.dbhost }}
@@ -55,9 +62,19 @@ data:
               - host: {{ .Values.global.db.secret.data.dbhost }}
         {{- end }}
         {{- end }}
-{{- if $cfg.scylladb }}
+{{- if $control_data.scylladb }}
       scylladb:
-{{ $cfg.scylladb | toYaml | trim | nindent 8 }}
+
+        contactPoints:
+    {{- if $control_data.scylladb.internal }}
+        - scylla-service
+    {{- else }}
+      {{- range $control_data.scylladb.contactPoints }}
+        - {{ . }}
+      {{- end }}
+    {{- end }}
+        keyspace: {{ $control_data.scylladb.keyspace }}
+        localDataCenter: {{ $control_data.scylladb.localDataCenter }}
 {{- end }}
 
     redis: # Redis cache settings

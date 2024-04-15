@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appName }}-service
+  name: {{ include "pgbouncer.service.name" . }}
   labels:
 {{- include "pgbouncer.labels" . | nindent 4 }}
 spec:
@@ -60,49 +60,63 @@ spec:
         {{ include "InitWait.postgres" . | nindent 8 }}
       containers:
         - name: {{ .Values.appName }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repotype}}{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          # image: "{{ .Values.image.registry }}/{{ .Values.image.repotype}}{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: bitnami/pgbouncer:latest
+          imagePullPolicy: Always
           env:
-            - name: DB_USER
+            - name: POSTGRESQL_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ include "control.postgresSecretName" . }}
                   key: dbuser
-            - name: DB_PASSWORD
+            - name: POSTGRESQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "control.postgresSecretName" . }}
                   key: dbpwd
-            - name: STATS_USERS
+            - name: PGBOUNCER_STATS_USERS
               valueFrom:
                 secretKeyRef:
                   name: {{ include "control.postgresSecretName" . }}
                   key: dbuser
-            - name: DB_HOST
+            - name: POSTGRESQL_HOST
               valueFrom:
                 secretKeyRef:
                   name: {{ include "control.postgresSecretName" . }}
                   key: dbhost
-            - name: DB_PORT
+            - name: POSTGRESQL_PORT
               valueFrom:
                 secretKeyRef:
                   name: {{ include "control.postgresSecretName" . }}
                   key: dbport
-            - name: IGNORE_STARTUP_PARAMETERS
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.postgresSecretName" . }}
+                  key: dbname
+            - name: PGBOUNCER_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.postgresSecretName" . }}
+                  key: dbname
+            - name: PGBOUNCER_PORT
+              value: "5432"
+            - name: PGBOUNCER_IGNORE_STARTUP_PARAMETERS
               value: "extra_float_digits"
-            - name: DB_NAME
-              value: "*"
-            - name: MAX_CLIENT_CONN
+            - name: PGBOUNCER_MAX_CLIENT_CONN
               value: {{ .Values.global.db.maxclientconn | quote }}
-            - name: DEFAULT_POOL_SIZE
+            - name: PGBOUNCER_DEFAULT_POOL_SIZE
               value: {{ .Values.global.db.default_pool_size | quote }}
-            - name: RESERVE_POOL_SIZE
+            - name: PGBOUNCER_RESERVE_POOL_SIZE
               value: "400"
-            - name: POOL_MODE
+            - name: PGBOUNCER_POOL_MODE
               value: {{ .Values.global.db.default_pool_mode }}
-            - name: RESERVE_POOL_TIMEOUT
+            - name: PGBOUNCER_RESERVE_POOL_TIMEOUT
               value: "2"
-            - name: SERVER_IDLE_TIMEOUT
+            - name: PGBOUNCER_SERVER_IDLE_TIMEOUT
               value: "15"
+            - name: PGBOUNCER_AUTH_TYPE
+              value: {{ .Values.global.db.auth_type | default "md5" | quote }}
             {{ $loglevel := .Values.global.db.bouncer_log_level }}
             {{- if eq $loglevel "debug" }}
             - name: VERBOSE
