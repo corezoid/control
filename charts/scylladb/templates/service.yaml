@@ -1,0 +1,24 @@
+{{- $global := .Values.global }}
+{{- $control_data := $global.control }}
+{{- if eq $control_data.scylladb.internal true }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: scylla-service
+spec:
+  selector:
+    app: scylla
+  clusterIP: None
+  ports:
+    - name: cql
+      port: 9042
+    - name: thrift
+      port: 9160
+    - name: storage
+      port: 7000
+    - name: sslstorage
+      port: 7001
+    - name: jmx
+      port: 7199
+  type: ClusterIP
+{{- end }}

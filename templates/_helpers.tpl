@@ -129,7 +129,7 @@ Create block for init-wait containers
 - name: init-wait-bouncer
   image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
   imagePullPolicy: IfNotPresent
-  command: ["sh", "-c", "until nc -zw1 pgbouncer-service {{ .Values.global.db.bouncer_port }}; do echo waiting for PgBouncer; sleep 2; done;"]
+  command: ["sh", "-c", "until nc -zw1 {{ include "pgbouncer.service.name" . }} {{ .Values.global.db.bouncer_port }}; do echo waiting for PgBouncer; sleep 2; done;"]
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
 {{- end }}
@@ -157,7 +157,7 @@ Create block for init-wait containers
 - name: init-wait-scylla
   image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
   imagePullPolicy: IfNotPresent
-  command: ["sh", "-c", "until nc -zvw1 $(echo '{{ .Values.global.control.server.config.scylladb.contactPoints }}' | sed 's/[][]//g' | cut -d' ' -f1) {{ .Values.global.control.server.config.scylladb.scyllaport | default 9042 }}; do echo waiting for ScyllaDB; sleep 2; done;"]
+  command: ["sh", "-c", "until nc -zw1 {{ if .Values.global.control.scylladb.internal }}scylla-service{{ else }}{{ index .Values.global.control.scylladb.contactPoints 0 }}{{ end }} 9042; do echo Waiting for ScyllaDB to be ready...; sleep 5; done;"]
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
 {{- end }}
@@ -208,6 +208,10 @@ simulator.observability/scrape: "true"
 {{- .Release.Name }}-control-{{ .Values.global.redis.secret.name }}
 {{- end -}}
 
+{{- define "control.scyllaSecretName" -}}
+{{- .Release.Name }}-control-scylla-secret
+{{- end -}}
+
 {{- define "control.redisSecretAnnotations" -}}
 {{ if .Values.global.control.secret -}}
 {{ if .Values.global.control.secret.redis -}}
@@ -235,3 +239,8 @@ control-config-secret
 {{- define "control.realtime.app_port" -}}
 {{ .Values.global.control.realtimePort | default 9005 }}
 {{- end -}}
+
+
+{{- define "pgbouncer.service.name" -}}
+pgbouncer-control-service
+{{- end }}

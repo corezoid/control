@@ -1,4 +1,6 @@
-{{- $global_data := .Values.global }}
+{{- $global := .Values.global }}
+{{- $control_data := $global.control }}
+{{- $control_tasks_data := $control_data.control_tasks.config }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,12 +17,12 @@ data:
         "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
       "corezoid": {
-        "host": "https://{{ .Values.global.control.apiCorezoidDomain }}",
+        "host": "https://{{ $control_data.apiCorezoidDomain }}",
         "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
-      {{- if .Values.global.control.apiGWDomain }}
+      {{- if $control_data.apiGWDomain }}
       "apigw": {
-        "host": "https://{{ .Values.global.control.apiGWDomain }}",
+        "host": "https://{{ $control_data.apiGWDomain }}",
         "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
       {{- end }}
@@ -30,15 +32,15 @@ data:
         "database": "${DB_NAME}",
         "user": "${DB_USER}",
         "password": "${DB_PASSWORD}",
-        {{- if .Values.global.db.secret.slave }}
-        {{- if .Values.global.db.secret.slave.enabled }}
+        {{- if $global.db.secret.slave }}
+        {{- if $global.db.secret.slave.enabled }}
         "sslMode": "${DB_SSLMODE}",
         {{- end }}
         {{- else }}
         "sslMode": "${DB_SSLMODE}"
         {{- end }}
-        {{- if .Values.global.db.secret.slave }}
-        {{- if .Values.global.db.secret.slave.enabled }}
+        {{- if $global.db.secret.slave }}
+        {{- if $global.db.secret.slave.enabled }}
         "slaves": [
           {
             "host": "${DB_SLAVE_HOST}",
@@ -54,24 +56,22 @@ data:
         "database": ${REDIS_DATABASE},
         "password": "${REDIS_PASSWORD}"
       },
-      {{- if $global_data.control.control_tasks.config }}
-      {{- if $global_data.control.control_tasks.config.scylladb }}
+      {{- if $control_data.scylladb }}
       "scylladb": {
-        {{- $contactPoints := .Values.global.control.control_tasks.config.scylladb.contactPoints }}
-        "contactPoints": [
-          {{- range $index, $element := splitList "," $contactPoints }}
-            "{{ trim $element }}"
-            {{- if ne $index (sub (len (splitList "," $contactPoints)) 1) }},{{ end }}
-          {{- end }}
-        ],
-        "keyspace": "{{ .Values.global.control.control_tasks.config.scylladb.keyspace }}"
-      },
+      {{- if $control_data.scylladb.internal }}
+          "contactPoints": [
+              "scylla-service"
+          ],
+      {{- else }}
+          "contactPoints": {{ toJson $control_data.scylladb.contactPoints }},
       {{- end }}
+          "keyspace": "{{ $control_data.scylladb.keyspace }}"
+      },
       {{- end }}
       "metrics": {
         "port": {{ .Values.appReadinessHttpPort | default "9100" }}
       },
-      {{- if $global_data.control.connectors }}
+      {{- if $control_data.connectors }}
       "connectors": {
         "convId": ${CONFIG_CONNECTORS_CONVID},
         "apiLogin": ${CONFIG_CONNECTORS_APILOGIN},

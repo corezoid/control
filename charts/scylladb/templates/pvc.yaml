@@ -1,0 +1,24 @@
+{{- $global := .Values.global }}
+{{- $control_data := $global.control }}
+{{- if eq $control_data.scylladb.internal true }}
+{{- if $control_data.scylladb.persistantVolumeClaimName }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $control_data.scylladb.persistantVolumeClaimName }}
+{{- if eq $global.storage "efs" }}
+  annotations:
+    volume.beta.kubernetes.io/storage-class: {{ $global.storageClassName }}
+{{- end }}
+  labels:
+    app: {{ $control_data.product }}
+    tier: {{ .Values.appName }}
+spec:
+  storageClassName: {{ $global.storageClassName }}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+{{- end }}
+{{- end }}

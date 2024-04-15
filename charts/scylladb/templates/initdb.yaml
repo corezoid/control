@@ -1,0 +1,46 @@
+{{- $global := .Values.global }}
+{{- $control_data := $global.control }}
+{{- if eq $control_data.scylladb.internal true }}
+
+{{ $keyspace := .Values.global.control.scylladb.keyspace }}
+{{ $internal := .Values.global.control.scylladb.internal }}
+{{ $replicas := .Values.global.control.scylladb.replicas }}
+{{ $contactPoints := .Values.global.control.scylladb.contactPoints }}
+{{ $replicationFactor := "" }}
+{{ $scylladbHost := "" }}
+
+{{ if $internal }}
+    {{ $replicationFactor = $replicas }}
+    {{ $scylladbHost = "scylla-service" }}
+{{ else }}
+    {{ $replicationFactor = len $contactPoints }}
+    {{ $scylladbHost = index $control_data.scylladb.contactPoints 0 | quote }}
+{{ end }}
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: scylladb-post-install
+  labels:
+    tier: scylladb
+spec:
+  initContainers:
+    {{ include "InitWait.scylla" . | nindent 8 }}
+  containers:
+    - name: scylla-create-keyspace
+      image: scylladb/scylla:5.4
+      imagePullPolicy: {{ $control_data.scylladb.imagePullPolicy | default "IfNotPresent" }}
+      command:
+        - sh
+        - -c
+        - |
+          cqlsh ${SCYLLADB_HOST} -e "CREATE KEYSPACE IF NOT EXISTS {{ $keyspace }} WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '{{ $replicationFactor }}'} AND durable_writes = true;"
+      env:
+        - name: SCYLLADB_HOST
+        {{- if $control_data.scylladb.internal }}
+          value: "scylla-service"
+        {{- else }}
+          value: {{ index $control_data.scylladb.contactPoints 0 | quote }}
+        {{- end }}
+  restartPolicy: Never
+{{- end }}
