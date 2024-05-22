@@ -88,17 +88,41 @@ spec:
             - name: {{ .Values.appName }}-config-volume
               mountPath: /ebsmnt/conf/control.yml
               subPath: control.yml
+            {{- if .Values.global.control.filesStorage.type }}
+            {{- if ne .Values.global.control.filesStorage.type "s3" }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
+            {{- end }}
+            {{- end }}
+            {{- if or (eq .Values.global.efs.enabled true) (eq .Values.global.storage "manual") }}
+            - name: {{ .Values.appName }}-attachments
+              mountPath: {{ $control_data.filesStorage.eventFiles }}
+            {{- end }}
       volumes:
+        {{- if eq .Values.global.storage "manual" }}
+        - name: {{ .Values.appName }}-attachments
+          persistentVolumeClaim:
+            claimName: {{ $control_data.server.persistantVolumeClaimName }}
+        {{- end }}
+        {{- if eq .Values.global.efs.enabled true}}
+        - name: {{ .Values.appName }}-attachments
+          persistentVolumeClaim:
+          nfs:
+            server: {{ .Values.global.efs.efsFileSystemId }}.efs.{{ .Values.global.efs.awsRegion }}.amazonaws.com
+            path: /
+        {{- end }}
         - name: {{ .Values.appName }}-config-volume
           configMap:
             name: {{ .Values.appName }}-configmap
+        {{- if .Values.global.control.filesStorage.type }}
+        {{- if ne .Values.global.control.filesStorage.type "s3" }}
         {{- if $server_data.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
             claimName: {{ $server_data.persistantVolumeClaimName }}
             readOnly: false
+        {{- end }}
+        {{- end }}
         {{- end }}
       {{- with $control_data.nodeSelector }}
       nodeSelector:

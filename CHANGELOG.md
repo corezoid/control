@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.39] - 2024-05-01
+### Helm changes
+- Applications versions:
+    - server - 5.63.0
+    - frontend - 5.63.0
+    - realtime - 3.0.5
+    - control-tasks - 2.32.0
+    - widget - v1.32.0
+- Changed access_log stdout in frontend and widget subcharts
+- Refactor EFS settings in subcharts.
+- Added support for working with s3 bucket. Example in values.yaml:
+```
+    filesStorage:
+      type: "s3" # AWS S3 or AWS EFS
+      region: "eu-west-1"
+      bucket: "mw-dev-control-2-storage" # for AWS S3
+      eventFiles: "/ebsmnt/attachments"
+```
+
+### Improvements / New Features
+
+#### 0. Important! For the API GET /actors_accounts/actorID, we set the default limit to 30.
+#### 1. Form editor - Accounts. Moved the Add account button to the top.
+#### 2. Added documentation for analytical counters at https://doc.simulator.company/#tag/counters.
+#### 3. Allowed multiple additions of the same parameter in the actorFilter creation interface.
+#### 4. Improved the display of originalUser.nick in the event feed, last reaction.
+#### 5. Created a transfer holding functionality https://doc.simulator.company/#operation/createTransfer.
+#### 6. Developed an API for retrieving a transfer by ref.
+#### 7. Created a calendar view mode for events. Also, added a separate path to embed the calendar in the widget component in Scripts.
+#### 8. Removed the old implementation of string/actorId accounts.
+#### 9. Changed the display of links in the graph from straight to curved.
+#### 10. In the split mode of events, made external links non-clickable.
+#### 11. Added a step to select a role when inviting a user in the manage access rules window.
+#### 12. Increased the REF size of an actor to 3000 characters.
+#### 13. Retained only the finance type of transfer.
+#### 14. Added the ability to control the buttons available in the comment input window through query parameters.
+#### 15. Made it possible to customize the order of stream arrangement.
+#### 16. Changed the default time for creating events to the current time.
+#### 17. In the make transaction window, added account sub-scrolling in the account list.
+#### 18. Added a history of adding and removing accounts to the actor's change history.
+#### 19. Developed an API to enable streaming for a specific group of users.
+
+### Scripts:
+#### 1. Fixed the operation of the forward/back navigation arrows in the browser.
+#### 2. Integrated with Amazon Connect in the widget component.
+#### 3. Enhanced the resolution when displaying PDFs.
+#### 4. Supported bb-code in the title component of the button.
+#### 5. Added the value attribute to the carousel component.
+#### 6. Supported embed code.
+
+### Widget:
+#### 1. Changed/improved the logic for generating fingerprints in the widget and scripts.
+
 
 ## [0.3.38] - 2024-04-12
 ### Helm changes

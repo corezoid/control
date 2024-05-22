@@ -19,26 +19,3 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   storageClassName: {{ .Values.global.storageClassName }}
 {{- end }}
-
-{{- if eq .Values.global.storage "efs" }}
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: {{ .Values.appName }}-attachments-pv-{{ .Release.Name }}
-  labels:
-{{- include "server.labels" . | nindent 4 }}
-spec:
-  accessModes:
-    - ReadWriteMany
-  capacity:
-    storage: 1Gi
-  volumeMode: Filesystem
-  claimRef:
-    name: {{ .Values.global.control.server.persistantVolumeClaimName }}
-    namespace: {{ .Release.Namespace }}
-  csi:
-    driver: efs.csi.aws.com
-    volumeHandle: {{ .Values.global.efs.efsFileSystemId }}
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: {{ .Values.global.storageClassName }}
-{{- end }}

@@ -24,7 +24,7 @@ data:
         log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                           '$status $body_bytes_sent "$http_referer" '
                           '"$http_user_agent" "$http_x_forwarded_for"';
-        log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$http_cookie\t$host';
+        log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$host';
         access_log /dev/stdout up_log;
 
         sendfile        on;
@@ -66,12 +66,39 @@ data:
       server_name {{ template "control.WidgetDomain" . }};
       {{- end }}
 
-      access_log /dev/stdout main;
+      access_log /dev/stdout up_log;
       error_log  /dev/stdout;
 
       {{ include "control.nginx.add_header" . | nindent 6 }}
 
       resolver kube-dns.kube-system.svc.cluster.local valid=10s;
+
+      {{- if .Values.global.control.filesStorage.type }}
+      {{- if eq .Values.global.control.filesStorage.type "s3" }}
+      set $bucket "{{ .Values.global.control.filesStorage.bucket }}.s3-{{ .Values.global.control.filesStorage.region }}.amazonaws.com";
+
+      location ~ ^/v/1.0/download/(.*)$ {
+        add_header Content-disposition "inline";
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
+        resolver 8.8.8.8;
+        proxy_http_version     1.1;
+        proxy_redirect off;
+        proxy_set_header       Authorization '';
+        proxy_set_header       Host $bucket;
+        proxy_set_header       X-Real-IP $remote_addr;
+        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_hide_header      x-amz-id-2;
+        proxy_hide_header      x-amz-request-id;
+        proxy_hide_header      x-amz-meta-server-side-encryption;
+        proxy_hide_header      x-amz-server-side-encryption;
+        proxy_hide_header      Set-Cookie;
+        proxy_ignore_headers   Set-Cookie;
+        proxy_intercept_errors on;
+        add_header             Cache-Control max-age=31536000;
+        proxy_pass             https://$bucket/$1;
+      }
+      {{- end }}
+      {{- end }}
 
       location ~ ^/api/(.*) {
         proxy_pass http://server-service.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.global.control.serverPort }}/api/$1$is_args$args;
@@ -106,21 +133,6 @@ data:
           {{ include "control.nginx.add_header.cors" . | nindent 10 }}
           expires modified -1;
         }
-
-        # if ($url_full ~ ^(\/+)?launcher.html(\/+)?$) {
-        #   add_header Cache-Control "no-cache, no-store, must-revalidate";
-        #   expires modified -1;
-        # }
-
-        # if ($url_full ~ ^(\/+)?messenger.html(\/+)?$) {
-        #   add_header Cache-Control "no-cache, no-store, must-revalidate";
-        #   expires modified -1;
-        # }
-
-        # if ($url_full ~ ^(\/+)?redirect.html(\/+)?$) {
-        #   add_header Cache-Control "no-cache, no-store, must-revalidate";
-        #   expires modified -1;
-        # }
 
         expires modified +24h;
 
