@@ -33,7 +33,11 @@ spec:
       name: scylla-data
     spec:
       accessModes: [ "ReadWriteOnce" ]
+<<<<<<< HEAD
       storageClassName: {{ $control_data.scylladb.storageClassName }}
+=======
+      storageClassName: {{ $global.storageClassName }}
+>>>>>>> main
       resources:
         requests:
           storage: 10Gi
