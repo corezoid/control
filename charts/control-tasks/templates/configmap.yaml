@@ -14,7 +14,8 @@ data:
         "token": "${CONTROL_TOKEN}",
         "host": "${CONTROL_HOST}",
         "protocol": "${CONTROL_PROTOCOL}",
-        "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
+        "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY},
+        "maxUploadFileSize": "{{ include "control.frontend.nginx.client_max_body_size" . }}"
       },
       "corezoid": {
         "host": "https://{{ $control_data.apiCorezoidDomain }}",

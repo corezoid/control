@@ -5,10 +5,6 @@ metadata:
   name: {{ .Values.global.control.server.persistantVolumeClaimName }}
   labels:
 {{- include "server.labels" . | nindent 4 }}
-{{- if eq .Values.global.storage "efs" }}
-  annotations:
-    volume.beta.kubernetes.io/storage-class: {{ .Values.global.storageClassName }}
-{{- end }}
 spec:
   storageClassName: {{ .Values.global.storageClassName }}
   accessModes:

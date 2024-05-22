@@ -116,7 +116,26 @@ data:
       ip: {{ .Values.global.control.requestLimits.ip }}
 
     filesStorage: # Shared folder for uploaded files
+      {{- if .Values.global.control.filesStorage.type }}
+      {{- if eq .Values.global.control.filesStorage.type "s3" }}
+      # If set S3, then will use AWS S3.
+      # Need to create S3 bucket and set next params.
+      # Also you can add AWS IAM policy to access this bucket by role
+      type: {{ .Values.global.control.filesStorage.type }}
+      bucket: {{ .Values.global.control.filesStorage.bucket }}
+      region: {{ .Values.global.control.filesStorage.region }}
+      {{- if .Values.global.control.filesStorage.credentials }}
+      # You can set AWS IAM AccessKey and SecretKey for IAM user with this bucet access
+      credentials:
+        accessKeyId: {{ .Values.global.control.filesStorage.credentials.accessKeyId }}
+        secretAccessKey: {{ .Values.global.control.filesStorage.credentials.secretAccessKey }}
+      {{- end }}
+      {{- else if eq .Values.global.control.filesStorage.type "efs" }}
       eventFiles: {{ .Values.global.control.filesStorage.eventFiles }}
+      {{- end }}
+      {{- else }}
+      eventFiles: {{ .Values.global.control.filesStorage.eventFiles }}
+      {{- end }}
 
     webConfig: # Client settings while startup
       avatarPath: https://{{ .Values.global.control.auth.domain }}/avatars/52x52/{userId}.jpg # Avatar regexp
@@ -152,6 +171,9 @@ data:
       {{- end }}
       {{- if .Values.global.control.webConfig.scriptPath }}
       scriptPath: {{ .Values.global.control.webConfig.scriptPath }}
+      {{- end }}
+      {{- if .Values.global.control.webConfig.dashboardPath }}
+      dashboardPath: {{ .Values.global.control.webConfig.dashboardPath }}
       {{- end }}
       {{- if .Values.global.control.webConfig.hotjar }}
       hotjar:

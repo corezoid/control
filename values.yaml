@@ -195,6 +195,10 @@ global:
           convId: 333
     filesStorage:
       eventFiles: "/ebsmnt/attachments"
+#       type: "s3" # AWS S3 or AWS EFS
+#       region: "eu-west-1"
+#       bucket: "mw-dev-control-2-storage" # for AWS S3
+#       efsFileSystemId: fs-0aaa210ad904c3991   # for AWS EFS
     webConfig:
       supportEmail: ''
       maxFileSize: '26214400'

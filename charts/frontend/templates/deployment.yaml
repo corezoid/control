@@ -78,20 +78,44 @@ spec:
             - name: config-site
               mountPath: /usr/share/nginx/html/config.json
               subPath: config.json
+            {{- if .Values.global.control.filesStorage.type }}
+            {{- if ne .Values.global.control.filesStorage.type "s3" }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
+            {{- end }}
+            {{- end }}
+            {{- if or (eq .Values.global.efs.enabled true) (eq .Values.global.storage "manual") }}
+            - name: {{ .Values.appName }}-attachments
+              mountPath: {{ $control_data.filesStorage.eventFiles }}
+            {{- end }}
       volumes:
+        {{- if eq .Values.global.storage "manual" }}
+        - name: {{ .Values.appName }}-attachments
+          persistentVolumeClaim:
+            claimName: {{ $control_data.server.persistantVolumeClaimName }}
+        {{- end }}
+        {{- if eq .Values.global.efs.enabled true}}
+        - name: {{ .Values.appName }}-attachments
+          persistentVolumeClaim:
+          nfs:
+            server: {{ .Values.global.efs.efsFileSystemId }}.efs.{{ .Values.global.efs.awsRegion }}.amazonaws.com
+            path: /
+        {{- end }}
         - name: config-nginx
           configMap:
             name: {{ .Values.appName }}-nginx-configmap
         - name: config-site
           configMap:
             name: {{ .Values.appName }}-site-configmap
+        {{- if .Values.global.control.filesStorage.type }}
+        {{- if ne .Values.global.control.filesStorage.type "s3" }}
         {{- if $control_data.server.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
             claimName: {{ $control_data.server.persistantVolumeClaimName }}
             readOnly: true
+        {{- end }}
+        {{- end }}
         {{- end }}
       {{- with $control_data.nodeSelector }}
       nodeSelector:
