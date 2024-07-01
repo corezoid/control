@@ -23,7 +23,11 @@ data:
       },
       {{- if $control_data.apiGWDomain }}
       "apigw": {
-        "host": "https://{{ $control_data.apiGWDomain }}",
+      {{- if hasPrefix "http://" $control_data.apiGWDomain }}
+        "host": "{{ $control_data.apiGWDomain }}"
+      {{- else }}
+        "host": "https://{{ $control_data.apiGWDomain }}"
+      {{- end }},
         "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       },
       {{- end }}

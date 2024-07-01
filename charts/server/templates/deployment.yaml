@@ -34,14 +34,12 @@ spec:
       {{- if $server_data.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ $server_data.terminationGracePeriodSeconds }}
       {{- end }}
-  {{- if not (eq $global_data.repotype "public") }}
-  {{- if $global_data.imagePullSecrets -}}
-  {{- if $global_data.imagePullSecrets.name }}
+      {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ $global_data.imagePullSecrets.name }}
-  {{- end }}
-  {{- end -}}
-  {{- end }}
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
       serviceAccountName: ""
       securityContext:
         {{- toYaml $control_data.podSecurityContext | nindent 8 }}
@@ -76,6 +74,7 @@ spec:
             {{- end }}
             - name: CONTROL_DOMAIN
               value: {{ include "control.Domain" . }}
+            {{- include "control.container_envs_redis" . | nindent 12 }}
           ports:
             - name: http
               containerPort: {{ include "server.port" . }}
@@ -94,12 +93,12 @@ spec:
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
             {{- end }}
-            {{- if or (eq .Values.global.efs.enabled true) (eq .Values.global.storage "manual") }}
+            {{- if or (eq .Values.global.efs.enabled true) (eq .Values.global.storage "manual") (eq .Values.global.storage "nfs") }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
       volumes:
-        {{- if eq .Values.global.storage "manual" }}
+        {{- if or (eq .Values.global.storage "manual") (eq .Values.global.storage "nfs") }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
             claimName: {{ $control_data.server.persistantVolumeClaimName }}

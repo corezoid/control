@@ -244,6 +244,12 @@ data:
         proxy_pass http://server-service:{{ .Values.global.control.serverPort }};
       }
 
+      {{- if .Values.global.control.zoom_auth }}
+      location /zoom-redirect-oauth {
+        rewrite ^/zoom-redirect-oauth$ {{ .Values.global.control.zoom_auth.url }} permanent;
+      }
+      {{- end }}
+
     }
     {{- if .Values.global.control.apiSubDomain }}
     server {
@@ -327,5 +333,6 @@ data:
         client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         proxy_pass http://server-service:{{ .Values.global.control.serverPort }}/papi/1.0;
       }
+
     }
     {{- end }}

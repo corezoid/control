@@ -97,7 +97,7 @@ nginx.ingress.kubernetes.io/cors-expose-headers: "*"
 
 {{- define "control.nginx.add_header.cors" -}}
 # CORS headers
-add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://*.control.events https://{{- include "control.Domain" . }} https://simulator.company https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://*.on.aws https://*.ngrok-free.app https://frames.a-bank.com.ua https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://*.my.connect.aws https://connect.facebook.net https://*.hotjar.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }}{{ if .Values.global.control.apiOld -}}{{- if .Values.global.control.apiOld.enabled }} https://*.{{ .Values.global.control.apiOld.mainDomain }} https://{{ .Values.global.control.apiOld.mainDomain }}{{- end -}}{{- end -}};" always;
+add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: {{- range .Values.global.control.content_security_policy.urls }} {{.}}{{- end }} https://unpkg.com wss://{{- include "control.Domain" . }} https://{{ .Values.global.control.auth.domain }} https://*.control.events https://{{- include "control.Domain" . }} https://simulator.company https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.googleapis.com *.google.com https://*.gstatic.com https://*.corezoid.com https://*.on.aws https://*.ngrok-free.app https://frames.a-bank.com.ua https://www.youtube.com wss://global.vss.twilio.com wss://*.twilio.com wss://sdkgw.us1.twilio.com wss://*.onfido.com https://*.onfido.com https://*.sentry.io https://*.sardine.ai https://*.linkedin.com https://www.facebook.com https://*.doubleclick.net https://cdn.linkedin.oribi.io https://snap.licdn.com https://*.my.connect.aws https://connect.facebook.net https://*.hotjar.com https://*.{{ .Values.global.domain }} wss://*.{{ .Values.global.domain }}{{ if .Values.global.control.apiOld -}}{{- if .Values.global.control.apiOld.enabled }} https://*.{{ .Values.global.control.apiOld.mainDomain }} https://{{ .Values.global.control.apiOld.mainDomain }}{{- end -}}{{- end -}};" always;
 {{- end }}
 
 {{- define "control.nginx.add_header" -}}
@@ -139,7 +139,11 @@ Create block for init-wait containers
 - name: init-wait-redis
   image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
   imagePullPolicy: IfNotPresent
+{{- if .Values.global.control.redis }}
+  command: ["sh", "-c", "until nc -zw1 {{ .Values.global.control.redis.secret.data.host }} {{ .Values.global.control.redis.secret.data.port }}; do echo waiting for Redis; sleep 2; done;"]
+{{- else }}
   command: ["sh", "-c", "until nc -zw1 {{ .Values.global.redis.secret.data.host }} {{ .Values.global.redis.secret.data.port }}; do echo waiting for Redis; sleep 2; done;"]
+{{- end }}
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
 {{- end }}
@@ -148,7 +152,13 @@ Create block for init-wait containers
 - name: init-wait-pubsub-redis
   image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
   imagePullPolicy: IfNotPresent
+{{- if .Values.global.control.redis }}
+{{- if .Values.global.control.redis.internal }}
+  command: ["sh", "-c", "until nc -zw1 {{ .Values.global.control.redis.secret.data.host }} {{ .Values.global.control.redis.secret.data.port }}; do echo waiting for Redis; sleep 2; done;"]
+{{- else }}
   command: ["sh", "-c", "until nc -zw1 {{ .Values.global.redis.secret.data.host_PubSub }} {{ .Values.global.redis.secret.data.port_PubSub }}; do echo waiting for Redis_PubSub; sleep 2; done;"]
+{{- end }}
+{{- end }}
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
 {{- end }}
@@ -205,7 +215,11 @@ simulator.observability/scrape: "true"
 {{- end }}
 
 {{- define "control.redisSecretName" -}}
+{{- if .Values.global.control.redis }}
+{{- .Release.Name }}-control-{{ .Values.global.control.redis.secret.name }}
+{{- else }}
 {{- .Release.Name }}-control-{{ .Values.global.redis.secret.name }}
+{{- end }}
 {{- end -}}
 
 {{- define "control.scyllaSecretName" -}}

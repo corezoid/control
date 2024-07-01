@@ -1,23 +1,27 @@
-{{- if eq .Values.global.redis.internal true }}
+{{- if .Values.global.control.redis }}
+{{- if .Values.global.control.redis.internal }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appName }}-master
+  name: control-{{ .Values.appName }}-master
   labels:
-{{- include "redis.labels" . | nindent 4 }}
+    {{- include "control.redis.labels" . | nindent 4 }}
+    application: control-{{ .Values.appName }}
 spec:
   selector:
     matchLabels:
-{{- include "redis.labels" . | nindent 6 }}
+      {{- include "control.redis.labels" . | nindent 6 }}
       role: master
-  replicas: 1
+      application: control-{{ .Values.appName }}
+  replicas: {{ .Values.global.control.redis.replicas | default "1" }}
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-redis.yaml") . | sha256sum }}
       labels:
-{{- include "redis.labels" . | nindent 8 }}
+        {{- include "control.redis.labels" . | nindent 8 }}
         role: master
+        application: control-{{ .Values.appName }}
     spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
@@ -30,7 +34,7 @@ spec:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
       containers:
       - name: master
-        image: "{{ .Values.image.registry }}{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -65,10 +69,10 @@ spec:
       volumes:
         - name: redisconfig
           configMap:
-            name: {{ .Values.appName }}-config
+            name: control-{{ .Values.appName }}-config
         - name: {{ .Values.appName }}-claim
           persistentVolumeClaim:
-            claimName: {{ .Values.global.redis.persistantVolumeClaimName }}
+            claimName: control-{{ .Values.global.redis.persistantVolumeClaimName }}
             readOnly: false
       {{- with .Values.global.control.affinity }}
       affinity:
@@ -78,4 +82,5 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
 {{- end }}

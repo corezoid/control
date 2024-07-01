@@ -1,0 +1,63 @@
+{{- if .Values.global.control.redis }}
+{{- if .Values.global.control.redis.internal }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: control-{{ .Values.appName }}-config
+  labels:
+    {{- include "control.redis.labels" . | nindent 4 }}
+    application: control-{{ .Values.appName }}
+data:
+  redis.conf: |
+    pidfile /var/run/redis.pid
+    port {{ .Values.appPort }}
+    tcp-backlog 511
+    bind 0.0.0.0
+    timeout 0
+    tcp-keepalive 0
+    loglevel notice
+    #logfile /tmp/redis.log
+    logfile ""
+    databases 16
+    stop-writes-on-bgsave-error yes
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+    slave-serve-stale-data yes
+    slave-read-only yes
+    repl-disable-tcp-nodelay no
+    slave-priority 100
+{{ if .Values.global.redis.secret.data.password }}
+    requirepass {{ .Values.global.redis.secret.data.password }}
+{{ end }}
+    maxclients 50000
+    appendonly yes
+    save 900 1
+    save 300 10
+    save 60 10000
+    appendfilename "appendonly.aof"
+    appendfsync always
+    no-appendfsync-on-rewrite no
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+    lua-time-limit 5000
+    slowlog-log-slower-than 10000
+    slowlog-max-len 128
+    notify-keyspace-events ""
+    hash-max-ziplist-entries 512
+    hash-max-ziplist-value 64
+    list-max-ziplist-entries 512
+    list-max-ziplist-value 64
+    set-max-intset-entries 512
+    zset-max-ziplist-entries 128
+    zset-max-ziplist-value 64
+    hll-sparse-max-bytes 3000
+    activerehashing yes
+    client-output-buffer-limit normal 0 0 0
+    client-output-buffer-limit slave 256mb 64mb 60
+    client-output-buffer-limit pubsub 32mb 8mb 60
+    hz 10
+    aof-rewrite-incremental-fsync yes
+{{- end }}
+{{- end }}

@@ -1,7 +1,5 @@
 {{- $global := .Values.global }}
 {{- $control_data := $global.control }}
-{{- $control_server_data := $control_data.server.config }}
-{{- $cfg := .Values.global.control.server.config }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -78,28 +76,28 @@ data:
 {{- end }}
 
     redis: # Redis cache settings
-      host: {{ .Values.global.redis.secret.data.host }}
-      port: {{ .Values.global.redis.secret.data.port }}
-      {{- if .Values.global.redis.secret.data.password }}
-      password: {{ .Values.global.redis.secret.data.password }}
-      {{- end }}
-      {{- if .Values.global.control.redisDb }}
-      db: {{ .Values.global.control.redisDb }}
-      {{- end }}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+{{- if or (and $control_data.redis $control_data.redis.secret.data.password) $global.redis.secret.data.password }}
+      password: ${REDIS_PASSWORD}
+{{- end }}
+{{- if .Values.global.control.redisDb }}
+      db: ${REDIS_DATABASE}
+{{- end }}
       pool:
         min: 2
         max: 50
         idle: 30000
 
     redisPubSub: # Redis PubSub settings for Real-Time
-      host: {{ .Values.global.redis.secret.data.host }}
-      port: {{ .Values.global.redis.secret.data.port}}
-      {{- if .Values.global.redis.secret.data.password }}
-      password: {{ .Values.global.redis.secret.data.password }}
-      {{- end }}
-      {{- if .Values.global.control.redisDb }}
-      db: {{ .Values.global.control.redisDb }}
-      {{- end }}
+      host: ${REDIS_PUBSUB_HOST}
+      port: ${REDIS_PUBSUB_PORT}
+{{- if or (and $control_data.redis $control_data.redis.secret.data.password) $global.redis.secret.data.password }}
+      password: ${REDIS_PASSWORD}
+{{- end }}
+{{- if .Values.global.control.redisDb }}
+      db: ${REDIS_DATABASE}
+{{- end }}
       pool:
         min: 2
         max: 50

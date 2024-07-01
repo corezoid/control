@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Helm changes
+
+
+## [0.3.40] - 2024-06-19
+### Helm changes
+- Applications versions:
+    - server - 5.69.0
+    - frontend - 5.69.0
+    - realtime - 3.0.7
+    - control-tasks - 2.32.4
+    - widget - v1.34.1
+- Add Grafana dashboards
+- Add `tolerations` for pods
+- Add `redis-control` for control use only
+- Add new location for zoom-oauth
+```
+{{- if .Values.global.control.zoom_auth }}
+location /zoom-redirect-oauth {
+    rewrite ^/zoom-redirect-oauth$ {{ .Values.global.control.zoom_auth.url }} permanent;
+}
+{{- end }}
+```
+
+### Improvements / New Features
+
+#### 1. Implemented pagination functionality on the graph. This allows for partial loading of large graphs, only the part that is currently on the screen.
+#### 2. Improved the display of event cards in the Event calendar.
+#### 3. Automated the creation of connections between actors based on transactions on actors' account forms.
+#### 4. Implemented state markup functionality on graphs.
+#### 5. Added search functionality in the Account field in the transfer creation form.
+#### 6. Removed the api `actors_filters/stream/:formId/:name`.
+#### 7. Added the ability to pin states.
+#### 8. Enabled building dashboards using the `originalDate` of transactions.
+#### 9. Enhanced graph valency, now it is possible to create both parent and child connections.
+#### 10. Extended the Bar dashboard type. It is now possible to display multiple actors by day.
+
+### Scripts
+
+#### 1. Enabled blocking the time picker in the Event calendar, which is embedded in scripts as an iframe.
+#### 2. The script page now waits for the styles request to complete before loading.
+#### 3. Enabled resizing of the event card in the calendar if the calendar is embedded in the script as an iframe.
+#### 4. Added header and footer for one column grid: https://doc.simulator.company/cdu#tag/page
+#### 5. For the Amazon Connect widget, added an Action to end the call.
+#### 6. For the Amazon Connect widget, the call ends when the browser tab is closed.
+#### 7. In the upload and signature components, proxied the `api.uploadUrl` for uploading files to an external resource instead of the Simulator.
+
+### Widget
+
+#### 1. Added support for context, which allows passing any chat information during the initialization of the widget.
+
+---
+
 ## [0.3.39] - 2024-05-01
 ### Helm changes
 - Applications versions:

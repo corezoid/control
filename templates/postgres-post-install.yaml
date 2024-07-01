@@ -62,4 +62,4 @@ spec:
             secretKeyRef:
               name: {{ include "control.postgresSecretName" . }}
               key: dbpwd
-  restartPolicy: Never
+  restartPolicy: OnFailure
