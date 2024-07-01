@@ -1,11 +1,13 @@
-{{- if eq .Values.global.redis.internal true }}
+{{- if .Values.global.control.redis }}
+{{- if .Values.global.control.redis.internal }}
 {{- if eq .Values.global.storage "efs" }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ .Values.appName }}-{{ .Values.global.storage}}-{{ .Release.Name }}
+  name: control-{{ .Values.appName }}-{{ .Values.global.storage}}-{{ .Release.Name }}
   labels:
-{{- include "redis.labels" . | nindent 4 }}
+    {{- include "control.redis.labels" . | nindent 4 }}
+    application: control-{{ .Values.appName }}
 spec:
   capacity:
     storage: 1Gi
@@ -20,5 +22,6 @@ spec:
   csi:
     driver: efs.csi.aws.com
     volumeHandle: {{ .Values.global.efs.efsFileSystemId }}
+{{- end }}
 {{- end }}
 {{- end }}

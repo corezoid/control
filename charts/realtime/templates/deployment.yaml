@@ -26,12 +26,14 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels: {{- include "realtime.labels" . | nindent 8 }}
     spec:
-      {{- if not (eq $global_data.repotype "public") }}
-      imagePullSecrets:
-        - name: {{ $global_data.imagePullSecrets.name }}
-      {{- end }}
       {{- if $control_data.terminationGracePeriodSeconds.front }}
       terminationGracePeriodSeconds: {{ $control_data.terminationGracePeriodSeconds.front }}
+      {{- end }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
       {{- end }}
       serviceAccountName: {{ .Values.appName }}-serviceaccount
       securityContext:

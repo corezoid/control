@@ -1,0 +1,5 @@
+appName: redis
+appPort: 6379
+image:
+  repository: redis
+  tag: 7.2

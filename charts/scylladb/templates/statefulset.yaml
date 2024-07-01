@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: scylla
-        image: scylladb/scylla
+        image: docker.io/scylladb/scylla:{{ .Values.appVersion }}
         ports:
         - containerPort: 9042
         - containerPort: 9160

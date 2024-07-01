@@ -1,19 +1,26 @@
-{{- if eq .Values.global.redis.internal true }}
+{{- if .Values.global.control.redis }}
+{{- if .Values.global.control.redis.internal }}
 {{- if .Values.global.redis.persistantVolumeClaimName }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.global.redis.persistantVolumeClaimName }}
+  name: control-{{ .Values.global.redis.persistantVolumeClaimName }}
   annotations:
     volume.beta.kubernetes.io/storage-class: {{ .Values.global.storageClassName }}
   labels:
-{{- include "redis.labels" . | nindent 4 }}
+    {{- include "control.redis.labels" . | nindent 4 }}
+    application: control-{{ .Values.appName }}
 spec:
   storageClassName: {{ .Values.global.storageClassName }}
   accessModes:
+{{- if eq .Values.global.storage "efs" }}
   - ReadWriteMany
+{{- else }}
+  - ReadWriteOnce
+{{- end }}
   resources:
     requests:
       storage: 1Gi
+{{- end }}
 {{- end }}
 {{- end }}

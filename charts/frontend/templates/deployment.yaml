@@ -33,9 +33,11 @@ spec:
       {{- if $control_data.terminationGracePeriodSeconds.front }}
       terminationGracePeriodSeconds: {{ $control_data.terminationGracePeriodSeconds.front }}
       {{- end }}
-      {{- if not (eq $global_data.repotype "public") }}
+      {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ $global_data.imagePullSecrets.name }}
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
       {{- end }}
       serviceAccountName: ""
       securityContext:
@@ -84,12 +86,12 @@ spec:
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
             {{- end }}
-            {{- if or (eq .Values.global.efs.enabled true) (eq .Values.global.storage "manual") }}
+            {{- if or (eq .Values.global.efs.enabled true) (eq .Values.global.storage "manual") (eq .Values.global.storage "nfs") }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
       volumes:
-        {{- if eq .Values.global.storage "manual" }}
+        {{- if or (eq .Values.global.storage "manual") (eq .Values.global.storage "nfs") }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
             claimName: {{ $control_data.server.persistantVolumeClaimName }}

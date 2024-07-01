@@ -28,9 +28,11 @@ spec:
       {{- if $control_tasks_data.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ $control_tasks_data.terminationGracePeriodSeconds }}
       {{- end }}
-      {{- if not (eq $global_data.repotype "public") }}
+      {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ $global_data.imagePullSecrets.name }}
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
       {{- end }}
       serviceAccountName: {{ .Values.appName }}-serviceaccount
       securityContext:

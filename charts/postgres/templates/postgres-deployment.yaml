@@ -18,14 +18,17 @@ spec:
         app: {{ .Values.global.control.product }}
         tier: {{ .Values.appName }}
     spec:
-      {{- if not  (eq .Values.global.control.repotype "public") }}
+      {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
       {{- end }}
       initContainers:
         #### https://github.com/docker-library/postgres/issues/563
         - name: pgsql-data-permission-fix
           image: busybox
+          imagePullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
           command:
             - sh
             - -c

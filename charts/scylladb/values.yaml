@@ -1,3 +1,5 @@
 appName: scylladb
 image:
   registry: docker-hub.middleware.biz
+
+appVersion: 5.4
