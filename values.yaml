@@ -115,12 +115,12 @@ global:
   nfs:
     ## set true if you choose storage: nfs
     enabled: false
-  imageRegistry: "docker-hub.middleware.biz"
+  imageRegistry: "hub.corezoid.com"
   repotype: "public"
   imageInit:
-    repository: docker-hub.middleware.biz/hub.docker.com/library/alpine
+    repository: hub.corezoid.com/hub.docker.com/library/alpine
     pullPolicy: IfNotPresent
-    tag: "3.18"
+    tag: "3.20"
   deploymentStrategy:
     type: RollingUpdate
   networkPolicy:

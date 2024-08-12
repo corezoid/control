@@ -2,7 +2,6 @@ appName: server
 serverPort: 9000
 
 image:
-  registry: docker-hub.middleware.biz
   repository: ctrl-server
 
 hpa_mem: false

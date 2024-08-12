@@ -78,7 +78,7 @@ data:
     redis: # Redis cache settings
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-{{- if or (and $control_data.redis $control_data.redis.secret.data.password) $global.redis.secret.data.password }}
+{{- if .Values.global.redis.secret.data.password }}
       password: ${REDIS_PASSWORD}
 {{- end }}
 {{- if .Values.global.control.redisDb }}
@@ -92,7 +92,7 @@ data:
     redisPubSub: # Redis PubSub settings for Real-Time
       host: ${REDIS_PUBSUB_HOST}
       port: ${REDIS_PUBSUB_PORT}
-{{- if or (and $control_data.redis $control_data.redis.secret.data.password) $global.redis.secret.data.password }}
+{{- if .Values.global.redis.secret.data.password }}
       password: ${REDIS_PASSWORD}
 {{- end }}
 {{- if .Values.global.control.redisDb }}

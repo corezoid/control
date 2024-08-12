@@ -5,8 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.3.41] - 2024-07-31
 ### Helm changes
+- Applications versions:
+    - server - 5.74.0
+    - frontend - 5.74.0
+    - realtime - 3.0.8
+    - control-tasks - 2.33.1
+    - widget - v1.37.0
+- Update images url - set `{{ .Values.global.imageRegistry }}` for domain registry.
+- Added new imageRegistry Hub in values.yaml
+
+### Improvements / New Features
+
+#### 1. Event Calendar. Added the ability to focus events for the component in CDU.
+#### 2. Implemented the ability to create actors inside states on graphs.
+#### 3. Improved snippets. Now, if an attachment is added to an actor-snippet, this attachment will automatically be pulled into the message when using the snippet.
+#### 4. Ratings left in events are recorded as transactions on the corresponding account in the actor event.
+#### 5. Added the ability to copy field_key on the actor card.
+#### 6. Now all actor reactions are recorded as transactions on the corresponding actor accounts.
+#### 7. Removed the API method GET /accounts/value/:accountId.
+#### 8. Increased the size of REF transactions to 500 characters.
+#### 9. Added copy chip to accounts in the actor panel.
+#### 10. Implemented the ability to hide the delete button on reactions. Control is done through a query parameter.
+#### 11. Added support for event colors. Now, if an actor-event has a specified color parameter, the event in the general feed will be colored accordingly.
+#### 12. Implemented a mechanism for opening event details without a list, controlled via a query parameter.
+#### 13. User login is displayed when searching for users to grant access rights.
+#### 14. Added default limit in API GET invites: 20.
+#### 15. Synchronized workspace dropdown list in Simulator and Account interfaces.
+#### 16. Added changes to the Single account user field in the actor change history.
+#### 17. Implemented positioning of states on the same plane.
+#### 18. Transactions export. Added 2 fields in the export file: originalDateFormatted and createdAtFormatted.
+#### 19. System accounts are no longer displayed in the transfer creation form.
+#### 20. Added a choice for users during export - whether to export users and their access rights.
+#### 21. Implemented cell coordinates on the graph.
+#### 22. Added ref to the actor change history.
+#### 23. Increased the limit of accounts on one dashboard to 50.
+#### 24. Started displaying access on the history page.
+#### 25. Implemented display of transactions by roles (signer / executor / viewer) in actors.
+#### 26. Added event highlighting on hover in the Events list in split view mode.
+#### 27. Started displaying reaction send time in seconds on hover over the reaction.
+#### 28. Event calendar. Added a get parameter to change the time display format in the calendar.
+#### 29. Optimized loading of a large number of reactions in an event.
+#### 30. Increased the limit of loading events in split mode to 20.
+
+### Scripts:
+#### 1. Added the ability to pass allow settings to the widget component.
+#### 2. Widget component, updated the version of onfido with which the widget is integrated.
+
+### Widget:
+#### 1. Optimized widget loading, removed unnecessary requests.
+#### 2. In the Meta info of the event, started displaying context if it's passed when starting the widget.
+#### 3. Improved UI of the widget.
 
 
 ## [0.3.40] - 2024-06-19

@@ -1,5 +1,6 @@
 appName: redis
 appPort: 6379
 image:
+  # repository: /hub.docker.com/library/redis
   repository: redis
-  tag: 7.2
+  tag: "7.2"
