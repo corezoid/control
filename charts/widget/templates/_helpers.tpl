@@ -12,5 +12,5 @@ chart: {{ include "control.fullname" . }}
 Image url
 */}}
 {{- define "widget.imageUrl" -}}
-{{ .Values.image.registry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.widget.tag | default .Chart.AppVersion }}
+{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.widget.tag | default .Chart.AppVersion }}
 {{- end }}
