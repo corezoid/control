@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.42] - 2024-08-21
+### Helm changes
+- Applications versions:
+    - server - 5.77.2
+    - frontend - 5.77.0
+    - realtime - 3.0.8
+    - control-tasks - 2.36.0
+    - widget - v1.40.0
+
+### Improvements / New Features
+
+#### 1. Updated the "Attachments" section for actors. Now, files are categorized into those directly attached to the actor and those added through the actor's reactions.
+#### 2. Created an API for generating zip archives from files in the Simulator.
+#### 3. Now, when a client follows a direct link to a script, the registration/authentication page will display the script's title and logo, making it clearer to the client where they are authenticating.
+#### 4. Made the public API method `realtime/interface` available for managing event focus.
+#### 5. Actors Bag: Added "Show more/Show less" in custom columns for displaying a large number of nested actors.
+#### 6. Added the ability to download all files in one archive in the actor's "Attachments" section.
+#### 7. For `sim.simulator.company`, emails about new events and reactions will now be sent even if the user’s event access is granted through a group.
+#### 8. Created an API for filtering actors based on the user with whom the actor is shared.
+
+### Scripts
+
+#### 1. Added the `extra.mirrored` parameter to the `upload webcam` component (`https://doc.simulator.company/cdu#tag/upload`). Default is `false`.
+#### 2. Now, when using the button with `action: logout`, error notifications about the user not being authenticated will no longer be shown.
+#### 3. Fixed the functionality of the Twilio widget.
+#### 4. Implemented custom bars functionality, allowing users to add selected scripts to the comment input panel for quick launching as widgets.
+
+### Widget
+
+#### 1. Added the ability to manage the sending of the "joined conversation" reaction to the client widget. This is configurable in the actor widget.
+#### 2. Added the ability to style reactions sent from an API key in the widget.
+#### 3. (See: `https://doc.simulator.company/#operation/createReaction`)
+#### 4. Added the `extra.commentStyleType = primary | secondary | text` field.
+#### 5. The reaction will be styled only in the widget. Inside the Simulator, it will remain a standard reaction.
+
+
 ## [0.3.41] - 2024-07-31
 ### Helm changes
 - Applications versions:
