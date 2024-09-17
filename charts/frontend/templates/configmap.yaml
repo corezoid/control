@@ -136,11 +136,6 @@ data:
         default_type  text/plain;
       }
 
-      location ~* \.(jpg|pdf|jpeg|png|gif|webp|wav|mp3|js|css|woff2|json)$ {
-        expires 90d;
-        root /usr/share/nginx/html;
-      }
-
       location / {
         # Security
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
@@ -250,6 +245,11 @@ data:
       }
       {{- end }}
 
+      location ~* \.(jpg|pdf|jpeg|png|gif|webp|wav|mp3|js|css|woff2|json)$ {
+        expires 90d;
+        root /usr/share/nginx/html;
+      }
+
     }
     {{- if .Values.global.control.apiSubDomain }}
     server {
@@ -298,6 +298,14 @@ data:
         return 200 "ok";
         types         { }
         default_type  text/plain;
+      }
+
+      location ~ /v/1.0/download/zip/(.*)$ {
+        rewrite ^/v/1.0/download/zip/(.*)$ /papi/1.0/download/zip/$1?$args break;
+        proxy_pass http://server-service:{{ .Values.global.control.serverPort }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       }
 
       {{- if .Values.global.control.filesStorage.type }}
