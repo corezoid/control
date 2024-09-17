@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.43] - 2024-09-11
+### Helm changes
+- Applications versions:
+    - server - 5.80.0
+    - frontend - 5.80.1
+    - realtime - 3.0.10
+    - control-tasks - 2.36.2
+    - widget - v1.41.2
+- Added fix location in frontend subschart
+
+### Improvements / New Features
+
+#### 1. Added the logical OR operator to the actor filters API and the actor filters interface.
+#### 2. Redesigned the display of reactions.
+#### 3. Now, the comment from the transfer is passed to the corresponding transactions.
+#### 4. Allowed extending event panels in split mode to a 15-85 proportion.
+#### 5. Added the ability to filter by parameters in transaction data.
+#### 6. Created an API for setting the status of reactions to "read".
+#### 7. Added traces on the graph (actor movement history).
+#### 8. Added support for filters in the API `Get actor by systemObjId`.
+#### 9. Now showing the full name of the actor when hovering over the name.
+#### 10. Added new query parameters to manage the Events section:
+#### 11. Added `manageUI=search_false` (default is true).
+#### 12. Added a separate `eventDoubleClick` (default is true).
+#### 13. Created a new API to replace "Anonymous #" with another name.
+#### 14. Now, comments from transfers are inherited in the corresponding transactions.
+#### 15. Improved and enhanced the display of reactions in split mode.
+
+### Scripts
+#### 1. For the `button(options)` component, allow the action: logout.
+#### 2. Added support for `submitOnScroll` for the `table` component.
+
+
 ## [0.3.42] - 2024-08-21
 ### Helm changes
 - Applications versions:
