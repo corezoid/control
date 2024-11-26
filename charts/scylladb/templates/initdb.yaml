@@ -34,7 +34,7 @@ spec:
         - sh
         - -c
         - |
-          cqlsh ${SCYLLADB_HOST} -e "CREATE KEYSPACE IF NOT EXISTS {{ $keyspace }} WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '{{ $replicationFactor }}'} AND durable_writes = true;"
+          cqlsh ${SCYLLADB_HOST} -e "CREATE KEYSPACE IF NOT EXISTS {{ $keyspace }} WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '{{ $replicationFactor }}'} AND durable_writes = true AND TABLETS = {'enabled': false};"
       env:
         - name: SCYLLADB_HOST
         {{- if $control_data.scylladb.internal }}

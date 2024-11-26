@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.44] - 2024-11-20
+### Helm changes
+- Applications versions:
+    - server - 5.90.0
+    - frontend - 5.90.0
+    - realtime - 3.0.10
+    - control-tasks - 2.40.0
+    - widget - v1.46.0
+- Update local ScyllaDB up to 6.2 version.
+- Add headers for SIP calls
+
+### Improvements / New Features
+
+#### 1. Opened system layers for each graph. Currently empty.
+#### 2. Started showing traces on the graph during copy and paste on the same layer.
+#### 3. Implemented different cursors on the graph depending on the cursor's position and its interaction with other elements on the graph.
+#### 4. Improved the calendar component.
+#### 5. Refined traces on the graph, now undo/redo can be used in certain cases.
+#### 6. Optimized the loading of actors with a large number of connections.
+#### 7. Enhanced the event UI in full-screen mode for cases where an event needs to be embedded as an iframe in other interfaces.
+#### 8. Added pagination to the Accounts section when displaying search results.
+#### 9. Implemented the first version of anisotropy on graphs.
+#### 10. Made the anonymous user in the Owner field of the event non-clickable.
+#### 11. Added limit/offset in the getAccessInfo API.
+#### 12. Changed the placement of the notification counter bubble in the event list.
+#### 13. Enabled the ability to launch custom bars in frozen events.
+#### 14. Removed the default option "Export Corezoid entities" when exporting a .graph file.
+#### 15. Changed the actor's outline color on graphs.
+#### 16. Redesigned event search in split mode, now the event does not switch to full-screen mode.
+#### 17. Improved the use of the query parameter `query search_true|false` when embedding events as an iframe.
+#### 18. Enhanced import/export:
+   - Enabled the use of import strategy: reuse/replace/error.
+   - Improved export/import of files embedded in an actor. Now, a new file is created, and the connection between the new file and the actor is maintained.
+   - Fixed errors.
+#### 19. Added support for P2P calls in Simulator. To start a call, hover over any user's profile and click the "Call" button.
+#### 20. Enabled adding images to the graph via drag & drop.
+#### 21. Automatic creation of "ref" for filter actors and forms.
+#### 22. Performed FPS optimization in the graph editor.
+#### 23. Enabled actor bag selection in the form editor.
+#### 24. Redesigned the dashboard editing form.
+#### 25. Added an event to the API key webhook URL when a form is created/edited.
+#### 26. Prevented system accounts from being exported during export.
+#### 27. Added a default form for creating actors on a layer.
+#### 28. Introduced an "Expand" functionality for dashboards.
+#### 29. Implemented a user list display showing users working on the same graph layer simultaneously.
+
+### Scripts:
+#### 1. Added the ability to specify `styleClass` globally for the page.
+#### 2. Created a command to close a custom bar from Corezoid. https://doc.simulator.company/#operation/realtimeInterface -> scripts.toggle
+#### 3. In the stepper component, enabled the ability to apply visibility for options.
+#### 4. Added spellCheck in `edit - multiline`.
+#### 5. Added the `submitOnEnter` property for the edit component.
+#### 6. Improved the file component, allowing video file previews.
+#### 7. Added zoom in/zoom out for pdf and doc files embedded in the carousel component.
+#### 8. Made the title in the file component optional.
+#### 9. Removed the `submitOnChange` trigger when using code 205 + viewModel.
+#### 10. Added value updates forwarding into widget iframes.
+#### 11. Added a footer to all scripts: "Powered by Simulator.Company".
+#### 12. Added a `trimWhitespaces` field for components: edit, select, and multiselect.
+
+### Widget:
+#### 1. Implemented typing indicators for conversations:
+   - for the operator in split mode event,
+   - for the client in the chat widget.
+#### 2. Added the option to remove the initial window from the widget, specifically the "Continue as anonymous" functionality.
+#### 3. Enabled resizing of the widget.
+
 
 ## [0.3.43] - 2024-09-11
 ### Helm changes
