@@ -39,7 +39,11 @@ spec:
         - name: {{ $pullSecret }}
       {{- end }}
       {{- end }}
-      serviceAccountName: ""
+      {{- if .Values.global.control.frontend.serviceAccount }}
+      {{- if .Values.global.control.frontend.serviceAccount.create }}
+      serviceAccountName: control-{{ .Values.appName }}-serviceaccount
+      {{- end }}
+      {{- end }}
       securityContext:
         {{- toYaml $control_data.podSecurityContext | nindent 8 }}
       containers:

@@ -71,6 +71,8 @@ data:
 
       {{ include "control.nginx.add_header" . | nindent 6 }}
 
+      add_header Permissions-Policy "autoplay=*, microphone=*, fullscreen=*, camera=*";
+
       resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
       {{- if .Values.global.control.filesStorage.type }}
@@ -126,10 +128,12 @@ data:
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
         add_header X-Content-Type-Options nosniff;
         add_header X-XSS-Protection "1; mode=block";
+        add_header Permissions-Policy "autoplay=*, microphone=*, fullscreen=*, camera=*";
         {{ include "control.nginx.add_header" . | nindent 8 }}
 
         if ($url_full ~ ^(\/+)?(shim\.js|launcher\.html|messenger\.html|redirect\.html)(\/+)?$) {
           add_header Cache-Control "no-cache, no-store, must-revalidate";
+          add_header Permissions-Policy "autoplay=*, microphone=*, fullscreen=*, camera=*";
           {{ include "control.nginx.add_header.cors" . | nindent 10 }}
           expires modified -1;
         }

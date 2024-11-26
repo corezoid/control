@@ -15,6 +15,9 @@ data:
     superAdminApiKeyPrifix: {{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }} # Prefix for Admin key
     enableAPI: ${ENABLE_API} # Enable api mode
     enableCrons: false # Enable cron mode
+    {{- if .Values.global.control.graphInstallerDomain }}
+    graphInstallerUrl: https://{{ .Values.global.control.graphInstallerDomain }}
+    {{- end }}
     {{- if .Values.global.control.accountsTreeNocache }}
     accountsTree:
       nocache: true
@@ -177,6 +180,11 @@ data:
       hotjar:
         hjid: {{ .Values.global.control.webConfig.hotjar.hjid }}
         hjsv: {{ .Values.global.control.webConfig.hotjar.hjsv }}
+      {{- end }}
+      {{- if .Values.global.control.webConfig.sip }}
+      sip:
+        protocol: {{ .Values.global.control.webConfig.sip.protocol }}
+        host: {{ .Values.global.control.webConfig.sip.host }}
       {{- end }}
     {{- if .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}

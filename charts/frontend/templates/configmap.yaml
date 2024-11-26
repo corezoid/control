@@ -108,6 +108,8 @@ data:
       index index.html;
       client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
 
+      add_header Permissions-Policy "autoplay=*, microphone=*, fullscreen=*, camera=*";
+
       {{- if .Values.global.control.filesStorage.type }}
       {{- if eq .Values.global.control.filesStorage.type "s3" }}
       set $bucket "{{ .Values.global.control.filesStorage.bucket }}.s3-{{ .Values.global.control.filesStorage.region }}.amazonaws.com";
@@ -141,6 +143,8 @@ data:
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
         add_header X-Content-Type-Options nosniff;
         add_header X-XSS-Protection "1; mode=block";
+        add_header Permissions-Policy "autoplay=*, microphone=*, fullscreen=*, camera=*";
+
         {{ include "control.nginx.add_header" . | nindent 8 }}
         {{ include "control.nginx.add_header.cors" . | nindent 8 }}
 
