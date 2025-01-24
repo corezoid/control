@@ -61,13 +61,9 @@ spec:
             - name: ws
               containerPort: {{ include "control.realtime.app_port" . }}
               protocol: TCP
-          {{- if $global_data.serviceMonitor }}
-          {{- if $global_data.serviceMonitor.enabled }}
             - name: metrics
               containerPort: {{ include "control.realtime.metrics_port" . }}
               protocol: TCP
-          {{- end }}
-          {{- end }}
           livenessProbe:
             httpGet:
               path: /

@@ -13,7 +13,7 @@ spec:
   initContainers:
     {{ include "InitWait.postgres" . | nindent 8 }}
   containers:
-    - image: {{ .Values.global.db.image }}
+    - image: {{ .Values.global.imageRegistry }}/hub.docker.com/{{ .Values.global.db.image }}
       imagePullPolicy: {{ .Values.global.db.imagePullPolicy | default "IfNotPresent" }}
       name: postgres-init-db
       command:

@@ -72,6 +72,17 @@ spec:
             timeoutSeconds: 5
             successThreshold: 1
             failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/sbin/nginx", "-s", "quit"]
           resources:
             {{- toYaml $control_data_frontend.resources | nindent 12 }}
           volumeMounts:
@@ -85,7 +96,7 @@ spec:
               mountPath: /usr/share/nginx/html/config.json
               subPath: config.json
             {{- if .Values.global.control.filesStorage.type }}
-            {{- if ne .Values.global.control.filesStorage.type "s3" }}
+            {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
@@ -114,7 +125,7 @@ spec:
           configMap:
             name: {{ .Values.appName }}-site-configmap
         {{- if .Values.global.control.filesStorage.type }}
-        {{- if ne .Values.global.control.filesStorage.type "s3" }}
+        {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
         {{- if $control_data.server.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:

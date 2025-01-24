@@ -2,5 +2,5 @@ apiVersion: v2
 name: control-tasks
 description: A Helm chart for Control Tasks
 type: application
-version: 0.1.15
-appVersion: 2.40.0
+version: 0.1.17
+appVersion: 2.44.0

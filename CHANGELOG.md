@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.46] - 2025-01-15
+### Helm changes
+- Applications versions:
+    - server - 5.96.1
+    - frontend - 5.96.1
+    - realtime - 3.0.10
+    - control-tasks - 2.44.0
+    - widget - v1.49.0
+- Add `startupProbe` for frontend deployment
+- Add `lifecycle.preStop` for frontend deployment
+- Set `worker_processes auto;` in nginx.conf
+- Add `use epoll;` in nginx.conf
+- Add parameters for future CDN usage.
+- Add TTL for Redis data, if need - set parameter in `.global.control.redisTTL` in seconds. Minimal `1` (default `30`)
+
+### Improvements / New Features
+
+#### 1. Enabled adding not only accounts but also `actorsFilters` to the dashboard. This allows for comparing filter results without creating accounts and transactions in advance.
+#### 2. Updated the color palette for actor states.
+#### 3. Added TTL support for the API: API Documentation https://doc.simulator.company/#operation/uploadFile
+#### 4. Introduced a coordinate grid inside cells on the graph.
+#### 5. Added folder functionality for all actor sections.
+#### 6. Implemented zoom in/out limits on the graph.
+#### 7. Enhanced the Import (reuse) functionality.
+#### 8. Added offset/limit support for public APIs:
+  - Get Actor Links https://doc.simulator.company/#operation/getActorLinks
+  - Get Linked Actors https://doc.simulator.company/#operation/getLinkedActors
+#### 9. Improved the display of custom bars across different screen sizes.
+#### 10. Added CDN support for files in the Simulator.
+#### 11. Redesigned all contextual menus, including adding icons.
+#### 12. Introduced a system layer on the graph: Legend.
+#### 13. Developed a Public API for bulk deletion: `DELETE actors/bulk/actors_link`.
+#### 14. Added group call functionality in the Simulator, including call recording.
+#### 15. Enabled actor titles to display in two lines if they don't fit in one.
+#### 16. In Accounts Templates, added JSON-like settings for text fields. This allows users to edit actors using a JSON editor for convenient free JSON editing. Additionally, JSON fields will now display in a formatted manner when viewing an actor.
+#### 17. In Accounts Templates, added static date settings for calendar fields. When used, the selected date in the calendar will be recorded with timeZone: 0.
+#### 18. Increased the input field size to 8 rows.
+#### 19. For Split Mode, enabled line wrapping across all hotkeys + Shift.
+
+### Smart Forms:
+
+#### 1. Added tooltip support to the select component.
+#### 2. Introduced a new component: edit of type colorPicker – Documentation https://doc.simulator.company/cdu#tag/edit.
+#### 3. Renamed the Scripts section to Smart Forms and added Smart Form templates for creation.
+#### 4. Fixed an issue in the `table(file)` component when closing the file preview with the Esc key.
+#### 5. Optimized the `table(radio)` component with the clickable flag enabled for table rows.
+#### 6. Added a `max limit` setting for the multiselect component.
+
+### Widget:
+
+#### 1. Created a command to get the actorId of the current chat in the widget:
+
+    {{ctrl('webWidget', 'onStart', { actorId: `${actorId}`, callback: function (actorId, {eventActor, widgetActor}) { // Do stuff }
+    ,
+    });}}
+
+#### 2. Added the resetContext command.
+
+
+
+## [0.3.45] - 2024-12-23
+### Helm changes
+- Applications versions:
+    - server - 5.93.0
+    - frontend - 5.93.1
+    - realtime - 3.0.10
+    - control-tasks - 2.43.0
+    - widget - v1.48.0
+- Add `startupProbe` for frontend deployment
+- Add `lifecycle.preStop` for frontend deployment
+- Set `worker_processes auto;` in nginx.conf
+- Add `use epoll;` in nginx.conf
+- Add parameters for future CDN usage.
+- Add TTL for Redis data, if need - set parameter in `.global.control.redisTTL` in seconds. Minimal `1` (default `30`)
+
 ## [0.3.44] - 2024-11-20
 ### Helm changes
 - Applications versions:
@@ -15,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - widget - v1.46.0
 - Update local ScyllaDB up to 6.2 version.
 - Add headers for SIP calls
+- Add init Wait containers for PostgreSQL extensions
 
 ### Improvements / New Features
 

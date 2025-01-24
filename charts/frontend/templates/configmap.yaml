@@ -7,13 +7,14 @@ metadata:
 data:
   nginx.conf: |
     user  nginx;
-    worker_processes 1;
+    worker_processes auto;
     error_log /dev/stdout;
     pid        /var/run/nginx.pid;
 
     events {
         worker_connections  32000;
         multi_accept on;
+        use epoll;
     }
 
     http {
@@ -138,6 +139,19 @@ data:
         default_type  text/plain;
       }
 
+      location =/base_config.js {
+        default_type application/javascript;
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Pragma "no-cache";
+        add_header Expires "0";
+
+        {{- if eq .Values.global.control.filesStorage.type "cdn" }}
+        return 200 "BASE_HOST = '{{ .Values.global.control.filesStorage.cdn_domain }}';";
+        {{- else }}
+        return 200 "BASE_HOST = '';";
+        {{- end }}
+      }
+
       location / {
         # Security
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
@@ -167,9 +181,34 @@ data:
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 3600s;
+        proxy_read_timeout 3600s;
       }
 
-      location ~ ^/api/1.0/download/(.*)?$request_uri$ {
+      {{- if hasKey .Values.global.control "livekit" }}
+      set $meetBucket "{{ .Values.global.control.livekit.storage.bucket }}.s3-{{ .Values.global.control.livekit.storage.region }}.amazonaws.com";
+      location ~ ^/(api|papi)/1.0/sip/download/(.*)$ {
+        resolver 8.8.8.8;
+        proxy_http_version     1.1;
+        proxy_redirect off;
+        proxy_set_header       Authorization '';
+        proxy_set_header       Host $meetBucket;
+        proxy_set_header       X-Real-IP $remote_addr;
+        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_hide_header      x-amz-id-2;
+        proxy_hide_header      x-amz-request-id;
+        proxy_hide_header      x-amz-meta-server-side-encryption;
+        proxy_hide_header      x-amz-server-side-encryption;
+        proxy_hide_header      Set-Cookie;
+        proxy_ignore_headers   Set-Cookie;
+        proxy_intercept_errors on;
+        add_header             Cache-Control max-age=31536000;
+        proxy_pass             https://$meetBucket/$2;
+      }
+      {{- end }}
+
+      location ~ ^/(api|papi)/1.0/download/(.*)?$request_uri$ {
         client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         {{- if .Values.global.control.filesStorage.type }}
         {{- if eq .Values.global.control.filesStorage.type "s3" }}
@@ -188,7 +227,26 @@ data:
         proxy_ignore_headers   Set-Cookie;
         proxy_intercept_errors on;
         add_header             Cache-Control max-age=31536000;
-        proxy_pass             https://$bucket/$1;
+        proxy_pass             https://$bucket/$2;
+        {{- else if eq .Values.global.control.filesStorage.type "cdn" }}
+        set $cdn_domain "{{ .Values.global.control.filesStorage.cdn_domain }}";
+
+        resolver 8.8.8.8;
+        proxy_http_version     1.1;
+        proxy_redirect off;
+        proxy_set_header       Host $cdn_domain;
+        proxy_set_header       X-Real-IP $remote_addr;
+        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_hide_header      Set-Cookie;
+        proxy_ignore_headers   Set-Cookie;
+        proxy_intercept_errors on;
+        add_header             Cache-Control max-age=31536000;
+
+        proxy_ssl_server_name on;
+        proxy_ssl_protocols TLSv1.2;
+        proxy_ssl_session_reuse on;
+
+        proxy_pass             https://$cdn_domain/$1;
         {{- end }}
         {{- else }}
         proxy_set_header Connection "keep-alive";
@@ -200,9 +258,12 @@ data:
         {{- end }}
       }
 
-      location ~ ^/api/1.0/download/(.*)$ {
-        add_header Content-disposition "inline";
+      location ~ ^/(api|papi)/1.0/download/(.*)$ {
         if ($arg_origin = true) {
+          proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
+          break;
+        }
+        if ($arg_preview = true) {
           proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
           break;
         }
@@ -223,7 +284,26 @@ data:
         proxy_ignore_headers   Set-Cookie;
         proxy_intercept_errors on;
         add_header             Cache-Control max-age=31536000;
-        proxy_pass             https://$bucket/$1;
+        proxy_pass             https://$bucket/$2;
+        {{- else if eq .Values.global.control.filesStorage.type "cdn" }}
+        set $cdn_domain "{{ .Values.global.control.filesStorage.cdn_domain }}";
+
+        resolver 8.8.8.8;
+        proxy_http_version     1.1;
+        proxy_redirect off;
+        proxy_set_header       Host $cdn_domain;
+        proxy_set_header       X-Real-IP $remote_addr;
+        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_hide_header      Set-Cookie;
+        proxy_ignore_headers   Set-Cookie;
+        proxy_intercept_errors on;
+        add_header             Cache-Control max-age=31536000;
+
+        proxy_ssl_server_name on;
+        proxy_ssl_protocols TLSv1.2;
+        proxy_ssl_session_reuse on;
+
+        proxy_pass             https://$cdn_domain/$1;
         {{- end }}
         {{- else }}
         {{ include "control.nginx.add_header" . | nindent 8 }}
@@ -240,6 +320,9 @@ data:
       location ~ ^/(api|papi) {
         client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         proxy_set_header Connection "keep-alive";
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
         proxy_pass http://server-service:{{ .Values.global.control.serverPort }};
       }
 
@@ -315,8 +398,11 @@ data:
       {{- if .Values.global.control.filesStorage.type }}
       {{- if eq .Values.global.control.filesStorage.type "s3" }}
       location ~ ^/v/1.0/download/(.*)$ {
-        add_header Content-disposition "inline";
         if ($arg_origin = true) {
+          proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
+          break;
+        }
+        if ($arg_preview = true) {
           proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
           break;
         }
@@ -337,6 +423,32 @@ data:
         proxy_intercept_errors on;
         add_header             Cache-Control max-age=31536000;
         proxy_pass             https://$bucket/$1;
+      }
+      {{- end }}
+      {{- if eq .Values.global.control.filesStorage.type "cdn" }}
+      location ~ ^/v/1.0/download/(.*)$ {
+        if ($arg_origin = true) {
+          proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
+          break;
+        }
+        if ($arg_preview = true) {
+          proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
+          break;
+        }
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
+        set $cdn_domain "{{ .Values.global.control.filesStorage.cdn_domain }}";
+
+        resolver 8.8.8.8;
+        proxy_http_version     1.1;
+        proxy_redirect off;
+        proxy_set_header       Host $cdn_domain;
+        proxy_set_header       X-Real-IP $remote_addr;
+        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_hide_header      Set-Cookie;
+        proxy_ignore_headers   Set-Cookie;
+        proxy_intercept_errors on;
+        add_header             Cache-Control max-age=31536000;
+        proxy_pass             https://$cdn_domain/$1;
       }
       {{- end }}
       {{- end }}

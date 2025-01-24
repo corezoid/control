@@ -2,5 +2,5 @@ apiVersion: v2
 name: widget
 description: A Helm chart for Control Server
 type: application
-version: 0.3.36
-appVersion: "v1.46.0"
+version: 0.3.38
+appVersion: "v1.49.0"
