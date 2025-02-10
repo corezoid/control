@@ -35,9 +35,5 @@ data:
       pool:
         max: 50
         idle: 30000
-    {{- if $global_data.serviceMonitor }}
-    {{- if $global_data.serviceMonitor.enabled }}
     metrics:
       port: {{ include "control.realtime.metrics_port" . }}
-    {{- end }}
-    {{- end }}

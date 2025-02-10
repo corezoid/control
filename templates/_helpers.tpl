@@ -124,6 +124,78 @@ Create block for init-wait containers
   terminationMessagePolicy: File
 {{- end }}
 
+{{- define "InitWait.postgres-extension-postgis" -}}
+- name: init-wait-postgresql-extension-postgis
+  image: "{{ .Values.global.db.image }}"
+  imagePullPolicy: IfNotPresent
+  env:
+    - name: PGPASSWORD
+      value: "{{ .Values.global.db.secret.data.dbpwd }}"
+  command:
+    - sh
+    - -c
+    - >
+      until psql -h {{ .Values.global.db.secret.data.dbhost }} \
+                 -p {{ .Values.global.db.secret.data.dbport }} \
+                 -U {{ .Values.global.db.secret.data.dbuser }} \
+                 -d {{ .Values.global.control.dbname | default "control" }} \
+                 -c "SELECT 1 FROM pg_extension WHERE extname = 'postgis';" | grep -q 1;
+      do
+        echo "Waiting for PostGIS extension to be available...";
+        sleep 2;
+      done;
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+{{- end }}
+
+{{- define "InitWait.postgres-extension-btree-gin" -}}
+- name: init-wait-postgresql-extension-btree-gin
+  image: "{{ .Values.global.db.image }}"
+  imagePullPolicy: IfNotPresent
+  env:
+    - name: PGPASSWORD
+      value: "{{ .Values.global.db.secret.data.dbpwd }}"
+  command:
+    - sh
+    - -c
+    - >
+      until psql -h {{ .Values.global.db.secret.data.dbhost }} \
+                 -p {{ .Values.global.db.secret.data.dbport }} \
+                 -U {{ .Values.global.db.secret.data.dbuser }} \
+                 -d {{ .Values.global.control.dbname | default "control" }} \
+                 -c "SELECT 1 FROM pg_extension WHERE extname = 'btree_gin';" | grep -q 1;
+      do
+        echo "Waiting for btree_gin extension to be available...";
+        sleep 2;
+      done;
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+{{- end }}
+
+{{- define "InitWait.postgres-extension-pg-trgm" -}}
+- name: init-wait-postgresql-extension-pg-trgm
+  image: "{{ .Values.global.db.image }}"
+  imagePullPolicy: IfNotPresent
+  env:
+    - name: PGPASSWORD
+      value: "{{ .Values.global.db.secret.data.dbpwd }}"
+  command:
+    - sh
+    - -c
+    - >
+      until psql -h {{ .Values.global.db.secret.data.dbhost }} \
+                 -p {{ .Values.global.db.secret.data.dbport }} \
+                 -U {{ .Values.global.db.secret.data.dbuser }} \
+                 -d {{ .Values.global.control.dbname | default "control" }} \
+                 -c "SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm';" | grep -q 1;
+      do
+        echo "Waiting for pg_trgm extension to be available...";
+        sleep 2;
+      done;
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+{{- end }}
+
 {{- define "InitWait.bouncer" -}}
 {{- if .Values.global.db.bouncer }}
 - name: init-wait-bouncer

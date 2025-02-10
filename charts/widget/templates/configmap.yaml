@@ -100,6 +100,29 @@ data:
         proxy_pass             https://$bucket/$1;
       }
       {{- end }}
+      {{- if eq .Values.global.control.filesStorage.type "cdn" }}
+      location ~ ^/v/1.0/download/(.*)$ {
+        add_header Content-disposition "inline";
+        if ($arg_origin = true) {
+          proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
+          break;
+        }
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
+        set $cdn_domain "{{ .Values.global.control.filesStorage.cdn_domain }}";
+
+        resolver 8.8.8.8;
+        proxy_http_version     1.1;
+        proxy_redirect off;
+        proxy_set_header       Host $cdn_domain;
+        proxy_set_header       X-Real-IP $remote_addr;
+        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_hide_header      Set-Cookie;
+        proxy_ignore_headers   Set-Cookie;
+        proxy_intercept_errors on;
+        add_header             Cache-Control max-age=31536000;
+        proxy_pass             https://$cdn_domain/$1;
+      }
+      {{- end }}
       {{- end }}
 
       location ~ ^/api/(.*) {

@@ -72,6 +72,31 @@ spec:
                 name: frontend-service
                 port:
                   number: {{ $frontendPort }}
+          {{- if hasKey .Values.global.control "livekit" }}
+          - path: "/api/1.0/sip/download"
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: {{ $frontendPort }}
+          {{- end }}
+          - path: "/papi/1.0/download"
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: {{ $frontendPort }}
+          {{- if hasKey .Values.global.control "livekit" }}
+          - path: "/papi/1.0/sip/download"
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: {{ $frontendPort }}
+          {{- end }}
     - host: {{ include "control.WidgetDomain" . }}
       http:
         paths:

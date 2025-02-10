@@ -50,6 +50,12 @@ spec:
       initContainers:
         {{ include "InitWait.postgres" . | nindent 8 }}
 
+        {{ include "InitWait.postgres-extension-postgis" . | nindent 8 }}
+
+        {{ include "InitWait.postgres-extension-btree-gin" . | nindent 8 }}
+
+        {{ include "InitWait.postgres-extension-pg-trgm" . | nindent 8 }}
+
         {{ include "InitWait.bouncer" . | nindent 8 }}
 
         {{ include "InitWait.redis" . | nindent 8 }}
@@ -92,7 +98,7 @@ spec:
               mountPath: /ebsmnt/conf/control.yml
               subPath: control.yml
             {{- if .Values.global.control.filesStorage.type }}
-            {{- if ne .Values.global.control.filesStorage.type "s3" }}
+            {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
@@ -118,7 +124,7 @@ spec:
           configMap:
             name: {{ .Values.appName }}-configmap
         {{- if .Values.global.control.filesStorage.type }}
-        {{- if ne .Values.global.control.filesStorage.type "s3" }}
+        {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
         {{- if $server_data.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:

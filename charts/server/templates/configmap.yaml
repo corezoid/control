@@ -33,6 +33,7 @@ data:
       name: {{ .Values.global.control.auth.name }}
       saSecretKey: {{ .Values.global.control.auth.key }}
       url: https://{{ .Values.global.control.auth.domain }}
+      userOnlineTTL: {{ .Values.global.control.auth.userOnlineTTL | default "-1" }} # how long the user is considered online if -1, the functionality is disabled
 
     trackUrl: https://{{- include "control.Domain" . }} # Control Admin domain
     apiCorezoid: https://{{ .Values.global.control.apiCorezoidDomain }} # Corezoid Api domain
@@ -87,6 +88,9 @@ data:
 {{- if .Values.global.control.redisDb }}
       db: ${REDIS_DATABASE}
 {{- end }}
+{{- if .Values.global.control.redisTTL }}
+      ttl: {{ .Values.global.control.redisTTL }}
+{{- end }}
       pool:
         min: 2
         max: 50
@@ -112,17 +116,20 @@ data:
           directUrl: {{ .Values.global.control.corezoid.processes.sendEmail.directUrl }}
         accRegistrations: # Corezoid process for Control registrations
           directUrl: {{ .Values.global.control.corezoid.processes.accRegistrations.directUrl }}
-
+    {{- with .Values.global.control.livekit }}
+    livekit:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     requestLimits:
       ip: {{ .Values.global.control.requestLimits.ip }}
 
     filesStorage: # Shared folder for uploaded files
       {{- if .Values.global.control.filesStorage.type }}
-      {{- if eq .Values.global.control.filesStorage.type "s3" }}
+      {{- if or (eq .Values.global.control.filesStorage.type "s3") (eq .Values.global.control.filesStorage.type "cdn") }}
       # If set S3, then will use AWS S3.
       # Need to create S3 bucket and set next params.
       # Also you can add AWS IAM policy to access this bucket by role
-      type: {{ .Values.global.control.filesStorage.type }}
+      type: s3
       bucket: {{ .Values.global.control.filesStorage.bucket }}
       region: {{ .Values.global.control.filesStorage.region }}
       {{- if .Values.global.control.filesStorage.credentials }}
@@ -180,11 +187,6 @@ data:
       hotjar:
         hjid: {{ .Values.global.control.webConfig.hotjar.hjid }}
         hjsv: {{ .Values.global.control.webConfig.hotjar.hjsv }}
-      {{- end }}
-      {{- if .Values.global.control.webConfig.sip }}
-      sip:
-        protocol: {{ .Values.global.control.webConfig.sip.protocol }}
-        host: {{ .Values.global.control.webConfig.sip.host }}
       {{- end }}
     {{- if .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}
