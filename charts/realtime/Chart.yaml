@@ -2,5 +2,5 @@ apiVersion: v2
 name: realtime
 description: A Helm chart for Control Realtime
 type: application
-version: 0.3.4
-appVersion: 3.0.10
+version: 0.3.5
+appVersion: 3.0.11

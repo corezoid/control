@@ -308,12 +308,12 @@ data:
         {{- else }}
         {{ include "control.nginx.add_header" . | nindent 8 }}
         {{ include "control.nginx.add_header.cors" . | nindent 8 }}
-        alias {{ .Values.global.control.filesStorage.eventFiles }}/$1;
+        alias {{ .Values.global.control.filesStorage.eventFiles }}/$2;
         {{- end }}
         {{- if and (eq .Values.global.efs.enabled true) (eq .Values.global.storage "manual") }}
         {{ include "control.nginx.add_header" . | nindent 8 }}
         {{ include "control.nginx.add_header.cors" . | nindent 8 }}
-        alias {{ .Values.global.control.filesStorage.eventFiles }}/$1;
+        alias {{ .Values.global.control.filesStorage.eventFiles }}/$2;
         {{- end }}
       }
 
