@@ -1,3 +1,6 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+
 apiVersion: v1
 kind: Pod
 metadata:
@@ -10,10 +13,30 @@ metadata:
   labels:
     tier: postgres
 spec:
+  {{- with $control_data.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with $control_data.affinity }}
+  affinity:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  {{- with $control_data.tolerations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
   initContainers:
     {{ include "InitWait.postgres" . | nindent 8 }}
   containers:
-    - image: {{ .Values.global.imageRegistry }}/hub.docker.com/{{ .Values.global.db.image }}
+    - image: {{ .Values.global.db.image }}
       imagePullPolicy: {{ .Values.global.db.imagePullPolicy | default "IfNotPresent" }}
       name: postgres-init-db
       command:
@@ -62,4 +85,5 @@ spec:
             secretKeyRef:
               name: {{ include "control.postgresSecretName" . }}
               key: dbpwd
+
   restartPolicy: OnFailure

@@ -125,7 +125,7 @@ data:
 
     filesStorage: # Shared folder for uploaded files
       {{- if .Values.global.control.filesStorage.type }}
-      {{- if or (eq .Values.global.control.filesStorage.type "s3") (eq .Values.global.control.filesStorage.type "cdn") }}
+      {{- if eq .Values.global.control.filesStorage.type "s3" }}
       # If set S3, then will use AWS S3.
       # Need to create S3 bucket and set next params.
       # Also you can add AWS IAM policy to access this bucket by role

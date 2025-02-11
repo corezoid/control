@@ -5,13 +5,15 @@ metadata:
   labels:
 {{- include "server.labels" . | nindent 4 }}
   annotations:
-    {{- include "control.server.annotations" . | nindent 2 }}
+{{- include "control.server.annotations" . | nindent 2 }}
 spec:
   selector:
-{{- include "server.labels" . | nindent 6 }}
+{{- include "server.labels" . | nindent 4 }}
   type: {{ .Values.global.control.service.type }}
   ports:
     - port: {{ include "server.port" . }}
       targetPort: {{ include "server.port" . }}
       protocol: TCP
       name: http
+
+

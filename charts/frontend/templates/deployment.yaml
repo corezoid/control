@@ -96,7 +96,7 @@ spec:
               mountPath: /usr/share/nginx/html/config.json
               subPath: config.json
             {{- if .Values.global.control.filesStorage.type }}
-            {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
+            {{- if ne .Values.global.control.filesStorage.type "s3" }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
@@ -125,7 +125,7 @@ spec:
           configMap:
             name: {{ .Values.appName }}-site-configmap
         {{- if .Values.global.control.filesStorage.type }}
-        {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
+        {{- if ne .Values.global.control.filesStorage.type "s3" }}
         {{- if $control_data.server.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:

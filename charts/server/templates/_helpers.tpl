@@ -6,7 +6,7 @@ Common labels
 tier: {{ .Values.appName | quote }}
 release: {{ .Release.Name | quote }}
 api: "true"
-chart: {{ include "control.fullname" . }}
+chart: {{ include "control.fullname" . | quote }}
 {{- end }}
 
 {{- define "server.port" -}}
