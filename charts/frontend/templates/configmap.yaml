@@ -145,8 +145,8 @@ data:
         add_header Pragma "no-cache";
         add_header Expires "0";
 
-        {{- if eq .Values.global.control.filesStorage.type "cdn" }}
-        return 200 "BASE_HOST = '{{ .Values.global.control.filesStorage.cdn_domain }}';";
+        {{- if hasKey .Values.global.control "cdn" }}
+        return 200 "BASE_HOST = '{{ .Values.global.control.cdn.cdn_domain }}';";
         {{- else }}
         return 200 "BASE_HOST = '';";
         {{- end }}
@@ -155,7 +155,6 @@ data:
       location / {
         # Security
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
-        add_header X-Content-Type-Options nosniff;
         add_header X-XSS-Protection "1; mode=block";
         add_header Permissions-Policy "autoplay=*, microphone=*, fullscreen=*, camera=*";
 
@@ -228,25 +227,6 @@ data:
         proxy_intercept_errors on;
         add_header             Cache-Control max-age=31536000;
         proxy_pass             https://$bucket/$2;
-        {{- else if eq .Values.global.control.filesStorage.type "cdn" }}
-        set $cdn_domain "{{ .Values.global.control.filesStorage.cdn_domain }}";
-
-        resolver 8.8.8.8;
-        proxy_http_version     1.1;
-        proxy_redirect off;
-        proxy_set_header       Host $cdn_domain;
-        proxy_set_header       X-Real-IP $remote_addr;
-        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_hide_header      Set-Cookie;
-        proxy_ignore_headers   Set-Cookie;
-        proxy_intercept_errors on;
-        add_header             Cache-Control max-age=31536000;
-
-        proxy_ssl_server_name on;
-        proxy_ssl_protocols TLSv1.2;
-        proxy_ssl_session_reuse on;
-
-        proxy_pass             https://$cdn_domain/$1;
         {{- end }}
         {{- else }}
         proxy_set_header Connection "keep-alive";
@@ -285,25 +265,6 @@ data:
         proxy_intercept_errors on;
         add_header             Cache-Control max-age=31536000;
         proxy_pass             https://$bucket/$2;
-        {{- else if eq .Values.global.control.filesStorage.type "cdn" }}
-        set $cdn_domain "{{ .Values.global.control.filesStorage.cdn_domain }}";
-
-        resolver 8.8.8.8;
-        proxy_http_version     1.1;
-        proxy_redirect off;
-        proxy_set_header       Host $cdn_domain;
-        proxy_set_header       X-Real-IP $remote_addr;
-        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_hide_header      Set-Cookie;
-        proxy_ignore_headers   Set-Cookie;
-        proxy_intercept_errors on;
-        add_header             Cache-Control max-age=31536000;
-
-        proxy_ssl_server_name on;
-        proxy_ssl_protocols TLSv1.2;
-        proxy_ssl_session_reuse on;
-
-        proxy_pass             https://$cdn_domain/$1;
         {{- end }}
         {{- else }}
         {{ include "control.nginx.add_header" . | nindent 8 }}
@@ -423,32 +384,6 @@ data:
         proxy_intercept_errors on;
         add_header             Cache-Control max-age=31536000;
         proxy_pass             https://$bucket/$1;
-      }
-      {{- end }}
-      {{- if eq .Values.global.control.filesStorage.type "cdn" }}
-      location ~ ^/v/1.0/download/(.*)$ {
-        if ($arg_origin = true) {
-          proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
-          break;
-        }
-        if ($arg_preview = true) {
-          proxy_pass http://server-service:{{ .Values.global.control.serverPort }}$request_uri;
-          break;
-        }
-        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
-        set $cdn_domain "{{ .Values.global.control.filesStorage.cdn_domain }}";
-
-        resolver 8.8.8.8;
-        proxy_http_version     1.1;
-        proxy_redirect off;
-        proxy_set_header       Host $cdn_domain;
-        proxy_set_header       X-Real-IP $remote_addr;
-        proxy_set_header       X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_hide_header      Set-Cookie;
-        proxy_ignore_headers   Set-Cookie;
-        proxy_intercept_errors on;
-        add_header             Cache-Control max-age=31536000;
-        proxy_pass             https://$cdn_domain/$1;
       }
       {{- end }}
       {{- end }}
