@@ -6,6 +6,60 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.3.48] - 2025-03-12
+### Helm changes
+- Applications versions:
+  - server - 5.104.0
+  - frontend - 5.104.0
+  - realtime - 3.1.0
+  - control-tasks - 2.49.0
+  - widget - v1.53.0
+
+### Improvements / New Features
+
+#### 1. Expanded functionality for sound management.
+#### 2. Implemented cross cursor function.
+#### 3. Enabled selection of cell sets and actor insertion into the selected area.
+#### 4. Added prompt for participants to enable the microphone in an active call.
+#### 5. Added a meeting flag for automatic notifications and callbacks.
+#### 6. Implemented file upload progress tracking.
+#### 7. Added the "Graph" tab to the event.
+#### 8. Implemented forced room closure, mute/unmute users, and moderator management.
+#### 9. Added popup for mute/unmute users and moderator management.
+#### 10. Adjusted UI for actor creation on first entry and fullscreen mode.
+#### 11. Expanded meeting functionality by adding comments.
+#### 12. Enabled overriding the operator's name displayed to the client in the chat widget.
+#### 13. Enhanced graph interaction mechanics.
+#### 14. Fixed incorrect inheritance of forms and accounts in Graph/Layer/State.
+#### 15. Implemented call recording management.
+#### 16. Created an AI agent actor with customization capabilities within each workspace.
+#### 17. Enhanced line dashboard metrics display.
+#### 18. Added zooming capability for expanded sharing in calls.
+#### 19. Adjusted display behavior when expanding a user in a call.
+#### 20. Fixed border shift during move or zoom.
+#### 21. Fixed callback synchronization across tabs when creating a regular meeting.
+#### 22. Added query parameters to control the visibility of each element in full-screen event mode.
+#### 23. Implemented meeting volume control management.
+#### 24. Enabled support for callbacks in the dashboard widget.
+#### 25. Improved the signal indicator during calls.
+#### 26. Defined interface requirements for meeting status display.
+#### 27. Removed duplicate system account folders and transactions.
+#### 28. Implemented a notification system and callback for calls from different workspaces.
+#### 29. Added a system filter "System" to the actor bag.
+#### 30. Implemented screen sharing with audio for any window.
+#### 31. Disabled the "Connection error / Connection restored" notification in the widget.
+#### 32. Allowed editing of all system layers in the graph
+#### 33. Added dashboard legend
+#### 34. Added System Stream Live in Events
+#### 35. Redesigned Meeting Menu
+
+### Smart Forms
+
+#### 1. Enabled support for LESS style formatting in the smart forms editor.
+#### 2. Adjusted default indentation in the script CSS editor between autoformat and editor.
+#### 3. Added a mode for working with the list of events without opening event details.
+
+
 ## [0.3.47] - 2025-02-05
 ### Helm changes
 - Applications versions:

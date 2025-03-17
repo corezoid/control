@@ -98,7 +98,7 @@ spec:
               mountPath: /ebsmnt/conf/control.yml
               subPath: control.yml
             {{- if .Values.global.control.filesStorage.type }}
-            {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
+            {{- if ne .Values.global.control.filesStorage.type "s3" }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
@@ -124,7 +124,7 @@ spec:
           configMap:
             name: {{ .Values.appName }}-configmap
         {{- if .Values.global.control.filesStorage.type }}
-        {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "cdn") }}
+        {{- if ne .Values.global.control.filesStorage.type "s3" }}
         {{- if $server_data.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
@@ -145,3 +145,5 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
+
