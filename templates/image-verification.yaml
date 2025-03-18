@@ -10,9 +10,20 @@
         # Install cosign if not present
         if ! command -v cosign &> /dev/null; then
           echo "Installing cosign..."
-          wget -q https://github.com/sigstore/cosign/releases/download/v1.13.1/cosign-linux-amd64
-          chmod +x cosign-linux-amd64
-          mv cosign-linux-amd64 /usr/local/bin/cosign
+          # Detect architecture
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            COSIGN_ARCH="amd64"
+          elif [ "$ARCH" = "aarch64" ]; then
+            COSIGN_ARCH="arm64"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+          
+          wget -q "https://github.com/sigstore/cosign/releases/download/v1.13.1/cosign-linux-${COSIGN_ARCH}"
+          chmod +x "cosign-linux-${COSIGN_ARCH}"
+          mv "cosign-linux-${COSIGN_ARCH}" /usr/local/bin/cosign
         fi
         
         # Verify image signature
@@ -24,6 +35,7 @@
         echo "Image signature verification successful for {{ .image }}:{{ .tag }}"
       else
         echo "COSIGN_PUBLIC_KEY not set, skipping image signature verification"
+        echo "Image verification is optional and will be skipped without a public key"
       fi
   env:
     - name: COSIGN_PUBLIC_KEY
