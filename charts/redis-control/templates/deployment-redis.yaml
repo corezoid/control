@@ -29,7 +29,9 @@ spec:
         - name: {{ $pullSecret }}
       {{- end }}
       {{- end }}
-      serviceAccountName: ""
+      serviceAccountName: {{ .Values.appName }}-serviceaccount
+      initContainers:
+      {{- include "control.verifyImageSignature" (dict "image" .Values.image.repository "tag" .Values.image.tag "Values" .Values "include" .include) | nindent 6 }}
       securityContext:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
       containers:

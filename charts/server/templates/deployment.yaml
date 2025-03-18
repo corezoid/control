@@ -40,11 +40,7 @@ spec:
         - name: {{ $pullSecret }}
       {{- end }}
       {{- end }}
-      {{- if .Values.global.control.frontend.serviceAccount }}
-      {{- if .Values.global.control.frontend.serviceAccount.create }}
-      serviceAccountName: control-{{ .Values.appName }}-serviceaccount
-      {{- end }}
-      {{- end }}
+      serviceAccountName: {{ .Values.appName }}-serviceaccount
       securityContext:
         {{- toYaml $control_data.podSecurityContext | nindent 8 }}
       initContainers:
@@ -61,6 +57,8 @@ spec:
         {{ include "InitWait.redis" . | nindent 8 }}
 
         {{ include "InitWait.scylla" . | nindent 8 }}
+        
+        {{- include "control.verifyImageSignature" (dict "image" (include "server.imageUrl" .) "tag" "" "Values" .Values "include" .include) | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

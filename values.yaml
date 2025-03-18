@@ -136,6 +136,8 @@ global:
   fullnameOverride: ""
   control:
     product: "control"
+    # Public key for image signature verification using cosign
+    # cosignPublicKey: ""
     scylladb:
       # if internal true - create and use internal ScyllaDB
       # if internal false - enable external server with ScyllaDB
