@@ -46,6 +46,10 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml $control_data.podSecurityContext | nindent 8 }}
+      {{- if .Values.global.control.cosignPublicKey }}
+      initContainers:
+        {{- include "control.verifyImageSignature" (dict "image" (include "control.frontend.imageUrl" .) "tag" "" "Values" .Values "include" .include) | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Values.appName }}
           image: {{ include "control.frontend.imageUrl" . | quote }}

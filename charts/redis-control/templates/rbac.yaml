@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "control.redisSecretName" . }}-{{ .Values.appName }}-reader-role
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ include "control.redisSecretName" . | quote }}]
+    verbs: ["get", "watch", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "control.redisSecretName" . }}-{{ .Values.appName }}-reader-binding
+subjects:
+  - kind: ServiceAccount
+    name: server-serviceaccount
+  - kind: ServiceAccount
+    name: tasks-serviceaccount
+roleRef:
+  kind: Role
+  name: {{ include "control.redisSecretName" . }}-{{ .Values.appName }}-reader-role
+  apiGroup: rbac.authorization.k8s.io

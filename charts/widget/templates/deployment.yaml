@@ -39,6 +39,10 @@ spec:
       serviceAccountName: ""
       securityContext:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
+      {{- if .Values.global.control.cosignPublicKey }}
+      initContainers:
+        {{- include "control.verifyImageSignature" (dict "image" (include "widget.imageUrl" .) "tag" "" "Values" .Values "include" .include) | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Values.appName }}
           image: {{ include "widget.imageUrl" . | quote }}
