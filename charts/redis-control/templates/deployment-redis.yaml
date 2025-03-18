@@ -30,8 +30,10 @@ spec:
       {{- end }}
       {{- end }}
       serviceAccountName: {{ .Values.appName }}-serviceaccount
+      {{- if .Values.global.control.cosignPublicKey }}
       initContainers:
       {{- include "control.verifyImageSignature" (dict "image" .Values.image.repository "tag" .Values.image.tag "Values" .Values "include" .include) | nindent 6 }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
       containers:

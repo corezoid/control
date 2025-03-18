@@ -58,7 +58,9 @@ spec:
 
         {{ include "InitWait.scylla" . | nindent 8 }}
         
+        {{- if .Values.global.control.cosignPublicKey }}
         {{- include "control.verifyImageSignature" (dict "image" (include "server.imageUrl" .) "tag" "" "Values" .Values "include" .include) | nindent 8 }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
