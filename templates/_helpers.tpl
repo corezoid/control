@@ -236,6 +236,31 @@ Create block for init-wait containers
 {{- end }}
 
 {{- define "InitWait.scylla" -}}
+- name: init-wait-scylla-resolve
+  image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
+  imagePullPolicy: IfNotPresent
+  command: ["sh"]
+  args:
+    - "-c"
+    - |
+      if ! echo ${SCYLLADB_HOST} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+        until IP=$(nslookup ${SCYLLADB_HOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
+          echo "Waiting for Database IP resolution";
+          sleep 2;
+        done
+      else
+        echo "${SCYLLADB_HOST} is already an IP address, skipping resolution.";
+      fi
+  env:
+    - name: SCYLLADB_HOST
+      {{- if .Values.global.control.scylladb.internal }}
+      value: "scylla-service"
+      {{- else }}
+      value: "{{- index .Values.global.control.scylladb.contactPoints 0 }}"
+      {{- end }}
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+
 - name: init-wait-scylla
   image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
   imagePullPolicy: IfNotPresent

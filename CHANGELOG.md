@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.49] - 2025-04-23
+### Helm changes
+- Applications versions:
+  - server - 5.110.0
+  - frontend - 5.110.1
+  - realtime - 3.2.0
+  - control-tasks - 2.52.0
+  - widget - v1.57.0
+- Added ScyllaDB cleaner configuration to control-tasks for automatic database maintenance
+
+### Improvements / New Features
+
+#### 1. Added text support in graphs and improved actor selection.
+#### 2. Voice playback for events and comments (Text-to-Speech).
+#### 3. Real-time call transcription.
+#### 4. Ability to preview TXT files directly in Simulator.
+#### 5. Added description field to form settings and improved event metadata editing.
+#### 6. Carousel scrolling and keyboard navigation enhancements in graph scripts and snippets.
+#### 7. Push notifications supported (including Firebase).
+#### 8. New event description copying and fullscreen script display.
+#### 9. Cross-domain file download support.
+#### 10. Dynamic transcription language selection in Meet-agent.
+
+### UI/UX Improvements
+
+#### 1. Redesigned UI for Actor Bag, Graphs, and Events.
+#### 2. Improved emoji rendering and modal UI visuals.
+#### 3. Optimized background effects and removed video mirroring during calls.
+#### 4. Updated actor drag logic and improved scroll experience in large transcriptions.
+#### 5. Enhanced mobile UI for device selection and custom bar interactions.
+
+### Behavior & Performance Upgrades
+
+#### 1. Better control over callback/notification behavior during calls.
+#### 2. Accurate dashboard filtering and improved stream stability.
+#### 3. Event widgets and actor avatars display more reliably.
+#### 4. Optimized workspace synchronization and dashboard updates.
+
+### Bug Fixes
+
+#### 1. Fixed issues with chat scroll, transcription visibility, and emoji display.
+#### 2. Resolved graph load errors, broken links, and actor filtering bugs.
+#### 3. Corrected visual glitches in volume popups and form field errors.
+#### 4. Addressed sorting inconsistencies in streams and improved event title updates.
+
+
+
+## [0.3.49] - 2025-04-02
+### Helm changes
+- Applications versions:
+  - server - 5.XXX.X
+  - frontend - 5.XXX.X
+  - realtime - 3.2.0
+  - control-tasks - 2.XX.X
+  - widget - v1.XX.X
+- Fix rbac for `realtime`
+- Fix "Internal IP Address Disclosure" vulnerability by filtering internal IP addresses in X-Real-IP header
+- Update `realtime` config - implement `ScyllaDB` support.
+- Update `main` and `redis` dashbords.
+- Add `actors_cleaner` configuration to `control-tasks` subchart.
+
 
 ## [0.3.48] - 2025-03-12
 ### Helm changes
@@ -523,7 +584,7 @@ location /zoom-redirect-oauth {
 Bug fixes/enhancements on the server
 
 
-## [0.3.37] - 2024-04-04 
+## [0.3.37] - 2024-04-04
 ### Helm changes
 - Applications versions:
     - server - 5.59.1
@@ -599,8 +660,8 @@ Scripts:
 #### 2. Migrated current snapshots of account balances from PostgreSQL to ScyllaDB.
 #### 3. Transferred tree counters of accounts from Redis to ScyllaDB.
 #### 4. Migration Documentation URL
-   API: https://doc.simulator.company/  
-   Scripts: https://doc.simulator.company/cdu  
+   API: https://doc.simulator.company/
+   Scripts: https://doc.simulator.company/cdu
 #### 5. Removed the ability to delete transactions in the interface
 
 
@@ -632,9 +693,9 @@ Scripts:
      - **eventInfo**: true/false
      - **eventTabs**: true/false is the list of tabs separated by «_», for example: chat_details_attachments.
 
-You can manage the visibility of the following tabs: Details, Info, Chat, Shared, Attachments, Accounts, Events, Actors.  
+You can manage the visibility of the following tabs: Details, Info, Chat, Shared, Attachments, Accounts, Events, Actors.
 
-Inside the manageUI, elements are separated by «:», while keys and values are separated by «_», for example:  
+Inside the manageUI, elements are separated by «:», while keys and values are separated by «_», for example:
 
 ```
 "manageUI=eventTabs_chat_details:eventInfo_false:eventControls_false"
@@ -649,9 +710,9 @@ This feature comes in handy when you embed the Events page as a [widget](https:/
 
 #### 2. The My verse page on which you can quickly access your graph with main user resources and objects in the selected workspace has been updated.
 #### 3. Work with dashboards has been improved
-   You can add the same account with different incomeType parameters (debit,credit) to a dashboard: select the Income type checkbox in the Legend settings section of the dashboard settings menu.  
-   Resizing became more convenient: Only the side that you are dragging is being resized.  
-   The dashboard title was removed from the dashboard expanded view.  
+   You can add the same account with different incomeType parameters (debit,credit) to a dashboard: select the Income type checkbox in the Legend settings section of the dashboard settings menu.
+   Resizing became more convenient: Only the side that you are dragging is being resized.
+   The dashboard title was removed from the dashboard expanded view.
 #### 4. Transaction filter API requests have been optimized to run much faster.
 #### 5. The new [signature](https://doc.simulator.company/cdu#tag/signature) component was added. The component implements a whiteboard on which you can make a drawing and save it as an image. For example, you can use it to create a client signature.
 
@@ -700,19 +761,19 @@ This feature comes in handy when you embed the Events page as a [widget](https:/
 ### Improvements / New Features
 
 #### 1. When you create or edit a dashboard, you can select the default account and currency in the Account by default field of the Add chart dialog. After that, you need to select actors with the account-currency chosen pair in the Actor field to build a chart.
-   Note. Default account availability for the selected actors  
+   Note. Default account availability for the selected actors
    If an actor you've selected has the chosen account-currency pair, it will have the account value displayed to the right of the Account field (1). If the selected actor doesn't have the chosen account-currency pair, the "i" info icon will be displayed to the right of the Account field (2), informing that you must select an actor with the account-currency pair set by default.
 
 #### 2. The dashboard widget now has the Settings dropdown menu where you can select an interval and switch the account and account value type (amount or count of transactions), thus viewing the same dashboard for different accounts.
-   Note. Settings for dashboards with no Account by default selected  
-   On the dashboards with no Account by default selected, the Settings menu allows selecting a time interval and switching between the amount and transaction count values.  
-   The Settings menu configuration does not affect the dashboard creation/editing menu configuration.  
+   Note. Settings for dashboards with no Account by default selected
+   On the dashboards with no Account by default selected, the Settings menu allows selecting a time interval and switching between the amount and transaction count values.
+   The Settings menu configuration does not affect the dashboard creation/editing menu configuration.
 #### 3. The feature of creating dynamic dashboards based on actor filters was added. To create a dynamic dashboard, in the Dashboard type field of the Add chart dialog, select Dynamic by ActorFilters.
-   After creating this dashboard type:  
-   - Select the specific filter you want to use to build your dashboard in the Select Actors Filters dropdown list.  
-   Note: The selected Actor Filter must have an account to build a dashboard.  
+   After creating this dashboard type:
+   - Select the specific filter you want to use to build your dashboard in the Select Actors Filters dropdown list.
+   Note: The selected Actor Filter must have an account to build a dashboard.
    - Select the Top number that defines the number of top actor accounts from the filter range, which values will be displayed on the dashboard.
-   You can't build a Line chart type with the Dynamic by ActorFilters dashboard type  
+   You can't build a Line chart type with the Dynamic by ActorFilters dashboard type
 #### 4. Now, you can add images and gifs anywhere in the text when editing an event or actor description, which makes editing big event descriptions easier. With that, the cursor maintains a correct position.
 #### 5. API methods for getting account names were optimized.
 
@@ -722,17 +783,17 @@ This feature comes in handy when you embed the Events page as a [widget](https:/
    - Added a background to the title of actors
 
 #### 7. Scripts: Now, with each /get and /send request, a new parameter sessionData.fingerprint is included.
-   The fingerprint is provided independently of the script authorization settings. This parameter can be used as a session ID.  
+   The fingerprint is provided independently of the script authorization settings. This parameter can be used as a session ID.
 
 #### 8. Enabled the ability to perform transfers on the graph.
-   To initiate a transfer, hover over the connection between actors, and a "+" sign will appear.  
-   Click on the "+" sign, and in the transfer creation form, specify the amount and, if necessary, switch the sender and receiver.  
-   Transfers are executed based on the account selected in the layer settings.  
-   If any of the selected actors do not have an account, it will be automatically opened.  
-   If there are transfers between two actors added to the layer on the selected account, they are displayed as green arrows. The thicker the arrow, the larger the transfer amount. The amount is calculated relative to all transfers on this layer.  
+   To initiate a transfer, hover over the connection between actors, and a "+" sign will appear.
+   Click on the "+" sign, and in the transfer creation form, specify the amount and, if necessary, switch the sender and receiver.
+   Transfers are executed based on the account selected in the layer settings.
+   If any of the selected actors do not have an account, it will be automatically opened.
+   If there are transfers between two actors added to the layer on the selected account, they are displayed as green arrows. The thicker the arrow, the larger the transfer amount. The amount is calculated relative to all transfers on this layer.
 
 #### 9. Added support for the "filter" parameter in all GET methods for transactions.
-   https://control.events/api.html#tag/transactions  
+   https://control.events/api.html#tag/transactions
    It is recommended to use it for response size optimization.
 
 #### 10. Add new component ScyllaDB
@@ -780,7 +841,7 @@ In the scripts, fixed the redirect for the 302 code to the same page_id where th
 #### 1. When clicking the push notification on a new reaction in an event with the Split view enabled on the Events page, the Split view remains, and the event with the new reaction becomes active.
 #### 2. By using the API method actors_filter, you can filter actors by account balance
 #### 3. All the GET API method accounts have the filter parameter. For example:
-   filter=id,amount,incomeType … , where you have the list of comma-separated fields to receive for every account in response data  
+   filter=id,amount,incomeType … , where you have the list of comma-separated fields to receive for every account in response data
 #### 4. With the new API Get account value info method, you can get the details of actors listed on the balance of the Actor ID account in one request
 #### 5. On the dashboard, you can add up to 30 accounts.
 #### 6. By using the API Filter actors by form method, you can sort actors by any field: the request gets the orderByKey field where you have to enter the key to make a sorting. For more information, go to [Filters actors](https://control.events/api.html#operation/filterActors)
@@ -799,7 +860,7 @@ In the scripts, fixed the redirect for the 302 code to the same page_id where th
 }
 ```
 
-Where: uk and en are the keys with any value; you can have any number of such keys.The old keys remain operable as before.To use a particular localization language, you need to send the language parameter together with the language value from Corezoid in response to the /get request. For more information, go to Get page https://control.events/script.html#tag/get-page  and Locale.  
+Where: uk and en are the keys with any value; you can have any number of such keys.The old keys remain operable as before.To use a particular localization language, you need to send the language parameter together with the language value from Corezoid in response to the /get request. For more information, go to Get page https://control.events/script.html#tag/get-page  and Locale.
 #### 11. The protocol for working with widget commands from scripts that run in the widget has been changed:
 
 ```
@@ -817,13 +878,13 @@ Where: uk and en are the keys with any value; you can have any number of such ke
 ```
 
 #### 12. In the Actor filter, you can filter actors by account balance:
-   Select an account and enter the needed values to the Balance from and Balance to fields.  
-   (Optional) Select the needed sorting in the Sort by dropdown list.  
-   As a result, you can see the list of actors with the Account-Currency column displaying the selected account balances for actors.  
+   Select an account and enter the needed values to the Balance from and Balance to fields.
+   (Optional) Select the needed sorting in the Sort by dropdown list.
+   As a result, you can see the list of actors with the Account-Currency column displaying the selected account balances for actors.
 #### 13. In the Edit Chart dialog, you can:
-   Customize the colors for your chart by entering the needed color codes.  
-   Regenerate all colors by clicking the refresh icon next to the Color field to set random colors for each part of your chart.  
-   Note: The Use actors colors option has been removed.  
+   Customize the colors for your chart by entering the needed color codes.
+   Regenerate all colors by clicking the refresh icon next to the Color field to set random colors for each part of your chart.
+   Note: The Use actors colors option has been removed.
 #### 14. The calculation of balances in account trees has been optimized.
 #### 15. Enabled the ability to embed events into scripts without unnecessary components.
 
@@ -831,10 +892,10 @@ Where: uk and en are the keys with any value; you can have any number of such ke
 
 #### 1. You can use the mapping functionality when importing scripts: If the file that you are importing has at least one script, when mapping, the Corezoid credentials tab appears where you can specify new corresponding credentials for each script. This feature simplifies the import of scripts and makes it possible to use them immediately after the import is complete.
 #### 2. The following components have the context menu:
-   Button: options are described in extra.options.  
-   For more information, go to [Button](https://control.events/script.html#tag/button).  
-   Table: options are described in body[].options[].button.extra.options.  
-   For more information, go to [Table](https://control.events/script.html#tag/table).  
+   Button: options are described in extra.options.
+   For more information, go to [Button](https://control.events/script.html#tag/button).
+   Table: options are described in body[].options[].button.extra.options.
+   For more information, go to [Table](https://control.events/script.html#tag/table).
 
    More information:
    https://doc.corezoid.com/docs/simulator-541
@@ -865,31 +926,31 @@ Where: uk and en are the keys with any value; you can have any number of such ke
 #### 4. Now, you don’t have to click Save to save the Actor’s description changes as they are saved automatically.
 #### 5. You can use the new Line type for dashboards that shows the dynamics of transactions (amount and number) of selected accounts.
 #### 6. The Total transfer type has been added to the Make transfer form and is made available for the Numeric account type. For the String and Account ID account types, use the Debit and Credit types. When making a transfer with the Total type selected:
-   A positive debit transaction is made against the actor account selected in the Actor from field.  
-   A positive credit transaction is made against the actor account selected in the Actor to field.  
-   Note: When you select the Total type in the Actor from line, the Type field in the Actor to line gets disabled.  
-#### 7. On the Events page:  
-   - You now have the counter of the number of unread messages in the chat list on the open Conversation panel and in your chats where you need to scroll to see new messages.  
-   - To send a message in a chat, you have a new option to send a message in a chat by pressing Enter on your keyboard.  
-   - The events are not grouped by the View and Freeze user reactions anymore.  
+   A positive debit transaction is made against the actor account selected in the Actor from field.
+   A positive credit transaction is made against the actor account selected in the Actor to field.
+   Note: When you select the Total type in the Actor from line, the Type field in the Actor to line gets disabled.
+#### 7. On the Events page:
+   - You now have the counter of the number of unread messages in the chat list on the open Conversation panel and in your chats where you need to scroll to see new messages.
+   - To send a message in a chat, you have a new option to send a message in a chat by pressing Enter on your keyboard.
+   - The events are not grouped by the View and Freeze user reactions anymore.
 #### 8. In the form constructor, you can collapse a large list of fields with the manual options source.
 #### 9. You can visualize connections between actors based on their transfer history. To view these connections, simply add actors to the layer and in the upper-right corner, select the account-currency pair:
    - The direction of the arrow shows the transfer source and recipient.
    - The captions on the arrow displays the total amount and number of transfers made.
    - The arrow thickness depends on the total transfers amount.
-#### 10. In the actor’s change history, you can:  
-   - Quickly switch between the history periods by clicking the arrows next to the period  
-   - View the correct representation of changes when the actor’s data type is JSON  
+#### 10. In the actor’s change history, you can:
+   - Quickly switch between the history periods by clicking the arrows next to the period
+   - View the correct representation of changes when the actor’s data type is JSON
 #### 11. On the dashboards:
    - You can specify the Y-Axis label for the Bar and Line charts in the Edit Chart form.
    - You can specify the number rounding method (decimal positions after comma) in the settings of the account-currency pair.
    - When resizing, the chart fits completely into the selected frame displaying the full legend, without the need to scroll and crop.
 #### 12. For actors-images, a title is no longer displayed on a graph, only an image.
 #### 13. For the Create transfer API method, the finance type has been added:
-   - All the accounts with the finance from must be debit.  
-   - All the accounts with the finance to must be credit.  
-   - The amount must be positive for all accounts.    
-For more information, go to Create transfer.  
+   - All the accounts with the finance from must be debit.
+   - All the accounts with the finance to must be credit.
+   - The amount must be positive for all accounts.
+For more information, go to Create transfer.
 #### 14. The Create transaction method has been improved: the addValues and delValues parameters have been added to the String and Actor ID account types. For more information, go to Create transaction.
 #### 15. Account trees and formula calculations are now performed asynchronously, and the derived balances are stored in the database.
 This improvement reduces system load when handling account balances generated by a tree or formula, enabling smoother utilization of these accounts on dashboards
@@ -906,7 +967,7 @@ This improvement reduces system load when handling account balances generated by
 #### 2. You can set the modal window size by using styles
 #### 3. You can load faster script pages that don’t have dynamic content without sending a request to Corezoid: Right-click the needed page, and then select Make static page. The static pages are marked with the S letter
 #### 4. You can use styles for the calendar component and table elements. For more information, go to Style.
-#### 5. For the public API, baseURL has been changed: https://api.simulator.company/v/1.0. Though the old baseURL will be supported for some time, we recommend changing the current baseUrl with the new one in your Processes as soon as possible.  
+#### 5. For the public API, baseURL has been changed: https://api.simulator.company/v/1.0. Though the old baseURL will be supported for some time, we recommend changing the current baseUrl with the new one in your Processes as soon as possible.
 Note: This does not affect the clients who use In-House Simulator.Company versions.
 #### 6. For the sidebar component, the Skill bar type has been added. For more information, go to Slider.
 
@@ -918,10 +979,10 @@ Note: This does not affect the clients who use In-House Simulator.Company versio
 #### 5. The handling of user and actor tags in actor descriptions and reactions has been optimized.
 
 ### More information:
-https://doc.corezoid.com/docs/simulator-537  
-https://doc.corezoid.com/docs/simulator-538  
-https://doc.corezoid.com/docs/simulator-539  
-https://doc.corezoid.com/docs/simulator-540  
+https://doc.corezoid.com/docs/simulator-537
+https://doc.corezoid.com/docs/simulator-538
+https://doc.corezoid.com/docs/simulator-539
+https://doc.corezoid.com/docs/simulator-540
 
 
 ## [0.3.28] - 2023-10-19
@@ -976,32 +1037,32 @@ https://doc.corezoid.com/docs/simulator-540
 
 ### Improvements
 
-#### 1. Added new functionality Filters in Events  
-   Filters are applied based on the event creation date and event owner.  
-   The filter can be applied to all events (All stream) and within a specific stream.  
-   The filter resets when the Events section is closed or when the page is refreshed.  
+#### 1. Added new functionality Filters in Events
+   Filters are applied based on the event creation date and event owner.
+   The filter can be applied to all events (All stream) and within a specific stream.
+   The filter resets when the Events section is closed or when the page is refreshed.
 
-#### 2. Improved Import/Export functionality. Now, all actor relationships with the hierarchy type are exported and imported along with the actors.  
+#### 2. Improved Import/Export functionality. Now, all actor relationships with the hierarchy type are exported and imported along with the actors.
 
-#### 3. Added a new attachment component. Suitable for simultaneous uploading of multiple files. https://control.events/script.html#tag/attachment  
+#### 3. Added a new attachment component. Suitable for simultaneous uploading of multiple files. https://control.events/script.html#tag/attachment
 
-#### 4. Increased the maximum file size that can be uploaded to the cloud version to 100 MB. https://admin.control.events/  
+#### 4. Increased the maximum file size that can be uploaded to the cloud version to 100 MB. https://admin.control.events/
 
-#### 5. For event types: updateReaction and deleteReaction received via the user API webhook, added the parameter payload.treeInfo.rootActorFormId to the data model.  
+#### 5. For event types: updateReaction and deleteReaction received via the user API webhook, added the parameter payload.treeInfo.rootActorFormId to the data model.
 
-#### 6. For public API methods:  
-   getAccountNames - https://control.events/api.html#operation/getAccountNames  
-   getCurrencies - https://control.events/api.html#operation/getCurrencies  
-   Changed the default value of the withStats parameter.  
-   The new default value for withStats is false.  
-   Note: If you pass withStats: false, the method will work much faster.  
+#### 6. For public API methods:
+   getAccountNames - https://control.events/api.html#operation/getAccountNames
+   getCurrencies - https://control.events/api.html#operation/getCurrencies
+   Changed the default value of the withStats parameter.
+   The new default value for withStats is false.
+   Note: If you pass withStats: false, the method will work much faster.
 
-### Bug Fixes:  
-#### 1. Fixed the display of the API key avatar in the chat widget.  
+### Bug Fixes:
+#### 1. Fixed the display of the API key avatar in the chat widget.
 
-#### 2. Fixed bulk tag replacement in the settings for the Currency_Account pair.  
+#### 2. Fixed bulk tag replacement in the settings for the Currency_Account pair.
 
-#### 3. Fixed the formation of the sessionData object for SSO users, which is sent to the script process receiver. Now, the sessionData structure is consistent with what is sent for users with other types of authorization.  
+#### 3. Fixed the formation of the sessionData object for SSO users, which is sent to the script process receiver. Now, the sessionData structure is consistent with what is sent for users with other types of authorization.
 
 
 ## [0.3.26] - 2023-09-27
@@ -1015,61 +1076,61 @@ https://doc.corezoid.com/docs/simulator-540
 
 ### Improvements
 
-#### 1. New types of accounts have been introduced: String and Actor ID, and the Accounts page in the actor's panel has been redesigned.  
-#### 2. Improved the display of icons on user avatars through the API. They now appear in all places in the Simulator.  
-#### 3. Added a new section in the Simulator - Outer Graph.  
+#### 1. New types of accounts have been introduced: String and Actor ID, and the Accounts page in the actor's panel has been redesigned.
+#### 2. Improved the display of icons on user avatars through the API. They now appear in all places in the Simulator.
+#### 3. Added a new section in the Simulator - Outer Graph.
    Outer Graph is a public graph where any company (workspace) owner can configure their company's card and publish it to the public graph for interaction with clients and partners.
-#### 4. Implemented the opening of custom actor creation forms through the Actors bag.  
-   If a system form is selected when creating an actor in the Actors bag:  
-   Dashboards, TransfersFilter, AccountTriggers, ActorFilters, TransactionFilters  
+#### 4. Implemented the opening of custom actor creation forms through the Actors bag.
+   If a system form is selected when creating an actor in the Actors bag:
+   Dashboards, TransfersFilter, AccountTriggers, ActorFilters, TransactionFilters
    Then a non-standard custom form will automatically open for these forms, as this form is specific to each of these types of actors.
-#### 5. Dashboards improvements:  
-##### 5.1. In the dashboard constructor, the ability to sort accounts on the chart has been added.  
-##### 5.2. In the dashboard constructor, the ability to configure a legend that will be displayed on the chart has been added.  
-#### 6. In the mobile version, a "Make transfer" button has been added to the main screen for quick transfer creation from a smartphone or tablet.  
-#### 7. Import/export:  
-   Made it possible to import without deleted objects in the actor's data.  
-   If there are deleted objects in the actor's data:  
-   Objects: actors, currencies, actor names  
-   They are deleted from the structure during export, and the export is done without these fields. Accordingly, during import, these fields will not be present in the actor's model.  
-#### 8. Optimized the API for retrieving transactions and transfers. Response time has significantly decreased.  
+#### 5. Dashboards improvements:
+##### 5.1. In the dashboard constructor, the ability to sort accounts on the chart has been added.
+##### 5.2. In the dashboard constructor, the ability to configure a legend that will be displayed on the chart has been added.
+#### 6. In the mobile version, a "Make transfer" button has been added to the main screen for quick transfer creation from a smartphone or tablet.
+#### 7. Import/export:
+   Made it possible to import without deleted objects in the actor's data.
+   If there are deleted objects in the actor's data:
+   Objects: actors, currencies, actor names
+   They are deleted from the structure during export, and the export is done without these fields. Accordingly, during import, these fields will not be present in the actor's model.
+#### 8. Optimized the API for retrieving transactions and transfers. Response time has significantly decreased.
 
-### Scripts:  
-#### 1. Added functionality for auto-submit for the Button component.  
-   https://control.events/script.html#tag/button  
-   extra.autoSubmit  
-#### 2. Introduced a new toggle component.  
-   https://control.events/script.html#tag/toggle  
-#### 3. Introduced a new slider component.  
-   https://control.events/script.html#tag/slider  
-#### 4. In the table component, added functionality for clickable rows in the table.  
-   https://control.events/script.html#tag/table  
-   body[].clickable  
+### Scripts:
+#### 1. Added functionality for auto-submit for the Button component.
+   https://control.events/script.html#tag/button
+   extra.autoSubmit
+#### 2. Introduced a new toggle component.
+   https://control.events/script.html#tag/toggle
+#### 3. Introduced a new slider component.
+   https://control.events/script.html#tag/slider
+#### 4. In the table component, added functionality for clickable rows in the table.
+   https://control.events/script.html#tag/table
+   body[].clickable
 
-### Bug Fixes:  
-#### 1. Fixed a case where it was impossible to revoke access rights to an actor for a user.  
-#### 2. Fixed a bug where custom actor colors were not saved when creating a new actor.  
-#### 3. Fixed the display of the select component. Sometimes, an empty space was added at the end of the list.  
+### Bug Fixes:
+#### 1. Fixed a case where it was impossible to revoke access rights to an actor for a user.
+#### 2. Fixed a bug where custom actor colors were not saved when creating a new actor.
+#### 3. Fixed the display of the select component. Sometimes, an empty space was added at the end of the list.
 
 
 ## [0.3.25] - 2023-09-06
 ### Helm changes
-- Add `apiGateway` parameter in `server` configmap  
-- Applications versions:  
-   - server - 5.30.0  
-   - frontend - 5.30.0  
-   - realtime - 3.0.3  
-   - control-tasks - 2.11.2  
-   - widget - v1.5.0  
+- Add `apiGateway` parameter in `server` configmap
+- Applications versions:
+   - server - 5.30.0
+   - frontend - 5.30.0
+   - realtime - 3.0.3
+   - control-tasks - 2.11.2
+   - widget - v1.5.0
 
 #### Improvements
-#### 1. Implemented dashboard functionality.  
-Dashboards are graphical panels with data sources that include account balances or the number of transactions on them. Dashboards can be displayed as charts on graphs. Dashboard chart is an actor in the Dashboards system form.  
+#### 1. Implemented dashboard functionality.
+Dashboards are graphical panels with data sources that include account balances or the number of transactions on them. Dashboards can be displayed as charts on graphs. Dashboard chart is an actor in the Dashboards system form.
 
-How to add/create a chart:  
-##### 1.1. In the Actors bag, create an actor in the system form: Dashboards.  
-##### 1.2. Click the "Add chart" button on the layer.  
-##### 1.3. On the graph, use lasso to select actors, choose "Add chart," and a chart will be automatically created using the selected account_currency pair on this graph (top right). You can then edit and refine this dashboard.  
+How to add/create a chart:
+##### 1.1. In the Actors bag, create an actor in the system form: Dashboards.
+##### 1.2. Click the "Add chart" button on the layer.
+##### 1.3. On the graph, use lasso to select actors, choose "Add chart," and a chart will be automatically created using the selected account_currency pair on this graph (top right). You can then edit and refine this dashboard.
 
  - Title: Dashboard name
  - Chart type: Bar, Line, Pie, Doughnut, Funnel, Table
@@ -1134,7 +1195,7 @@ In the script constructor, add the actorId of the comments widget to the widgets
 
 To add the comments widget to a page, add a widget component of type webComments. [Script Widget Documentation](https://control.events/script.html#tag/widget)
 2. Introduced a new OTP component - [OTP Component Documentation](https://control.events/script.html#tag/otp)
- 
+
 
 [Release notes Simulator (5.26.0)](https://doc.corezoid.com/docs/simulator-5260) 09.08.2023
 1. Added a progress bar when adding images to a layer.
@@ -1142,7 +1203,7 @@ To add the comments widget to a page, add a widget component of type webComments
 Bugfix
 1. Fixed an issue with duplicating actors when moving them between layers.
 2. Fixed the display of dropdown lists when they were hidden behind a form. They should now open above the form.
-  
+
 
 [Release notes Simulator (5.27.2)](https://doc.corezoid.com/docs/simulator-5270) 19.08.2023
 1. Implemented an API endpoint for uploading base64-encoded images:
@@ -1165,7 +1226,7 @@ Bugfix
 ### Helm changes
 - Switch to a public `redis` image
 - Add new parameter to `opentelemetry` - `enabled: false|true` to off|on tracing (view values.yaml -> opentelemetry)
-- Chage `initialDelaySeconds` for server `readinessProbe` and `livenessProbe` 
+- Chage `initialDelaySeconds` for server `readinessProbe` and `livenessProbe`
 - Applications versions:
     server - 5.24.0
     frontend - 5.24.0
@@ -1326,9 +1387,9 @@ ctrl('webWidget', 'onClose', function() { // Do stuff }
     control-tasks - 2.1.0
     widget - v1.0.45
 
-- `Cron` application is deprecated in current helm version. Before `helm upgrade ...` in values file set `.Values.global.control.cron.app_enabled` to `false`. 
+- `Cron` application is deprecated in current helm version. Before `helm upgrade ...` in values file set `.Values.global.control.cron.app_enabled` to `false`.
 - Reatime: Add port for metrics. Can set `.Values.global.control.realtimeMetricsPort` or will be use default port `9100`
-- Ingress: Add 
+- Ingress: Add
 ```
 more_set_headers X-Real-IP $remote_addr;
 more_set_headers X-Forwarded-For $http_x_forwarded_for;
@@ -1537,7 +1598,7 @@ If a file is attached to an actor, it cannot be deleted directly. First, the act
 2. The size of the text input field in the widget has been increased to accommodate up to 5 lines.
 
 #### Widget:
-1. The select component, type: autocomplete, has been improved. A 0.5-second delay has been added after text input completion before sending a "send" request to Corezoid.  
+1. The select component, type: autocomplete, has been improved. A 0.5-second delay has been added after text input completion before sending a "send" request to Corezoid.
 
 
 ## [0.3.14] - 2023-04-19

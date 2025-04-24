@@ -1,20 +1,22 @@
 {{- $global_data := .Values.global }}
 {{- $control_data := $global_data.control }}
+{{- $realtime_data := $global_data.control.realtime }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
-  labels: {{- include "realtime.labels" . | nindent 4 }}
+  labels:
+{{- include "realtime.labels" . | nindent 4 }}
 spec:
+{{- if not $realtime_data.autoscaling.enabled }}
+  replicas: {{ $realtime_data.autoscaling.minReplicas }}
+{{- end }}
   selector:
     matchLabels: {{- include "realtime.labels" . | nindent 6 }}
 {{- with $global_data.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-  {{- if not $control_data.realtime.autoscaling.enabled }}
-  replicas: {{ $control_data.realtime.autoscaling.minReplicas }}
-  {{- end }}
     {{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
@@ -35,7 +37,7 @@ spec:
         - name: {{ $pullSecret }}
       {{- end }}
       {{- end }}
-      serviceAccountName: {{ .Values.appName }}-serviceaccount
+      serviceAccountName: control-{{ .Values.appName }}-serviceaccount
       securityContext:
         {{- toYaml .Values.global.control.podSecurityContext | nindent 8 }}
       initContainers:
