@@ -22,7 +22,7 @@ metadata:
   name: {{ include "control.configSecretName" . }}-{{ .Values.appName }}-reader-binding
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.appName }}-serviceaccount
+    name: control-{{ .Values.appName }}-serviceaccount
 roleRef:
   kind: Role
   name: {{ include "control.configSecretName" . }}-reader-role
@@ -32,5 +32,8 @@ roleRef:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ .Values.appName }}-serviceaccount
+  name: control-{{ .Values.appName }}-serviceaccount
+  {{- with .Values.global.control.realtime.serviceAccount.annotations }}
   annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}

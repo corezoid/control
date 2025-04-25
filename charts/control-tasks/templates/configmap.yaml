@@ -90,4 +90,39 @@ data:
         "secretKey": "${CONFIG_SA_SECRETKEY}",
         "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       }
+      {{- if or (and (hasKey $control_data "control_tasks") (hasKey $control_data.control_tasks "config") (hasKey $control_data.control_tasks.config "crons") (or (hasKey $control_data.control_tasks.config.crons "actors_cleaner") (hasKey $control_data.control_tasks.config.crons "scylladb_cleaner"))) (not (and (hasKey $control_data "control_tasks") (hasKey $control_data.control_tasks "config") (hasKey $control_data.control_tasks.config "crons"))) }}
+      ,
+      "crons": {
+        {{- if or (and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "scylladb_cleaner")) (not (and (hasKey $control_tasks_data "crons"))) }}
+        "scylladb_cleaner": {
+          {{- if and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "scylladb_cleaner") (hasKey $control_tasks_data.crons.scylladb_cleaner "workers_count") }}
+          "workers_count": {{ $control_tasks_data.crons.scylladb_cleaner.workers_count }},
+          {{- else }}
+          "workers_count": 5,
+          {{- end }}
+          "tables": [
+            {"table": "counters_minutes", "ttl": {{ $control_tasks_data.crons.scylladb_cleaner.tables.counters_minutes_ttl | default 7776000 }}, "periodicity_days": {{ $control_tasks_data.crons.scylladb_cleaner.tables.counters_minutes_periodicity_days | default 90 }}},
+            {"table": "counters_hours", "ttl": {{ $control_tasks_data.crons.scylladb_cleaner.tables.counters_hours_ttl | default 7776000 }}},
+            {"table": "counters_days", "ttl": {{ $control_tasks_data.crons.scylladb_cleaner.tables.counters_days_ttl | default 7776000 }}},
+            {"table": "counters_uniq_minutes", "ttl": {{ $control_tasks_data.crons.scylladb_cleaner.tables.counters_uniq_minutes_ttl | default 7776000 }}},
+            {"table": "counters_uniq_hours", "ttl": {{ $control_tasks_data.crons.scylladb_cleaner.tables.counters_uniq_hours_ttl | default 7776000 }}}
+          ]
+        },
+        {{- end }}
+        {{- if or (and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_cleaner")) (not (and (hasKey $control_tasks_data "crons"))) }}
+        "actors_cleaner": {
+          {{- if and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_cleaner") (hasKey $control_tasks_data.crons.actors_cleaner "workers_count") }}
+          "workers_count": {{ $control_tasks_data.crons.actors_cleaner.workers_count }},
+          {{- else }}
+          "workers_count": 5,
+          {{- end }}
+          {{- if and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_cleaner") (hasKey $control_tasks_data.crons.actors_cleaner "ttl") }}
+          "ttl": {{ $control_tasks_data.crons.actors_cleaner.ttl }}
+          {{- else }}
+          "ttl": 0
+          {{- end }}
+        }
+        {{- end }}
+      }
+      {{- end }}
     }

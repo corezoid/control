@@ -255,12 +255,14 @@ global:
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
       resources: {}
-      # resources:
-      #   limits:
-      #     memory: 600Mi
-      #   requests:
-      #     cpu: 50m
-      #     memory: 100Mi
+      serviceAccount:
+        # Specifies whether a service account should be created
+        create: true
+        # Annotations to add to the service account
+        annotations: {}
+        # The name of the service account to use.
+        # If not set and create is true, a name is generated using the fullname template
+        name: ""
     server:
       persistantVolumeClaimName: "server-pvc"
       persistantVolumeClaimCreate: true
@@ -332,9 +334,20 @@ global:
       #     cpu: 50m
       #     memory: 100Mi
       config:
-        scylladb:
-          contactPoints: SCYLLADB_HOST
-          keyspace: simulator
+        crons:
+          actors_cleaner:
+            workers_count: 3
+            ttl: 0
+          # Example of ScyllaDB cleaner configuration (commented out by default)
+          # scylladb_cleaner:
+          #   workers_count: 5
+          #   tables:
+          #     counters_minutes_ttl: 7776000
+          #     counters_minutes_periodicity_days: 90
+          #     counters_hours_ttl: 7776000
+          #     counters_days_ttl: 7776000
+          #     counters_uniq_minutes_ttl: 7776000
+          #     counters_uniq_hours_ttl: 7776000
 
     serviceAccount:
       # Specifies whether a service account should be created

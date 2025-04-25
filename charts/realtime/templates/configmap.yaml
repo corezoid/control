@@ -21,7 +21,7 @@ data:
       db: ${REDIS_DATABASE}
       {{- end }}
       pool:
-        max: 50
+        max: 200
         idle: 30000
     redisPubSub:
       host: ${REDIS_HOST}
@@ -33,7 +33,33 @@ data:
       db: ${REDIS_DATABASE}
       {{- end }}
       pool:
-        max: 50
+        max: 200
         idle: 30000
+    {{- if .Values.global.control.scylladb }}
+    scylladb:
+      contactPoints:
+    {{- if .Values.global.control.scylladb.internal }}
+        - scylla-service
+    {{- else }}
+      {{- range .Values.global.control.scylladb.contactPoints }}
+        - {{ . }}
+      {{- end }}
+    {{- end }}
+      keyspace: {{ .Values.global.control.scylladb.keyspace }}
+      localDataCenter: {{ .Values.global.control.scylladb.localDataCenter }}
+    {{- end }}
+    {{- if and (hasKey .Values.global.control.realtime "config") (hasKey .Values.global.control.realtime.config "firebase") }}
+    firebase: |
+      {{ .Values.global.control.realtime.config.firebase }}
+    {{- end }}
+    {{- if and (hasKey .Values.global.control.realtime "config") (hasKey .Values.global.control.realtime.config "ios_push_kit") }}
+    ios_push_kit:
+      certs:
+        default:
+          store_type: {{ .Values.global.control.realtime.config.ios_push_kit.certs.default.store_type }}
+          aws_secret:
+            region: {{ .Values.global.control.realtime.config.ios_push_kit.certs.default.aws_secret.region }}
+            name: {{ .Values.global.control.realtime.config.ios_push_kit.certs.default.aws_secret.name }}
+    {{- end }}
     metrics:
       port: {{ include "control.realtime.metrics_port" . }}
