@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.49] - 2025-04-23
 ### Helm changes
 - Applications versions:
-  - server - 5.110.0
+  - server - 5.110.3
   - frontend - 5.110.1
   - realtime - 3.2.0
   - control-tasks - 2.52.0
