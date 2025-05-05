@@ -82,6 +82,15 @@ global:
     sentinel:
       enable: false
       master_name: "mymaster"
+#     cluster:
+#       enable: false
+#       nodes:
+#         - host: "redis-cluster-0.redis-cluster"
+#           port: "6379"
+#         - host: "redis-cluster-1.redis-cluster"
+#           port: "6379"
+#         - host: "redis-cluster-2.redis-cluster"
+#           port: "6379"
     secret:
       ## true - secret will be created automatically with provided values
       ## false - secret should be created manually
@@ -255,6 +264,12 @@ global:
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
       resources: {}
+      # Example of Redis pool configuration (commented out by default)
+      # config:
+      #   redis:
+      #     pool:
+      #       max: 200
+      #       idle: 30000
       serviceAccount:
         # Specifies whether a service account should be created
         create: true
@@ -293,6 +308,11 @@ global:
             idle: 20000
             max: 200
             min: 10
+        redis:
+          pool:
+            min: 5
+            max: 200
+            idle: 30000
         scylladb:
           contactPoints: [SCYLLADB_HOST]
           localDataCenter: eu-west

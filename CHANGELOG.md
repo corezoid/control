@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.50] - 2025-05-15
+### Helm changes
+- Applications versions:
+  - server - 5.110.4
+  - frontend - 5.110.1
+  - realtime - 3.3.3
+  - control-tasks - 2.52.4
+  - widget - v1.57.0
+- Added ability to configure Redis pool settings (max, idle, min) for server and realtime components through global values.yaml
+- Added support for Redis Cluster mode in server, realtime, and control-tasks components
+
 ## [0.3.49] - 2025-04-23
 ### Helm changes
 - Applications versions:

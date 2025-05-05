@@ -76,3 +76,53 @@ pool: {{- toYaml . | nindent 2 }}
 {{- end }}
 {{- end -}}
 {{- end -}}
+
+{{- define "control.server.redis.pool" -}}
+{{- if .Values.global.control.server.config -}}
+{{- if .Values.global.control.server.config.redis -}}
+{{- if .Values.global.control.server.config.redis.pool -}}
+{{- with .Values.global.control.server.config.redis.pool -}}
+pool:
+  min: {{ .min | default 5 }}
+  max: {{ .max | default 200 }}
+  idle: {{ .idle | default 30000 }}
+{{- end }}
+{{- else }}
+pool:
+  min: 5
+  max: 200
+  idle: 30000
+{{- end -}}
+{{- end -}}
+{{- else }}
+pool:
+  min: 5
+  max: 200
+  idle: 30000
+{{- end -}}
+{{- end -}}
+
+{{- define "control.server.redisPubSub.pool" -}}
+{{- if .Values.global.control.server.config -}}
+{{- if .Values.global.control.server.config.redis -}}
+{{- if .Values.global.control.server.config.redis.pool -}}
+{{- with .Values.global.control.server.config.redis.pool -}}
+pool:
+  min: {{ .min | default 5 }}
+  max: {{ .max | default 200 }}
+  idle: {{ .idle | default 30000 }}
+{{- end }}
+{{- else }}
+pool:
+  min: 5
+  max: 200
+  idle: 30000
+{{- end -}}
+{{- end -}}
+{{- else }}
+pool:
+  min: 5
+  max: 200
+  idle: 30000
+{{- end -}}
+{{- end -}}
