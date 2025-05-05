@@ -55,12 +55,28 @@ data:
         {{- end }}
         {{- end }}
       },
+      {{- if and (hasKey .Values.global.redis "cluster") (.Values.global.redis.cluster.enable) }}
+      "redisCluster": {
+        "nodes": [
+        {{- $nodeCount := len .Values.global.redis.cluster.nodes }}
+        {{- range $index, $node := .Values.global.redis.cluster.nodes }}
+          {
+            "host": "{{ $node.host }}",
+            "port": {{ $node.port }}
+          }{{- if lt $index (sub $nodeCount 1) }},{{- end }}
+        {{- end }}
+        ],
+        "database": ${REDIS_DATABASE},
+        "password": "${REDIS_PASSWORD}"
+      },
+      {{- else }}
       "redis": {
         "host": "${REDIS_HOST}",
         "port": ${REDIS_PORT},
         "database": ${REDIS_DATABASE},
         "password": "${REDIS_PASSWORD}"
       },
+      {{- end }}
       {{- if $control_data.scylladb }}
       "scylladb": {
       {{- if $control_data.scylladb.internal }}
