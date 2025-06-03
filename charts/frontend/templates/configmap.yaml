@@ -134,6 +134,20 @@ data:
       {{ include "control.nginx.add_header" . | nindent 6 }}
       {{ include "control.nginx.add_header.cors" . | nindent 6 }}
 
+      {{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "apple_app_site_association") }}
+      location = /.well-known/apple-app-site-association {
+        add_header Content-Type application/json;
+        alias /etc/nginx/well_known/apple_app_site_association;
+      }
+      {{- end }}
+
+      {{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "assetlinks_json") }}
+      location = /.well-known/assetlinks.json {
+        add_header Content-Type application/json;
+        alias /etc/nginx/well_known/assetlinks.json;
+      }
+      {{- end }}
+
       location ~ ^/ping$ {
         return 200 "pong";
         types         { }
@@ -404,3 +418,29 @@ data:
 
     }
     {{- end }}
+{{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "apple_app_site_association") }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-apple-app-site-association-configmap
+  labels:
+    {{- include "control.frontend.labels" . | nindent 4 }}
+data:
+  apple_app_site_association: |
+{{ .Values.global.control.frontend.well_known.apple_app_site_association | indent 4 }}
+{{- end }}
+
+{{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "assetlinks_json") }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-assetlinks-json-configmap
+  labels:
+    {{- include "control.frontend.labels" . | nindent 4 }}
+data:
+  assetlinks.json: |
+{{ .Values.global.control.frontend.well_known.assetlinks_json | indent 4 }}
+{{- end }}
+

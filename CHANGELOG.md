@@ -5,6 +5,98 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.52] - 2025-05-28
+### Helm changes
+- Applications versions:
+  - server - 5.115.1
+  - frontend - 5.115.0
+  - realtime - 3.2.0
+  - control-tasks - 2.53.1
+  - widget - v1.59.0
+
+### Added
+- Added Apple App Site Association support to frontend subchart with configurable content
+- Added AOS Association support to frontend subchart with configurable content
+- Added Grafana alert rules for pong-server metrics
+- Added comprehensive alert rules for HTTP requests, database performance, Redis connections, API Gateway, webhooks, system resources, and business processes
+- Added Grafana alert rules for control-tasks metrics
+- Added GitLab saver configuration to control-tasks for saving graph data to GitLab repositories
+
+### 📊 Analytics & Graphs
+#### 1. Added drawings to the graph
+#### 2. Implemented support for multiple links between actors
+#### 3. Enhanced linking for expanded actors
+#### 4. Implemented custom period selection in dashboard settings
+#### 5. Implemented dynamic trend line for accounts on dashboards
+#### 6. Updated default date and time logic during event creation
+#### 7. Added support for rolling back actor version
+#### 8. Improved statistics for layer edges
+#### 9. Improved tooltip placement on graphs
+#### 10. Implemented graph file export to Git
+#### 11. Implemented structuring of layer actor accounts
+#### 12. Added system accounts for graph actors
+#### 13. Implemented screen sharing radar
+
+### 🧩 Simulator & Widget
+#### 1. Added tooltips to menu buttons in the events description section
+#### 2. Improved file preview behavior in Simulator widget
+#### 3. Optimized script preloading in chat widget
+#### 4. Enabled adding images from clipboard into the chat widget
+#### 5. Unified BBCode rendering between Simulator and Admin
+#### 6. Added "Minimize Chat" button to the widget
+#### 7. Fixed scroll-to-bottom button in chat widget
+#### 8. Fixed Simulator chat losing user access after state or actor changes
+#### 9. Improved state alignment and coordinate accuracy on graph
+#### 10. Fixed text actor not copying using lasso
+#### 11. Implemented support for AWS transcribe in meet-agent
+#### 12. Improved Simulator zoom scaling during screen sharing
+#### 13. Implemented support for multiple edges between two actors
+#### 14. Added fullscreen mode for expanded layer
+#### 15. Implemented chat interactions in front-end
+
+### 💬 SIP / Calls
+#### 1. Added support for reactions (emojis)
+#### 2. Fixed SIP screen showing wrong profile on collapsed sharing
+#### 3. Fixed SIP callback handling across tabs
+#### 4. Improved switching between video call modes during screen sharing
+#### 5. Added ability to remove Redis KEYS command
+#### 6. Added detection for connected_from = mobile in participants
+#### 7. Fixed issue with duplicated emoji reactions on shared screen
+#### 8. Enabled bidirectional navigation between event description and comments
+#### 9. Fixed SIP issue with empty screen after stopping sharing
+
+### 🛠 UI/UX Improvements
+#### 1. Added drag & drop support for widgets
+#### 2. Added tooltips to event section buttons
+#### 3. Removed star icon from table headers for better UX
+#### 4. Added empty state indicator in graphs section
+#### 5. Improved dropdown alignment relative to input fields
+#### 6. Fixed multilayer window jumps on graphs
+#### 7. Synchronized automatic dashboard resize on graphs
+#### 8. Fixed actor color change issue on dashboard refresh
+#### 9. Improved error handling when Redis cluster fails
+#### 10. Fixed tooltip overlapping sound icon
+#### 11. Fixed issues with shared graph not opening from Event tab
+
+### 🐞 Bug Fixes
+#### 1. Fixed actor owner losing access after moving actor/state
+#### 2. Fixed actor button visibility only at the bottom of dashboard element
+#### 3. Fixed events not showing when navigating PDF with arrows
+#### 4. Fixed incorrect total display on dashboard for custom date range
+#### 5. Fixed tag search with backspace in event/reactions
+#### 6. Fixed Safari issue: blue highlight not disappearing on new message
+#### 7. Fixed inability to create new link when multiple already exist
+#### 8. Fixed quote breaks when referencing code blocks
+#### 9. Fixed error on dashboard actor graph not showing
+
+### 🧪 API & System
+#### 1. Updated API method DELETE for attachments/files
+#### 2. Implemented nginx config isolation to fix POST routing issue
+#### 3. Enabled readonly mode for actor or form via API
+#### 4. Enabled real-time transactions based on actor and state valency
+#### 5. Split livestream into internal tabs for meetings/rooms
+#### 6. Supported multiple hosts (moderators) during a call
+
 ## [0.3.50] - 2025-05-15
 ### Helm changes
 - Applications versions:

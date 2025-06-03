@@ -95,6 +95,16 @@ spec:
             - name: config-site
               mountPath: /usr/share/nginx/html/config.json
               subPath: config.json
+            {{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "apple_app_site_association") }}
+            - name: config-apple-app-site-association
+              mountPath: /etc/nginx/well_known/apple_app_site_association
+              subPath: apple_app_site_association
+            {{- end }}
+            {{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "assetlinks_json") }}
+            - name: config-assetlinks-json
+              mountPath: /etc/nginx/well_known/assetlinks.json
+              subPath: assetlinks.json
+            {{- end }}
             {{- if .Values.global.control.filesStorage.type }}
             {{- if ne .Values.global.control.filesStorage.type "s3" }}
             - name: {{ .Values.appName }}-attachments
@@ -124,6 +134,16 @@ spec:
         - name: config-site
           configMap:
             name: {{ .Values.appName }}-site-configmap
+        {{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "apple_app_site_association") }}
+        - name: config-apple-app-site-association
+          configMap:
+            name: {{ .Values.appName }}-apple-app-site-association-configmap
+        {{- end }}
+        {{- if and (hasKey .Values.global.control.frontend "well_known") (hasKey .Values.global.control.frontend.well_known "assetlinks_json") }}
+        - name: config-assetlinks-json
+          configMap:
+            name: {{ .Values.appName }}-assetlinks-json-configmap
+        {{- end }}
         {{- if .Values.global.control.filesStorage.type }}
         {{- if ne .Values.global.control.filesStorage.type "s3" }}
         {{- if $control_data.server.persistantVolumeClaimCreate }}

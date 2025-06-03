@@ -21,6 +21,13 @@ global:
     # and grafana.sidecar.dashboards.labelValue is a value for that label.
     # So, label should looks like grafana.sidecar.dashboards.label:grafana.sidecar.dashboards.labelValue
     labels: {}
+  # Alert rules configuration for deploying Prometheus alert rules for Control
+  alerts:
+    # -- If enabled, Prometheus alert rules are deployed
+    enabled: false
+    # -- Labels to add to the PrometheusRule custom resource
+    # Note: If using with Prometheus Operator, the rule should be discovered by Prometheus
+    labels: {}
   #######  PostgreSQL  ########
   ## for RDS minimum instance - db.t3.medium / master user set "postgres"
   db:
@@ -247,6 +254,35 @@ global:
         minReplicas: 1
         maxReplicas: 10
       resources: {}
+      # Example of well_known configuration for Apple App Site Association
+      # well_known:
+      #   apple_app_site_association: |
+      #     {
+      #       "applinks": {
+      #         "apps": [],
+      #         "details": [
+      #           {
+      #             "appID": "APP_ID",
+      #             "paths": [
+      #                 "/*"
+      #             ]
+      #           }
+      #         ]
+      #       }
+      #     }
+      #   assetlinks_json: |
+      #     [
+      #       {
+      #         "relation": ["delegate_permission/common.handle_all_urls"],
+      #         "target": {
+      #           "namespace": "android_app",
+      #           "package_name": "package_name",
+      #           "sha256_cert_fingerprints": [
+      #             "sha256_cert_fingerprints"
+      #           ]
+      #         }
+      #       }
+      #     ]
       # resources:
       #   limits:
       #     memory: 600Mi
@@ -368,6 +404,13 @@ global:
           #     counters_days_ttl: 7776000
           #     counters_uniq_minutes_ttl: 7776000
           #     counters_uniq_hours_ttl: 7776000
+          # Example of GitLab saver configuration (commented out by default)
+          # graph_gitlab_saver:
+          #   workers_count: 5
+          #   url: "https://git-dev.corezoid.com/api/v4"
+          #   token: "glpat-secret"
+          #   branch: "main"
+          #   project_id: 1
 
     serviceAccount:
       # Specifies whether a service account should be created

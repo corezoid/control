@@ -125,6 +125,15 @@ data:
           ]
         },
         {{- end }}
+        {{- if or (and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "graph_gitlab_saver")) (not (and (hasKey $control_tasks_data "crons"))) }}
+        "graph_gitlab_saver": {
+          "workers_count": {{ $control_tasks_data.crons.graph_gitlab_saver.workers_count | default 5 }},
+          "url": "{{ $control_tasks_data.crons.graph_gitlab_saver.url }}",
+          "token": "{{ $control_tasks_data.crons.graph_gitlab_saver.token }}",
+          "branch": "{{ $control_tasks_data.crons.graph_gitlab_saver.branch }}",
+          "project_id": {{ $control_tasks_data.crons.graph_gitlab_saver.project_id }}
+        },
+        {{- end }}
         {{- if or (and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_cleaner")) (not (and (hasKey $control_tasks_data "crons"))) }}
         "actors_cleaner": {
           {{- if and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_cleaner") (hasKey $control_tasks_data.crons.actors_cleaner "workers_count") }}
