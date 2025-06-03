@@ -1,0 +1,21 @@
+{{- $currentScope := .Values.global.alerts }}
+{{- if and $currentScope.enabled .Values.global.serviceMonitor.enabled}}
+{{ range $path, $_ :=  $.Files.Glob  "mixins/*.yaml" }}
+{{ $file := $path | base }}
+{{ $name := $file | trimSuffix ".yaml" }}
+{{- with $currentScope}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{ $.Files.Get $path | nindent 4 }}
+---
+{{- end }}
+{{ end }}
+{{- end }}

@@ -1,0 +1,400 @@
+groups:
+- name: pong-server
+  rules:
+  - alert: PongServerHighErrorRate
+    for: 5m
+    annotations:
+      summary: Pong server error rate is above 5%
+      description: |
+        Pong server in {{ $labels.namespace }} namespace has > 5% errors of overall requests during 5min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/pongserverhigherrorrate
+    expr: sum(rate(pong_errors_total[5m])) by (namespace) / sum(rate(pong_requests_total[5m])) by (namespace) > 0.05
+    labels:
+      severity: warning
+  
+  - alert: PongServerHighErrorRate
+    for: 5m
+    annotations:
+      summary: Pong server error rate is above 20%
+      description: |
+        Pong server in {{ $labels.namespace }} namespace has > 20% errors of overall requests during 5min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/pongserverhigherrorrate
+    expr: sum(rate(pong_errors_total[5m])) by (namespace) / sum(rate(pong_requests_total[5m])) by (namespace) > 0.2
+    labels:
+      severity: critical
+  
+  - alert: PongServerHighLatency
+    for: 5m
+    annotations:
+      summary: Pong server has high request latency
+      description: |
+        Pong server in {{ $labels.namespace }} namespace has 95th percentile latency above 1 second for {{ $labels.method }} requests to {{ $labels.path }}.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/pongserverhighlatency
+    expr: histogram_quantile(0.95, sum(rate(pong_request_duration_seconds_bucket[5m])) by (le, namespace, method, path)) > 1
+    labels:
+      severity: warning
+  
+  - alert: PongServerTooManyConnections
+    for: 5m
+    annotations:
+      summary: Pong server has too many active connections
+      description: |
+        Pong server in {{ $labels.namespace }} namespace has more than 1000 active connections.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/pongservertoomanyconnections
+    expr: sum(pong_active_connections) by (namespace) > 1000
+    labels:
+      severity: warning
+      
+  - alert: PongServerErrorSpike
+    for: 2m
+    annotations:
+      summary: Sudden spike in pong server errors
+      description: |
+        Pong server in {{ $labels.namespace }} namespace has a sudden increase in errors (>100% increase compared to the last hour).
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/pongservererrorspike
+    expr: sum(rate(pong_errors_total[5m])) by (namespace) > 2 * sum(rate(pong_errors_total[1h])) by (namespace)
+    labels:
+      severity: critical
+
+- name: http_requests
+  rules:
+  - alert: HighErrorRate
+    expr: sum(rate(http_request_duration_seconds_count{status_code=~"5.."}[5m])) by (route) / sum(rate(http_request_duration_seconds_count[5m])) by (route) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High HTTP request error rate"
+      description: "Route {{ $labels.route }} returns 5xx errors in more than 5% of requests in the last 5 minutes"
+      runbook_url: "https://wiki.example.com/runbooks/high-error-rate"
+
+  - alert: HighErrorRate
+    expr: sum(rate(http_request_duration_seconds_count{status_code=~"5.."}[5m])) by (route) / sum(rate(http_request_duration_seconds_count[5m])) by (route) > 0.2
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically high HTTP request error rate"
+      description: "Route {{ $labels.route }} returns 5xx errors in more than 20% of requests in the last 5 minutes"
+      runbook_url: "https://wiki.example.com/runbooks/high-error-rate"
+
+  - alert: SlowResponses
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)) > 3
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow HTTP responses"
+      description: "95th percentile response time for route {{ $labels.route }} exceeds 3 seconds"
+      runbook_url: "https://wiki.example.com/runbooks/slow-responses"
+
+  - alert: SlowResponses
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)) > 10
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically slow HTTP responses"
+      description: "95th percentile response time for route {{ $labels.route }} exceeds 10 seconds"
+      runbook_url: "https://wiki.example.com/runbooks/slow-responses"
+
+  - alert: HighTraffic
+    expr: sum(rate(http_request_duration_seconds_count[5m])) by (route) > 1000
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High HTTP request traffic"
+      description: "Route {{ $labels.route }} receives more than 1000 requests per second"
+      runbook_url: "https://wiki.example.com/runbooks/high-traffic"
+
+- name: database
+  rules:
+  - alert: PostgresHighQueryTime
+    expr: histogram_quantile(0.95, sum(rate(postgres_query_duration_seconds_bucket[5m])) by (le, query_type)) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow PostgreSQL queries"
+      description: "95th percentile execution time for queries of type {{ $labels.query_type }} exceeds 1 second"
+      runbook_url: "https://wiki.example.com/runbooks/postgres-slow-queries"
+
+  - alert: PostgresHighErrorRate
+    expr: sum(rate(postgres_query_errors_total[5m])) by (query_type) / sum(rate(postgres_queries_total[5m])) by (query_type) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High PostgreSQL query error rate"
+      description: "Queries of type {{ $labels.query_type }} fail in more than 5% of cases"
+      runbook_url: "https://wiki.example.com/runbooks/postgres-errors"
+
+  - alert: PostgresHighErrorRate
+    expr: sum(rate(postgres_query_errors_total[5m])) by (query_type) / sum(rate(postgres_queries_total[5m])) by (query_type) > 0.2
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically high PostgreSQL query error rate"
+      description: "Queries of type {{ $labels.query_type }} fail in more than 20% of cases"
+      runbook_url: "https://wiki.example.com/runbooks/postgres-errors"
+
+  - alert: ScyllaHighQueryTime
+    expr: histogram_quantile(0.95, sum(rate(scylla_query_duration_seconds_bucket[5m])) by (le, query_type)) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow ScyllaDB queries"
+      description: "95th percentile execution time for queries of type {{ $labels.query_type }} exceeds 1 second"
+      runbook_url: "https://wiki.example.com/runbooks/scylla-slow-queries"
+
+  - alert: ScyllaHighErrorRate
+    expr: sum(rate(scylla_query_errors_total[5m])) by (query_type) / sum(rate(scylla_queries_total[5m])) by (query_type) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High ScyllaDB query error rate"
+      description: "Queries of type {{ $labels.query_type }} fail in more than 5% of cases"
+      runbook_url: "https://wiki.example.com/runbooks/scylla-errors"
+
+- name: redis
+  rules:
+  - alert: RedisPoolExhausted
+    expr: redis_pool_utilization_percentage > 90
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Redis connection pool is near exhaustion"
+      description: "Redis connection pool {{ $labels.pool_name }} is utilized at {{ $value }}%"
+      runbook_url: "https://wiki.example.com/runbooks/redis-pool-exhausted"
+
+  - alert: RedisPoolExhausted
+    expr: redis_pool_utilization_percentage > 95
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Redis connection pool is critically near exhaustion"
+      description: "Redis connection pool {{ $labels.pool_name }} is utilized at {{ $value }}%"
+      runbook_url: "https://wiki.example.com/runbooks/redis-pool-exhausted"
+
+  - alert: RedisHighConnectionFailureRate
+    expr: rate(redis_pool_connection_failed_total[5m]) > 5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Redis connection failure rate"
+      description: "More than 5 connection failures per second for Redis {{ $labels.pool_name }}"
+      runbook_url: "https://wiki.example.com/runbooks/redis-connection-failures"
+
+  - alert: RedisHighLatency
+    expr: histogram_quantile(0.95, sum(rate(redis_operation_duration_seconds_bucket[5m])) by (le, operation)) > 0.1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Redis operation latency"
+      description: "95th percentile execution time for operation {{ $labels.operation }} exceeds 100 ms"
+      runbook_url: "https://wiki.example.com/runbooks/redis-high-latency"
+
+- name: api_gateway
+  rules:
+  - alert: ApiGatewayHighErrorRate
+    expr: sum(rate(api_gw_sync_response_time_seconds_count{status_code="error"}[5m])) by (method) / sum(rate(api_gw_sync_response_time_seconds_count[5m])) by (method) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High API Gateway error rate"
+      description: "Method {{ $labels.method }} returns errors in more than 5% of requests"
+      runbook_url: "https://wiki.example.com/runbooks/api-gateway-errors"
+
+  - alert: ApiGatewayHighErrorRate
+    expr: sum(rate(api_gw_sync_response_time_seconds_count{status_code="error"}[5m])) by (method) / sum(rate(api_gw_sync_response_time_seconds_count[5m])) by (method) > 0.2
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically high API Gateway error rate"
+      description: "Method {{ $labels.method }} returns errors in more than 20% of requests"
+      runbook_url: "https://wiki.example.com/runbooks/api-gateway-errors"
+
+  - alert: ApiGatewaySlowResponses
+    expr: histogram_quantile(0.95, sum(rate(api_gw_sync_response_time_seconds_bucket[5m])) by (le, method)) > 3
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow API Gateway responses"
+      description: "95th percentile response time for method {{ $labels.method }} exceeds 3 seconds"
+      runbook_url: "https://wiki.example.com/runbooks/api-gateway-slow-responses"
+
+- name: webhooks
+  rules:
+  - alert: WebhooksHighErrorRate
+    expr: sum(rate(webhooks_duration_seconds_count{status_code=~"4..|5.."}[5m])) / sum(rate(webhooks_duration_seconds_count[5m])) > 0.1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High webhook error rate"
+      description: "More than 10% of webhooks end with an error"
+      runbook_url: "https://wiki.example.com/runbooks/webhooks-errors"
+
+  - alert: WebhooksHighErrorRate
+    expr: sum(rate(webhooks_duration_seconds_count{status_code=~"4..|5.."}[5m])) / sum(rate(webhooks_duration_seconds_count[5m])) > 0.3
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically high webhook error rate"
+      description: "More than 30% of webhooks end with an error"
+      runbook_url: "https://wiki.example.com/runbooks/webhooks-errors"
+
+  - alert: WebhooksSlowResponses
+    expr: histogram_quantile(0.95, sum(rate(webhooks_duration_seconds_bucket[5m])) by (le)) > 5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow webhook delivery"
+      description: "95th percentile webhook delivery time exceeds 5 seconds"
+      runbook_url: "https://wiki.example.com/runbooks/webhooks-slow"
+
+- name: system_resources
+  rules:
+  - alert: HighCPUUsage
+    expr: sum(rate(process_cpu_seconds_total[5m])) by (service, namespace) / 0.8 > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage"
+      description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has CPU usage exceeding 80% for 5 minutes"
+      runbook_url: "https://wiki.example.com/runbooks/high-cpu-usage"
+
+  - alert: HighMemoryUsage
+    expr: sum(process_resident_memory_bytes) by (service, namespace) / sum(node_memory_MemTotal_bytes) by (instance) > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage"
+      description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has memory usage exceeding 80% for 5 minutes"
+      runbook_url: "https://wiki.example.com/runbooks/high-memory-usage"
+
+  - alert: CriticalMemoryUsage
+    expr: sum(process_resident_memory_bytes) by (service, namespace) / sum(node_memory_MemTotal_bytes) by (instance) > 0.9
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically high memory usage"
+      description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has memory usage exceeding 90% for 5 minutes"
+      runbook_url: "https://wiki.example.com/runbooks/high-memory-usage"
+
+  - alert: HighFileDescriptorUsage
+    expr: sum(process_open_fds) by (service, namespace) / sum(process_max_fds) by (service, namespace) > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High file descriptor usage"
+      description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has file descriptor usage exceeding 80%"
+      runbook_url: "https://wiki.example.com/runbooks/high-fd-usage"
+
+- name: business_processes
+  rules:
+  - alert: HighTransactionErrorRate
+    expr: sum(rate(transactions_total{status="error"}[5m])) by (transaction_type) / sum(rate(transactions_total[5m])) by (transaction_type) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High transaction error rate"
+      description: "Transactions of type {{ $labels.transaction_type }} fail in more than 5% of cases"
+      runbook_url: "https://wiki.example.com/runbooks/transaction-errors"
+
+  - alert: HighTransactionErrorRate
+    expr: sum(rate(transactions_total{status="error"}[5m])) by (transaction_type) / sum(rate(transactions_total[5m])) by (transaction_type) > 0.2
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically high transaction error rate"
+      description: "Transactions of type {{ $labels.transaction_type }} fail in more than 20% of cases"
+      runbook_url: "https://wiki.example.com/runbooks/transaction-errors"
+
+  - alert: SlowTransactions
+    expr: histogram_quantile(0.95, sum(rate(transaction_duration_seconds_bucket[5m])) by (le, transaction_type)) > 5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow transactions"
+      description: "95th percentile execution time for transactions of type {{ $labels.transaction_type }} exceeds 5 seconds"
+      runbook_url: "https://wiki.example.com/runbooks/slow-transactions"
+
+  - alert: HighActorOperationErrorRate
+    expr: sum(rate(actors_operations_total{operation=~"create|update|delete", status="error"}[5m])) by (operation, actor_type) / sum(rate(actors_operations_total{operation=~"create|update|delete"}[5m])) by (operation, actor_type) > 0.1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High actor operation error rate"
+      description: "Operation {{ $labels.operation }} for actors of type {{ $labels.actor_type }} fails in more than 10% of cases"
+      runbook_url: "https://wiki.example.com/runbooks/actor-operation-errors"
+
+- name: authentication
+  rules:
+  - alert: HighAuthFailureRate
+    expr: sum(rate(auth_attempts_total{status="failure"}[5m])) / sum(rate(auth_attempts_total[5m])) > 0.2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High authentication failure rate"
+      description: "More than 20% of authentication attempts end with an error"
+      runbook_url: "https://wiki.example.com/runbooks/auth-failures"
+
+  - alert: HighAuthFailureRate
+    expr: sum(rate(auth_attempts_total{status="failure"}[5m])) / sum(rate(auth_attempts_total[5m])) > 0.5
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically high authentication failure rate"
+      description: "More than 50% of authentication attempts end with an error"
+      runbook_url: "https://wiki.example.com/runbooks/auth-failures"
+
+  - alert: SlowAuthentication
+    expr: histogram_quantile(0.95, sum(rate(auth_duration_seconds_bucket[5m])) by (le, auth_type)) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Slow authentication"
+      description: "95th percentile authentication time for type {{ $labels.auth_type }} exceeds 1 second"
+      runbook_url: "https://wiki.example.com/runbooks/slow-auth"
+
+- name: cache
+  rules:
+  - alert: LowCacheHitRatio
+    expr: sum(rate(cache_operations_total{operation="get", result="miss"}[5m])) by (cache_type) / sum(rate(cache_operations_total{operation="get"}[5m])) by (cache_type) > 0.5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low cache hit ratio"
+      description: "Cache hit ratio for cache type {{ $labels.cache_type }} is below 50%"
+      runbook_url: "https://wiki.example.com/runbooks/low-cache-hit-ratio"

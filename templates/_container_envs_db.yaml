@@ -7,6 +7,20 @@
   value: {{ include "pgbouncer.service.name" . }}
 - name: DB_PORT
   value: "{{ .Values.global.db.bouncer_port }}"
+    {{- if .Values.global.db.secret.slave }}
+    {{- if .Values.global.db.secret.slave.enabled }}
+- name: DB_SLAVE_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbslavehost
+- name: DB_SLAVE_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbslaveport
+    {{- end }}
+    {{- end }}
 {{- else }}
 - name: DB_HOST
   valueFrom:

@@ -1,0 +1,74 @@
+groups:
+- name: control-tasks
+  rules:
+  - alert: ControlTasksHighErrorRate
+    for: 5m
+    annotations:
+      summary: Control tasks error rate is above 5%
+      description: |
+        Control tasks in {{ $labels.namespace }} namespace has > 5% errors for task type "{{ $labels.task_type }}" during 5min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/controltaskshigherrorrate
+    expr: sum(rate(control_tasks_errors_total[5m])) by (namespace, task_type) / sum(rate(control_tasks_processed_total[5m])) by (namespace, task_type) > 0.05
+    labels:
+      severity: warning
+  
+  - alert: ControlTasksHighErrorRate
+    for: 5m
+    annotations:
+      summary: Control tasks error rate is above 20%
+      description: |
+        Control tasks in {{ $labels.namespace }} namespace has > 20% errors for task type "{{ $labels.task_type }}" during 5min.
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/controltaskshigherrorrate
+    expr: sum(rate(control_tasks_errors_total[5m])) by (namespace, task_type) / sum(rate(control_tasks_processed_total[5m])) by (namespace, task_type) > 0.2
+    labels:
+      severity: critical
+  
+  - alert: ControlTasksHighLatency
+    for: 5m
+    annotations:
+      summary: Control tasks has high processing latency
+      description: |
+        Control tasks in {{ $labels.namespace }} namespace has 95th percentile latency above 2 seconds for task type "{{ $labels.task_type }}".
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/controltaskshighlatency
+    expr: histogram_quantile(0.95, sum(rate(control_tasks_processing_duration_seconds_bucket[5m])) by (le, namespace, task_type)) > 2
+    labels:
+      severity: warning
+  
+  - alert: ControlTasksLargeQueueSize
+    for: 10m
+    annotations:
+      summary: Control tasks queue size is too large
+      description: |
+        Control tasks in {{ $labels.namespace }} namespace has more than 1000 tasks in queue "{{ $labels.queue_name }}".
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/controltaskslargequeuesize
+    expr: sum(control_tasks_queue_size) by (namespace, queue_name) > 1000
+    labels:
+      severity: warning
+      
+  - alert: ControlTasksHighRetryRate
+    for: 5m
+    annotations:
+      summary: High rate of task retries
+      description: |
+        Control tasks in {{ $labels.namespace }} namespace has a high retry rate for task type "{{ $labels.task_type }}".
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/controltaskshighretryrate
+    expr: sum(rate(control_tasks_retries_total[5m])) by (namespace, task_type) / sum(rate(control_tasks_processed_total[5m])) by (namespace, task_type) > 0.1
+    labels:
+      severity: warning
+      
+  - alert: ControlTasksLowWorkerCount
+    for: 5m
+    annotations:
+      summary: Worker count is below expected minimum
+      description: |
+        Control tasks in {{ $labels.namespace }} namespace has fewer than expected workers in pool "{{ $labels.worker_pool }}".
+      runbook_url: >-
+        https://bookstack.corezoid.com/books/runbooks/page/controltaskslowworkercount
+    expr: min(control_tasks_worker_count) by (namespace, worker_pool) < 3
+    labels:
+      severity: warning
