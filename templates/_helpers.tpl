@@ -60,16 +60,6 @@ app.kubernetes.io/name: {{ include "control.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "control.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "control.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
-{{- end }}
 
 {{- define "control.ingressAnnotations" -}}
 {{- if .Values.global.control.ingress.tls }}

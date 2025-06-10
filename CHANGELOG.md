@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.53] - 2025-06-04
+- Application Versions:
+  - server - 5.116.7
+  - frontend - 5.116.0
+  - realtime - 3.2.0
+  - control-tasks - 2.54.0
+  - widget - v1.60.0
+
+### 🏗️ Actor Accounts & Initialization
+1. Automatically open all system accounts upon actor creation
+2. Create time accounts - backend
+3. Auto-transactions for new actors – Time Coordinates Accounts
+4. Transactions to existing actors — Time Coordinates Accounts
+5. Add time coordinates to actor - front-end
+6. Account initialization for USER actors
+7. Create coordinates accounts for all actors
+
+### 🧩 Simulator Enhancements
+1. Add freeze event handling in Simulator chat widget
+2. Implementing commenting in transcription chat
+3. Search through comments in P2P chats in Simulator
+4. Unify default event tab behavior in Mobile Simulator
+5. The logic of creating flowchart actors and edges through a plus on the actor
+6. Add default color selection for flowchart actors
+7. Enable line break in Flowchart Block Actor on Enter press
+
+### 📊 Graphs & UI Updates
+1. Update modal title text for graph renaming
+2. Dashboards: minutes in end date do not match in Line chart display
+3. Standalone meeting room URL for Smart Forms
+
+### 💬 Communication & SIP
+1. Control initial camera and microphone state in widget (type: twilio)
+2. Audio and video settings not saved in SIP calls
+
+### 🛠️ Miscellaneous Improvements
+1. Implement folder creation via confirmation
+2. Implement quoting functionality for comment fragments
+3. Optimize GET /graph/links/:actorId endpoint
+4. Optimize stream live view counter retrieval
+
 ## [0.3.52] - 2025-05-28
 ### Helm changes
 - Applications versions:

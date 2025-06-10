@@ -28,10 +28,3 @@ roleRef:
   kind: Role
   name: {{ include "control.configSecretName" . }}-{{ .Values.appName }}-reader-role
   apiGroup: rbac.authorization.k8s.io
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ .Values.appName }}-serviceaccount
-  annotations:
