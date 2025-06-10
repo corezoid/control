@@ -36,12 +36,12 @@ spec:
       {{- end }}
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
         - name: {{ $pullSecret }}
       {{- end }}
       {{- end }}
-      {{- if .Values.global.control.frontend.serviceAccount }}
-      {{- if .Values.global.control.frontend.serviceAccount.create }}
+      {{- if $server_data.serviceAccount }}
+      {{- if $server_data.serviceAccount.create }}
       serviceAccountName: control-{{ .Values.appName }}-serviceaccount
       {{- end }}
       {{- end }}

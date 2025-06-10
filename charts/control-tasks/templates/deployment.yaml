@@ -28,13 +28,17 @@ spec:
       {{- if $control_tasks_data.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ $control_tasks_data.terminationGracePeriodSeconds }}
       {{- end }}
-      {{- if .Values.global.imagePullSecrets }}
+      {{- if $global_data.imagePullSecrets }}
       imagePullSecrets:
-      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
         - name: {{ $pullSecret }}
       {{- end }}
       {{- end }}
+      {{- if $control_tasks_data.serviceAccount }}
+      {{- if $control_tasks_data.serviceAccount.create }}
       serviceAccountName: {{ .Values.appName }}-serviceaccount
+      {{- end }}
+      {{- end }}
       securityContext:
         {{- toYaml $control_data.podSecurityContext | nindent 8 }}
       initContainers:
@@ -73,7 +77,7 @@ spec:
 
             - name: CONFIG_CONNECTORS_COREZOID_SYNCAPI_URL
               value: {{ $control_data.corezoidSyncApiUrl | quote }}
-            {{- if .Values.global.control.connectors }}
+            {{- if $control_data.connectors }}
             - name: CONFIG_CONNECTORS_CONVID
               valueFrom:
                 secretKeyRef:
