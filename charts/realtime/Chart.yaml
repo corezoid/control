@@ -3,4 +3,4 @@ name: realtime
 description: A Helm chart for Control Realtime
 type: application
 version: 0.3.11
-appVersion: 3.2.0
+appVersion: 3.3.3
