@@ -5,6 +5,84 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.119.0] - 2025-06-25
+- Application Versions:
+  - server - 5.119.2
+  - frontend - 5.119.0
+  - realtime - 3.4.2
+  - control-tasks - 2.56.0
+  - widget - v1.61.0
+
+### 🧠 Functional Enhancements
+1. Integrated AI Prompt Node Call via Add Content and highlighted available features
+2. Enabled quoting in transcripts
+3. Enabled split screen sharing mode with auto-collapse
+4. Enabled exclusive mode switching in Graph Editor
+5. Added support for "center" alignment in Simulator embed widget
+6. Enabled link opening from external sources via mobile Simulator
+7. Implemented block-specific forms (front-end and back-end)
+8. Extended call reaction functionality to support reactions for specific users (front-end)
+9. Added negative reactions for entire call and transaction processing
+10. Enhanced comment creation API with immediate attachment support
+
+### 🛠 Fixes
+1. Redirected to the Meeting Tab after accepting a P2P call
+2. Fixed incorrect chat navigation from the bell icon 🔔
+3. Ensured shared screen remains visible after tab switch in a call
+4. Fixed data display issue on dashboards for the last day
+5. Investigated and resolved DataCloneError when embedding call via iframe
+6. Fixed periodic freezing during screen sharing in calls
+7. Fixed incorrect display of last reaction time in Simulator chat list
+8. Fixed incorrect behavior of quote in the description field
+9. Prevented text selection reset in read-only event description
+10. Fixed incorrect active state display in the Chats section
+11. Fixed issue with disappearing unread messages list
+12. Fixed missing attached files in chat list header
+13. Fixed Smart Forms autocomplete clearing initial value on first click
+14. Fixed chip behavior in comments
+15. Fixed incorrect multilayer behavior on the graph
+16. Fixed incorrect event list display in Events section
+17. Fixed missing notifications for upcoming calls when a previous call was still active
+18. Fixed unread counter not resetting after message is read
+19. Fixed chat scroll jumping to top on switch
+20. Corrected unread message counter colors in active chat
+21. Fixed HTML rendering of chips in chat previews
+
+### 🎨 UI/UX Improvements
+1. Centered shared screen when zooming with touchpad
+2. Highlighted active filters in UI
+3. Displayed correct UI message when currencies are unavailable in Simulator accounts
+4. Renamed "Actors bag" label to "Actor Bag" across Simulator interface
+5. Redesigned the right panel in the Chats section
+6. Added unread chat counters in the sidebar
+7. Updated browser tab titles in Simulator to show "Chats" for P2P chats
+
+### 🧩 Graph / Flowchart / Editor Enhancements
+1. Added all Corezoid nodes to the Simulator flowchart editor
+2. Grouped blocks in the flowchart editor menu
+3. Assigned coordinates to actors on parent valency graphs (front-end)
+4. Assigned coordinates to actors on parent valency graphs
+5. Assigned coordinates to actors in the Actor Bag Graph
+6. Implemented flowchart actor numbering
+7. Preserved flowchart structure and links when copying to another graph
+8. Refactored graph layer list (System vs Custom)
+9. Handled errors when creating actors on the graph (undefined ID)
+10. Added new blocks systematically to algorithm editor via API
+
+### 🔧 Backend / Infrastructure
+1. Implemented back-end logic for notification management
+2. Added start_date and end_date fields to the actors table in control-tasks service
+3. Optimized PostgreSQL master-slave architecture via API
+
+### 🧼 Minor Behavior Changes
+1. Suppressed system connection status messages in fullscreen Smart Forms
+2. Synchronized call notifications across browser tabs
+3. Synced live meetings with updates from other real-time events
+4. Prevented group chat creation without required fields
+5. Ensured transfer is visible without requiring graph refresh
+6. Fixed skipSubmitOnChange behavior when value was unchanged
+7. Prevented long form reference from overlapping the Owner field
+
 ## [0.3.53] - 2025-06-04
 - Application Versions:
   - server - 5.116.7

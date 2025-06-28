@@ -291,6 +291,8 @@ global:
       #     memory: 100Mi
     realtime:
       pullPolicy: Always
+      # Log level configuration. Possible values: debug, info, warning, error
+      #log_level: info
       # Overrides the image tag whose default is the chart appVersion.
       # tag: ""
       autoscaling:

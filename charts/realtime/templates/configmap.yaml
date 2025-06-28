@@ -8,6 +8,7 @@ metadata:
 data:
   control_realtime.yml: |
     port: ${CONTROL_REALTIME_PORT}
+    log_level: {{ .Values.global.control.realtime.log_level | default "info" }}
     session:
       ttl: ${CONTROL_REALTIME_SESSION_TTL}
       cookieName: ${CONTROL_REALTIME_SESSION_COOKIENAME}

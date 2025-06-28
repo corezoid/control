@@ -1,0 +1,22 @@
+{{- if eq .Values.global.efs.enabled true}}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: control-efs-shared-pv-{{ .Release.Name }}
+  labels:
+    {{- include "server.labels" . | nindent 4 }}
+spec:
+  capacity:
+    storage: {{ .Values.global.efs.storageSize | default "5Gi" }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.global.storageClassName }}
+  claimRef:
+    name: control-efs-shared-pvc
+    namespace: {{ .Release.Namespace }}
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: {{ .Values.global.efs.efsFileSystemId }}
+{{- end }}

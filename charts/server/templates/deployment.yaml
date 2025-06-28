@@ -116,9 +116,7 @@ spec:
         {{- if eq .Values.global.efs.enabled true}}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:
-          nfs:
-            server: {{ .Values.global.efs.efsFileSystemId }}.efs.{{ .Values.global.efs.awsRegion }}.amazonaws.com
-            path: /
+            claimName: control-efs-shared-pvc
         {{- end }}
         - name: {{ .Values.appName }}-config-volume
           configMap:
