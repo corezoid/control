@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Application Versions:
   - server - 5.119.2
   - frontend - 5.119.0
-  - realtime - 3.3.0
+  - realtime - 3.4.2
   - control-tasks - 2.56.0
   - widget - v1.61.0
 
