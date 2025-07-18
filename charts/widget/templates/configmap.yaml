@@ -76,6 +76,8 @@ data:
 
       resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
+      client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
+
       {{- if .Values.global.control.filesStorage.type }}
       {{- if eq .Values.global.control.filesStorage.type "s3" }}
       set $bucket "{{ .Values.global.control.filesStorage.bucket }}.s3-{{ .Values.global.control.filesStorage.region }}.amazonaws.com";

@@ -19,3 +19,9 @@ Image url
 {{- define "control.frontend.nginx.client_max_body_size" -}}
 {{ printf "%dm" (div .Values.global.control.webConfig.maxFileSize 1048576) }}
 {{- end }}
+
+{{- define "control.frontend.annotations" -}}
+{{- with .Values.global.control.frontend.annotations }}
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- end }}
