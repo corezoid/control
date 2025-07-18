@@ -26,6 +26,7 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "control.realtime.annotations" . | nindent 4 }}
       labels: {{- include "realtime.labels" . | nindent 8 }}
     spec:
       {{- if $control_data.terminationGracePeriodSeconds.front }}

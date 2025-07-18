@@ -69,3 +69,9 @@ pool:
   idle: 30000
 {{- end -}}
 {{- end -}}
+
+{{- define "control.realtime.annotations" -}}
+{{- with .Values.global.control.realtime.annotations }}
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- end }}

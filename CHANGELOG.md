@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.122.0] - 2025-07-16
+### Application Versions
+- **server**: 5.122.0
+- **frontend**: 5.122.0
+- **realtime**: 3.5.0
+- **control-tasks**: 2.56.0
+- **widget**: v1.62.0
+### 🧠 AI Console, Actors & Automation
+1. Integrated AI Prompt Node call via the "Add Content" button with feature highlighting
+2. Enabled AI Actor creation via the "Add Content" button
+3. Added API method for balance transfer between actors
+4. Added support for Valence Actor Bag Layer rendering
+5. Removed all front-end references to `GET /layers_links/vertical_links/:accId`
+6. Assigned coordinates to actors in Parent Valency Graphs
+7. Added tooltip for "AI Console" sidebar menu item
+8. Renamed sidebar item and updated icon for AI Console
+9. Preserved drawing and prevented unintended elements during actor renaming
+10. Changed actor's short menu
+11. Created endpoint for prefilled actor form (prompt node) [back-end]
+12. Investigated `updated_at` field zero values in `actors_accounts` table
+### 💬 Communication, Calls & Chat
+1. Fullscreen view of the last shared screen in Mobile Call Simulator
+2. Added "Participants" tab during active event calls
+3. Fixed duplicate `sipCall` sent from Web Chat
+4. Fixed incorrect chat list in the "All" section
+5. Fixed HTML-escaped special characters in widget chat messages
+6. Fixed error: `userId` must be a number when leaving a call
+7. Improved UX for actor creation via link button
+### 🛠️ UI/UX Improvements
+1. Auto-opening of Details panel when changing connection type
+2. Notification sync across browser tabs
+3. Improved UI logic and text behavior in meeting settings
+4. Fixed misaligned text editing area in block diagram
+5. Fixed textfield not resizing with the block
+6. Fixed quote text display during actor renaming
+7. Adjusted icon colors across the UI
+8. Fixed unread message counter disappearing after editing
+9. Fixed focus jump between topic-select and events widget
+10. Added hover highlighting for icons
+11. Removed duplicate grouping elements in block diagram list
+12. Fixed UI freezing after switching between events
+13. Filled empty grid slots in odd-numbered layouts
+### 🔔 Notifications
+1. Implemented front-end for notifications management
+2. [server] Excluded system/API users from realtime notifications
+### 📦 Backend & Infrastructure
+1. Performed video compression without changing video format
+2. Created endpoint for prefilled actor prompt form
+3. Enabled backend logic for live meeting recording
+### 🐞 Critical Bug Fixes
+1. Fixed bulk file download issue
+2. Fixed infinite preloader when opening multi-layer actor
+3. [Prod] Fixed error: `params/userId must be number` when leaving a call
+4. [Prod] Fixed error: `Cannot read properties of undefined (reading 'getEdgeMidpoint')` when switching layers in graph
+
 ## [5.119.0] - 2025-06-25
 - Application Versions:
   - server - 5.119.2

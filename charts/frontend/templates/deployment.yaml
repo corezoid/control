@@ -27,6 +27,7 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "control.frontend.annotations" . | nindent 4 }}
       labels:
         {{- include "control.frontend.labels" . | nindent 8 }}
     spec:
