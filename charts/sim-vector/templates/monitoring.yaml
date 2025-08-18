@@ -1,0 +1,17 @@
+{{- if and (hasKey .Values.global.control "sim_vector") (hasKey .Values.global.control.sim_vector "enabled") .Values.global.control.sim_vector.enabled .Values.global.serviceMonitor.enabled }}
+apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.appName }}
+  labels:
+    {{- include "sim-vector.labels" . | nindent 4 }}
+    {{- include "common.ServiceMonitor.metadata.labes" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "sim-vector.labels" . | nindent 6 }}
+  endpoints:
+  - path: {{ .Values.prometheusPath | default "/metrics" }}
+    targetPort: 8000
+    interval: {{ .Values.prometheusInterval | default "15s" }}
+{{- end }}

@@ -163,6 +163,7 @@ global:
       keyspace: simulator
     # Applications ports
     serverPort: 9000
+    ctrlSimApiPort: 9000
     realtimePort: 9005
     frontendPort: 80
     widgetPort: 80
@@ -253,7 +254,15 @@ global:
         enabled: false
         minReplicas: 1
         maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       resources: {}
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       # Example of well_known configuration for Apple App Site Association
       # well_known:
       #   apple_app_site_association: |
@@ -301,7 +310,15 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       resources: {}
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       # Example of Redis pool configuration (commented out by default)
       # config:
       #   redis:
@@ -332,7 +349,15 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       resources: {}
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       # resources:
       #   limits:
       #     memory: 500Mi
@@ -355,8 +380,6 @@ global:
           contactPoints: [SCYLLADB_HOST]
           localDataCenter: eu-west
           keyspace: simulator
-    cron:
-      app_enabled: false
 
     widget:
       pullPolicy: Always
@@ -367,6 +390,12 @@ global:
         minReplicas: 1
         maxReplicas: 2
       resources: {}
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       # resources:
       #   limits:
       #     memory: 600Mi
@@ -385,6 +414,12 @@ global:
         prometheus.io/port: "9000"
         prometheus.io/scrape: "true"
       resources: {}
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
       # resources:
       #   limits:
       #     memory: 600Mi
@@ -430,12 +465,9 @@ global:
       # The name of the service account to use.
       # If not set and create is true, a name is generated using the fullname template
       name: ""
-
     podAnnotations: {}
-
     podSecurityContext: {}
       # fsGroup: 2000
-
     securityContext: {}
     # securityContext:
     #   runAsUser: 1000
@@ -455,16 +487,13 @@ global:
     #       - CHOWN
     #       - MKNOD
 
-
     ingress:
       enabled: true
       className: "internal-nginx"
       annotations: {}
 
     nodeSelector: {}
-
     tolerations: []
-
     affinity: {}
     # affinity:
     #   nodeAffinity:
@@ -480,7 +509,6 @@ global:
       tracing:
         enabled: false
         serverAddress: ''
-
   sa:
     subDomain: "account.corezoid.local"
     config:

@@ -1,0 +1,19 @@
+{{- if and (hasKey .Values.global.control "ctrl_sim_api") (hasKey .Values.global.control.ctrl_sim_api "enabled") .Values.global.control.ctrl_sim_api.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.appName }}-service
+  labels:
+{{- include "ctrl-sim-api.labels" . | nindent 4 }}
+  annotations:
+{{- include "control.ctrl-sim-api.annotations" . | nindent 2 }}
+spec:
+  selector:
+{{- include "ctrl-sim-api.labels" . | nindent 4 }}
+  type: {{ .Values.global.control.service.type }}
+  ports:
+    - port: {{ include "ctrl-sim-api.port" . }}
+      targetPort: {{ include "ctrl-sim-api.port" . }}
+      protocol: TCP
+      name: http
+{{- end }}

@@ -1,0 +1,19 @@
+{{- if and (hasKey .Values.global.control "sim_vector") (hasKey .Values.global.control.sim_vector "enabled") .Values.global.control.sim_vector.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.appName }}-service
+  labels:
+    {{- include "sim-vector.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.global.control.sim_vector.annotations | nindent 4 }}
+spec:
+  selector:
+    {{- include "sim-vector.labels" . | nindent 4 }}
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+{{- end }}

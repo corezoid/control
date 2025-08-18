@@ -4,6 +4,7 @@
 {{- $frontendPort := .Values.global.control.frontendPort -}}
 {{- $realtimePort := ( include "control.realtime.app_port" . ) -}}
 {{- $widgetPort := .Values.global.control.widgetPort -}}
+{{- $ctrlSimApiPort := .Values.global.control.ctrlSimApiPort -}}
 {{- if and .Values.global.control.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
   {{- $_ := set .Values.global.control.ingress.annotations "kubernetes.io/ingress.class" .Values.global.control.ingress.className}}
@@ -32,6 +33,21 @@ spec:
     - hosts:
         - {{ include "control.Domain" . }}
       secretName: tls-control
+    {{- if and (hasKey .Values.global.control "sim_vector") (hasKey .Values.global.control.sim_vector "enabled") .Values.global.control.sim_vector.enabled (hasKey .Values.global.control.sim_vector "vectorizerDomain") .Values.global.control.sim_vector.vectorizerDomain }}
+    - hosts:
+        - {{ .Values.global.control.sim_vector.vectorizerDomain }}
+      secretName: tls-sim-vector
+    {{- end }}
+    {{- if and (hasKey .Values.global.control "simTei") (hasKey .Values.global.control.simTei "enabled") .Values.global.control.simTei.enabled (hasKey .Values.global.control.simTei "teiDomain") .Values.global.control.simTei.teiDomain }}
+    - hosts:
+        - {{ .Values.global.control.simTei.teiDomain }}
+      secretName: tls-sim-tei
+    {{- end }}
+    {{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled (hasKey .Values.global.control.claude_code_api "claudeCodeApiDomain") .Values.global.control.claude_code_api.claudeCodeApiDomain }}
+    - hosts:
+        - {{ .Values.global.control.claude_code_api.claudeCodeApiDomain }}
+      secretName: tls-claude-code-api
+    {{- end }}
   {{- end }}
   rules:
     - host: {{ include "control.Domain" . }}
@@ -65,6 +81,15 @@ spec:
                 name: server-service
                 port:
                   number: {{ include "server.port" . }}
+          {{- if and (hasKey .Values.global.control "ctrl_sim_api") (hasKey .Values.global.control.ctrl_sim_api "enabled") .Values.global.control.ctrl_sim_api.enabled }}
+          - path: "/api/2.0"
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ctrl-sim-api-service
+                port:
+                  number: {{ $ctrlSimApiPort }}
+          {{- end }}
           - path: "/api/1.0/download"
             pathType: ImplementationSpecific
             backend:
@@ -119,4 +144,55 @@ spec:
                 port:
                   number: {{ $frontendPort }}
 {{- end }}
+{{- if and (hasKey .Values.global.control "sim_vector") (hasKey .Values.global.control.sim_vector "enabled") .Values.global.control.sim_vector.enabled (hasKey .Values.global.control.sim_vector "vectorizerDomain") .Values.global.control.sim_vector.vectorizerDomain }}
+    - host: {{ .Values.global.control.sim_vector.vectorizerDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: sim-vector-service
+                port:
+                  number: 8000
+              {{- else }}
+              serviceName: sim-vector-service
+              servicePort: 8000
+              {{- end }}
+{{- end }}
 {{- end -}}
+{{- if and (hasKey .Values.global.control "simTei") (hasKey .Values.global.control.simTei "enabled") .Values.global.control.simTei.enabled (hasKey .Values.global.control.simTei "teiDomain") .Values.global.control.simTei.teiDomain }}
+    - host: {{ .Values.global.control.simTei.teiDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: sim-tei-service
+                port:
+                  number: 80
+              {{- else }}
+              serviceName: sim-tei-service
+              servicePort: 80
+              {{- end }}
+{{- end }}
+{{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled (hasKey .Values.global.control.claude_code_api "claudeCodeApiDomain") .Values.global.control.claude_code_api.claudeCodeApiDomain }}
+    - host: {{ .Values.global.control.claude_code_api.claudeCodeApiDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: claude-code-api-service
+                port:
+                  number: 8000
+              {{- else }}
+              serviceName: claude-code-api-service
+              servicePort: 8000
+              {{- end }}
+{{- end }}

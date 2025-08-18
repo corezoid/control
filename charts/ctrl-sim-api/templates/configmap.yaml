@@ -1,0 +1,130 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $ctrl_sim_api_data := $control_data.ctrl_sim_api }}
+{{- $ctrl_sim_api_config := $ctrl_sim_api_data.config }}
+{{- if and (hasKey .Values.global.control "ctrl_sim_api") (hasKey .Values.global.control.ctrl_sim_api "enabled") $ctrl_sim_api_data.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-configmap
+  labels:
+{{- include "ctrl-sim-api.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    port: {{ include "ctrl-sim-api.port" . }}
+    log_level: {{ .Values.global.control.ctrl_sim_api.log_level | default "info" }}
+    metrics:
+      port: 9001
+
+    scylladb:
+      {{- if $control_data.scylladb }}
+      {{- if $control_data.scylladb.internal }}
+      contactPoints:
+        - scylla-service
+      {{- else }}
+      contactPoints:
+      {{- range $control_data.scylladb.contactPoints }}
+        - {{ . }}
+      {{- end }}
+      {{- end }}
+      keyspace: {{ $control_data.scylladb.keyspace }}
+      {{- end }}
+
+    postgres:
+      {{- if .Values.global.db.bouncer }}
+      host: {{ include "pgbouncer.service.name" . }}
+      port: {{ .Values.global.db.bouncer_port }}
+      {{- else }}
+      host: {{ .Values.global.db.secret.data.dbhost }}
+      port: {{ .Values.global.db.secret.data.dbport }}
+      {{- end }}
+      database: {{ .Values.global.db.secret.data.dbname | default "control" }}
+      user: {{ .Values.global.db.secret.data.dbuser }}
+      password: {{ .Values.global.db.secret.data.dbpwd }}
+      {{- if .Values.global.db.ssl }}
+      {{- if .Values.global.db.ssl.enabled }}
+      ssl:
+        enabled: {{ .Values.global.db.ssl.enabled }}
+        insecure_skip_verify: {{ .Values.global.db.ssl.insecure_skip_verify | default false }}
+        cacertfile: {{ .Values.global.db.ssl.cacertfile | default "./configs/ssl/ca.crt" }}
+        certfile: {{ .Values.global.db.ssl.certfile | default "./configs/ssl/client.crt" }}
+        keyfile: {{ .Values.global.db.ssl.keyfile | default "./configs/ssl/client.key" }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.global.db.secret.slave }}
+      {{- if .Values.global.db.secret.slave.enabled }}
+      slaves:
+        - host: {{ .Values.global.db.secret.data.dbslavehost }}
+          port: {{ .Values.global.db.secret.data.dbslaveport }}
+      {{- end }}
+      {{- end }}
+
+    {{- if and (hasKey .Values.global.redis "cluster") (.Values.global.redis.cluster.enable) }}
+    redisCluster:
+      nodes:
+      {{- range .Values.global.redis.cluster.nodes }}
+        - host: {{ .host }}
+          port: {{ .port }}
+          password: ${REDIS_PASSWORD}
+          db: ${REDIS_DATABASE}
+      {{- end }}
+      {{- if .Values.global.redis.secret.data.password }}
+      password: ${REDIS_PASSWORD}
+      {{- end }}
+    {{- else }}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      database: ${REDIS_DATABASE}
+      {{- if .Values.global.redis.secret.data.password }}
+      password: ${REDIS_PASSWORD}
+      {{- else }}
+      password:
+      {{- end }}
+      {{- if .Values.global.redis.ssl }}
+      {{- if .Values.global.redis.ssl.enabled }}
+      ssl:
+        enabled: {{ .Values.global.redis.ssl.enabled }}
+        insecure_skip_verify: {{ .Values.global.redis.ssl.insecure_skip_verify | default false }}
+        cacertfile: {{ .Values.global.redis.ssl.cacertfile | default "./configs/ssl/ca.crt" }}
+        certfile: {{ .Values.global.redis.ssl.certfile | default "./configs/ssl/client.crt" }}
+        keyfile: {{ .Values.global.redis.ssl.keyfile | default "./configs/ssl/client.key" }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+
+    corezoid:
+      host: https://{{ .Values.global.control.apiCorezoidDomain }}
+      syncApiHost: {{ .Values.global.control.corezoidSyncApiUrl }}
+      insecure_skip_verify: {{ .Values.global.control.insecure_skip_verify | default true }}
+
+    apigw:
+      host: https://{{ .Values.global.control.apiCorezoidDomain }}
+      insecure_skip_verify: {{ .Values.global.control.insecure_skip_verify | default true }}
+
+    sa:
+      url: https://{{ .Values.global.control.auth.domain }}
+      secretKey: {{ .Values.global.control.auth.key }}
+
+    {{- if .Values.global.control.livekit }}
+    livekit:
+      apiKey: {{ .Values.global.control.livekit.apiKey | default "myapikey" }}
+      apiSecret: {{ .Values.global.control.livekit.apiSecret | default "secret" }}
+      storage:
+        bucket: {{ .Values.global.control.livekit.storage.bucket | default "mw-dev-common-1-euw1-livekit" }}
+        region: {{ .Values.global.control.livekit.storage.region | default "eu-west-1" }}
+      url: {{ .Values.global.control.livekit.url | default "wss://sim-meet-dev.simulator.company" }}
+    {{- end }}
+
+    webConfig:
+      avatarPath: https://{{ .Values.global.control.auth.domain }}/avatars/52x52/{userId}.jpg
+      systemUserAvatar: https://{{- include "control.Domain" . }}/static/systemUserAvatar.svg
+      adminCorezoid: https://{{ .Values.global.control.adminCorezoidDomain }}
+      widgetUrl: https://{{- include "control.WidgetDomain" . }}
+      supportEmail: {{ .Values.global.control.webConfig.supportEmail | default "support@simulator.company" }}
+      realtimeApi: wss://{{- include "control.Domain" . }}
+      apiDoc: https://{{- include "control.Domain" . }}/api.html
+      maxFileSize: {{ .Values.global.control.webConfig.maxFileSize | default 26214400 }}
+      scriptPath: "https://${CONTROL_DOMAIN}/script/{{ "{{" }}accId{{ "}}" }}/view_public/{{ "{{" }}ref{{ "}}" }}/{{ "{{" }}env{{ "}}" }}/{{ "{{" }}page{{ "}}" }}"
+      dashboardPath: "https://${CONTROL_DOMAIN}/dashboard/{{ "{{" }}accId{{ "}}" }}/view/{{ "{{" }}actorId{{ "}}" }}"
+{{- end }}

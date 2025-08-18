@@ -1,0 +1,7 @@
+appName: sim-vector
+configName: sim_vector.yml
+prometheusPath: /metrics
+prometheusInterval: 15s
+appReadinessHttpPort: 8000
+image:
+  repository: sim-vector

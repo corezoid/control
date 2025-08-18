@@ -1,0 +1,22 @@
+{{- $global_data := .Values.global }}
+{{- if and (hasKey .Values "global") (hasKey .Values.global.control "simTei") (.Values.global.control.simTei.enabled) }}
+{{- if $global_data.serviceMonitor -}}
+{{- if $global_data.serviceMonitor.enabled -}}
+apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.appName }}
+  labels:
+    {{- include "sim-tei.labels" . | nindent 4 }}
+    {{- include "common.ServiceMonitor.metadata.labes" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "sim-tei.selectorLabels" . | nindent 6 }}
+  endpoints:
+  - path: {{ .Values.prometheusPath | default "/metrics" }}
+    targetPort: http
+    interval: {{ .Values.prometheusInterval | default "15s" }}
+{{- end -}}
+{{- end -}}
+{{- end }}

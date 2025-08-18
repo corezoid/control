@@ -1,0 +1,89 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $sim_vector_data := $global_data.control.sim_vector }}
+{{- if and (hasKey .Values.global.control "sim_vector") (hasKey .Values.global.control.sim_vector "enabled") $sim_vector_data.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+    {{- include "sim-vector.labels" . | nindent 4 }}
+spec:
+  {{- if not $sim_vector_data.autoscaling.enabled }}
+  replicas: {{ $sim_vector_data.autoscaling.minReplicas | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sim-vector.labels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        {{- include "sim-vector.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $global_data.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- include "InitWait.postgres" . | nindent 8 }}
+        {{- include "InitWait.postgres-extension-vector" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml $global_data.securityContext | nindent 12 }}
+          image: {{ include "sim-vector.imageUrl" . | quote }}
+          imagePullPolicy: {{ $sim_vector_data.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: BATCH_SIZE
+              value: "{{ $sim_vector_data.batchSize }}"
+            - name: VECTORIZATION_BATCH_SIZE
+              value: "{{ $sim_vector_data.VectorizationbatchSize }}"
+            - name: SLEEP_INTERVAL
+              value: "{{ $sim_vector_data.sleepInterval }}"
+            - name: ALLOW_SEARCH
+              value: "{{ $sim_vector_data.allowSearch }}"
+            {{- if hasKey .Values.global.control "simTei" }}
+            - name: TEI_URL
+              {{- if and (hasKey .Values.global.control.simTei "teiDomain") .Values.global.control.simTei.teiDomain }}
+              value: "https://{{ .Values.global.control.simTei.teiDomain }}"
+              {{- else }}
+              value: "http://sim-tei-service:80"
+              {{- end }}
+            {{- end }}
+            {{- include "control.container_envs_db" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 180
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            {{- toYaml $sim_vector_data.resources | nindent 12 }}
+      {{- with $sim_vector_data.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $sim_vector_data.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $sim_vector_data.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

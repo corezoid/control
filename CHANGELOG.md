@@ -2,8 +2,103 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
+## [5.126.0] - 2025-08-13
+### Application Versions
+- **server**: 5.126.4
+- **frontend**: 5.126.0
+- **realtime**: 3.5.0
+- **control-tasks**: 2.57.0
+- **widget**: v1.63.0
+### ✨ New Features
+1. 🎨 Added new left side menu structure
+2. 🖱 Implemented actor creation via prompt node from selected text
+3. 📄 Enabled actor creation from read-only text selections
+4. 📝 Extended transcript with user action logging
+5. 💬 Added inline quoting in call transcripts
+6. 📊 Extended export graph interface with additional export parameters
+7. 🤖 Integrated AI Console Sidebar
+8. 🎥 Introduced new design for live meetings [front-end]
+9. 🔄 Added support for auto-join and media control flags in standalone meeting room
+10. 💬 Added stream management capability to Simulator's Chats section
+11. 🛠 Fixed Simulator Smart Forms to support edit component with `required: true` rule
+12. 🎧 Implemented call recording files compression with configurable levels
+13. 📞 Replaced current call-waiting screen with a call-preview screen (Live)
+14. 💬 Created initial screen for Chats section in Simulator.Company
+15. 🔔 Improved global notification settings [front-end]
+16. 🛎 Improved global notification settings [back-end]
+17. 📌 Separated smart form pinning logic for Sidebar, Custom Bar, and Top Menus [back-end]
+18. 📌 Separated smart form pinning logic for Sidebar, Custom Bar, and Top Menus [front-end]
+19. ⚙️ Added "Valency Rules" section to form settings
+20. ⚡ Automated creation of MetaNet forms in block diagrams
+21. 🖋 Improved text formatting in events and chats
+22. 🏷 Replaced system form names and added title/reference fields
+23. 📑 Added column fixing functionality to CDU table component
+24. 👤 Added user avatars to live event previews
+25. 📄 Added "Collapse Child Actors" menu option for graph nodes
+26. 📍 Added Current Position element to actor graph blocks with centering logic
+27. 📞 Added ability to join a call by clicking on a card in live meetings section
+28. 🔍 Fuzzy search for vectorized actor data
+### 🚀 Improvements
+1. 🔄 Reset edge type when renaming an actor
+2. 📝 Allowed clearing values from disabled fields and saving changes
+3. 👤 Replaced screen sharing icon with user avatar
+4. 📚 Updated API documentation for filters
+5. ⚙️ Updated process logic for actor creation confirmation
+6. 🔍 Enabled zoom for split-screen sharing
+7. ⚡ Optimized event stream loading performance
+8. 📦 Added skeleton loader instead of preloader for split-mode in Events and Chats in Simulator
+9. 🖋 Enabled text formatting via context menu
+10. 🎨 Improved frontend menu item renderer for Sidebar and Header
+11. 📂 Optimized event details loading with caching in Simulator split mode
+12. 🔑 Increased JWT token expiration time for AI Console
+13. 💳 Enhanced transaction statement
+14. 🎯 Centered layer on actor when navigated from layer list
+15. 📜 Implemented template menu collapse on scroll
+16. 🖊 UI update for default form selection
+### 🐞 Bug Fixes
+1. 🖥 Fixed mirror screen issue and resolved screen duplication when sharing a call window
+2. 🔙 Fixed back button being unclickable due to overlapping layout in chat widget
+3. 📺 Fixed unstable display and premature closure of the screen selection window during sharing
+4. ♻️ Fixed recursive window opening when accessing multi-window graph view
+5. 🔇 Fixed issue where muting a group did not disable sound notifications
+6. 📜 Fixed missing scroll in Participants tab
+7. 🗂 Fixed regular actor being incorrectly displayed as a layer actor on the graph
+8. & Fixed incorrect rendering of the ampersand (&) symbol in the Events section
+9. ✏️ Fixed caret behavior when creating an event
+10. ⚙️ Fixed inability to access the Settings submenu in collapsed menu state
+11. 📂 Fixed database insertion error when importing specific graph files
+12. 🗂 Fixed system layer opening by default and not being marked as selected
+13. 🔑 Fixed issue where events created via API key appeared in chats with API key name
+14. 🔢 Fixed incorrect stream counter behavior
+15. 📩 Fixed chat opening incorrectly via email link or search
+16. 🛠 Restored Chrome extension functionality previously removed from the codebase
+17. 📑 Fixed multi-layer not opening on first attempt (infinite loading)
+18. 🏷 Fixed incorrect display of category names in Chats
+19. 🖊 Fixed drawing on both sides of an actor not being saved
+20. 💬 Fixed quoted text not scrolling or highlighting properly
+21. 📊 Fixed missing "Graph" tab in Events section when working in split mode
+22. 🔄 Fixed unread message counters not working between different Simulator windows
+23. 📏 Fixed event creation window resizing unexpectedly
+24. 📐 Fixed table header overlap
+25. 🖱 Removed double scrollbars in Transcriptions view
+26. 📊 Fixed dashboard not expanding on layer
+27. 🌐 Fixed connected streams not loading on redirect to events page
+28. 💬 Fixed quoted text not scrolling correctly in the Chat tab
+29. 🔄 Fixed read message counter not resetting properly in split mode
+30. 📜 Fixed chip menu display issue on the graph
+31. 🖱 Fixed horizontal scroll when replying to a long message in Simulator Chats
+32. 🔗 Fixed link visibility and clickability in chat message preview
+33. 📁 Fixed incorrect filename ("undefined") when downloading file via link
+34. 🔄 Removed horizontal scroll in Simulator notifications window
+35. 📜 Fixed scrollbar appearance after quoting text in chat
+36. ❌ Fixed inability to close quick menu by clicking outside after text selection in script
+37. 📌 Fixed negative actor count when deleting actors from a layer
+38. 🤖 Fixed AI Console not replying to the first message
+39. 📊 Fixed group headers in Smart Forms table scrolling instead of staying fixed
+40. 💬 Fixed comment input opening far from selected text in transcription
+41. 🖥 Extended realtime API method to launch widget console for a specific user
 
 ## [5.122.0] - 2025-07-16
 ### Application Versions
@@ -189,6 +284,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - widget - v1.59.0
 
 ### Added
+- Added sim-tei subchart for Text Embeddings Inference (TEI) service
+- Added global configuration support for sim-tei with all environment parameters
+- Added conditional deployment based on global.simTei.enabled flag
 - Added Apple App Site Association support to frontend subchart with configurable content
 - Added AOS Association support to frontend subchart with configurable content
 - Added Grafana alert rules for pong-server metrics

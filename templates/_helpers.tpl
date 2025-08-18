@@ -345,3 +345,28 @@ control-config-secret
 {{- define "pgbouncer.service.name" -}}
 pgbouncer-control-service
 {{- end }}
+
+{{- define "InitWait.postgres-extension-vector" -}}
+- name: init-wait-postgresql-extension-vector
+  image: "{{ .Values.global.db.image }}"
+  imagePullPolicy: IfNotPresent
+  env:
+    - name: PGPASSWORD
+      value: "{{ .Values.global.db.secret.data.dbpwd }}"
+  command:
+    - sh
+    - -c
+    - >
+      until psql -h {{ .Values.global.db.secret.data.dbhost }} \
+                 -p {{ .Values.global.db.secret.data.dbport }} \
+                 -U {{ .Values.global.db.secret.data.dbuser }} \
+                 -d {{ .Values.global.control.dbname | default "control" }} \
+                 -c "CREATE EXTENSION IF NOT EXISTS vector;" \
+                 -c "SELECT 1 FROM pg_extension WHERE extname = 'vector';" | grep -q 1;
+      do
+        echo "Creating/waiting for vector extension to be available...";
+        sleep 2;
+      done;
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+{{- end }}

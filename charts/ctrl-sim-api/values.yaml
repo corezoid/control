@@ -1,0 +1,16 @@
+appName: ctrl-sim-api
+ctrlSimApiPort: 9000
+
+image:
+  repository: ctrl-sim-api
+
+hpa_mem: false
+
+ctrl_sim_api:
+  config:
+    db:
+      pool:
+        acquire: 60000
+        idle: 20000
+        max: 200
+        min: 20

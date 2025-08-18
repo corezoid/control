@@ -297,6 +297,17 @@ data:
         {{- end }}
       }
 
+      {{- if and (hasKey .Values.global.control "ctrl_sim_api") (hasKey .Values.global.control.ctrl_sim_api "enabled") .Values.global.control.ctrl_sim_api.enabled }}
+      location ~ ^/api/2.0 {
+        client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
+        proxy_set_header Connection "keep-alive";
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        proxy_pass http://ctrl-sim-api-service:{{ .Values.global.control.ctrlSimApiPort }};
+      }
+      {{- end }}
+
       location ~ ^/(api|papi) {
         client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
         proxy_set_header Connection "keep-alive";
