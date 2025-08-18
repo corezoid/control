@@ -1,0 +1,7 @@
+appName: claude-code-api
+configName: claude_code_api.yml
+prometheusPath: /metrics
+prometheusInterval: 15s
+appReadinessHttpPort: 8000
+image:
+  repository: claude-code-api

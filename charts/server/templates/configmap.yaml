@@ -20,6 +20,9 @@ data:
     {{- if .Values.global.control.graphInstallerDomain }}
     graphInstallerUrl: https://{{ .Values.global.control.graphInstallerDomain }}
     {{- end }}
+    {{- if and (hasKey .Values.global.control "server") (hasKey .Values.global.control.server "config") (hasKey .Values.global.control.server.config "vectorizerDomain") .Values.global.control.server.config.vectorizerDomain (hasKey .Values.global.control "sim_vector") (hasKey .Values.global.control.sim_vector "enabled") .Values.global.control.sim_vector.enabled }}
+    vectorizerUrl: https://{{ .Values.global.control.server.config.vectorizerDomain }}
+    {{- end }}
     {{- if .Values.global.control.accountsTreeNocache }}
     accountsTree:
       nocache: true
@@ -218,7 +221,7 @@ data:
       widgetSettings:
         sendWidgetLocalContext: {{ .Values.global.control.webConfig.widgetSettings.sendWidgetLocalContext }}
       {{- end }}
-    {{- if .Values.global.control.opentelemetry.enabled }}
+    {{- if and (hasKey .Values.global.control "opentelemetry") .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}
     tracing:
       enable: {{ .Values.global.control.opentelemetry.tracing.enabled | default false }}

@@ -1,0 +1,32 @@
+{{- if and (hasKey .Values "global") (hasKey .Values.global.control "simTei") (.Values.global.control.simTei.enabled) (.Values.global.control.simTei.autoscaling.enabled) }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.appName }}-hpa
+  labels:
+    {{- include "sim-tei.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.appName }}-deployment
+  minReplicas: {{ .Values.global.control.simTei.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.global.control.simTei.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.global.control.simTei.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.global.control.simTei.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.global.control.simTei.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.global.control.simTei.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,112 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $ctrl_sim_api_data := $global_data.control.ctrl_sim_api }}
+{{- if and (hasKey .Values.global.control "ctrl_sim_api") (hasKey .Values.global.control.ctrl_sim_api "enabled") $ctrl_sim_api_data.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+{{- include "ctrl-sim-api.labels" . | nindent 4 }}
+spec:
+{{- if $ctrl_sim_api_data.autoscaling.enabled }}
+  replicas: {{ $ctrl_sim_api_data.autoscaling.minReplicas }}
+{{- end }}
+  selector:
+    matchLabels:
+{{- include "ctrl-sim-api.labels" . | nindent 6 }}
+{{- with $global_data.deploymentStrategy }}
+  strategy:
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+{{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "control.ctrl-sim-api.annotations" . | nindent 4 }}
+      labels:
+{{- include "ctrl-sim-api.labels" . | nindent 8 }}
+    spec:
+      {{- if $ctrl_sim_api_data.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $ctrl_sim_api_data.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      {{- if $ctrl_sim_api_data.serviceAccount }}
+      {{- if $ctrl_sim_api_data.serviceAccount.create }}
+      serviceAccountName: control-{{ .Values.appName }}-serviceaccount
+      {{- end }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $control_data.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ include "InitWait.postgres" . | nindent 8 }}
+
+        {{ include "InitWait.postgres-extension-postgis" . | nindent 8 }}
+
+        {{ include "InitWait.postgres-extension-btree-gin" . | nindent 8 }}
+
+        {{ include "InitWait.postgres-extension-pg-trgm" . | nindent 8 }}
+
+        {{ include "InitWait.bouncer" . | nindent 8 }}
+
+        {{ include "InitWait.redis" . | nindent 8 }}
+
+        {{ include "InitWait.scylla" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml $control_data.securityContext | nindent 12 }}
+          image: {{ include "ctrl-sim-api.imageUrl" . | quote }}
+          imagePullPolicy: {{ $ctrl_sim_api_data.pullPolicy }}
+          env:
+            - name: K8S
+              value: "true"
+            {{- if $ctrl_sim_api_data.selfsigned }}
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+            {{- end }}
+            - name: CONTROL_DOMAIN
+              value: {{ include "control.Domain" . }}
+            {{- include "control.container_envs_redis" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ include "ctrl-sim-api.port" . }}
+              protocol: TCP
+            - name: metrics
+              containerPort: 9001
+              protocol: TCP
+          {{ include "ctrl-sim-api.liveness" . | nindent 10 }}
+          {{ include "ctrl-sim-api.readiness" . | nindent 10 }}
+          resources:
+            {{- toYaml $ctrl_sim_api_data.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Values.appName }}-config-volume
+              mountPath: /app/config.yml
+              subPath: config.yml
+      volumes:
+        - name: {{ .Values.appName }}-config-volume
+          configMap:
+            name: {{ .Values.appName }}-configmap
+      {{- with $control_data.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $control_data.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $control_data.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
