@@ -3,4 +3,4 @@ name: control-tasks
 description: A Helm chart for Control Tasks
 type: application
 version: 0.1.26
-appVersion: 2.57.0
+appVersion: 2.57.1

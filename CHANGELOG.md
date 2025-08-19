@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 - **server**: 5.126.4
 - **frontend**: 5.126.0
 - **realtime**: 3.5.0
-- **control-tasks**: 2.57.0
+- **control-tasks**: 2.57.1
 - **widget**: v1.63.0
 ### ✨ New Features
 1. 🎨 Added new left side menu structure
