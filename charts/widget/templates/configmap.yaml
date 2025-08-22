@@ -25,7 +25,7 @@ data:
         log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                           '$status $body_bytes_sent "$http_referer" '
                           '"$http_user_agent" "$http_x_forwarded_for"';
-        log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$host';
+        log_format up_log escape=json '{"server_addr":"$server_addr","server_port":"$server_port","http_x_forwarded_for":"$http_x_forwarded_for","time_iso8601":"$time_iso8601","upstream_addr":"forward-to $upstream_addr","request":"$request","status":"$status","body_bytes_sent":"$body_bytes_sent","request_time":"$request_time","upstream_response_time":"$upstream_response_time","http_referer":"$http_referer","http_user_agent":"$http_user_agent","host":"$host","path":"$uri"}';
         access_log /dev/stdout up_log;
 
         sendfile        on;

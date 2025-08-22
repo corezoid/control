@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [5.127.0] - 2025-08-20
+### Application Versions
+- **server**: 5.127.0
+- **frontend**: 5.127.0
+- **realtime**: 3.5.0
+- **control-tasks**: 2.58.0
+- **widget**: v1.63.0
+### 🛠️ Improvements
+1. Actor verification added on back-end
+2. Event notifications settings enhanced with granular executor/signer control (back-end and front-end)
+3. Added `mute_notification` flag for Actor and Reaction API creation
+4. Added `noRetry GET` parameter to transaction and transfer creation API endpoints to prevent retry attempts
+5. Added option to inherit forms and accounts for child actors
+6. Added UI parameter to hide text selection buttons
+7. Added `styleClass` support at form level in Smart Forms protocol
+8. Layer-level anisotropy setting implemented
+9. Double-click behavior added for managing fullscreen and zoom
+### 🐞 Bug Fixes
+1. Fixed duplication of events in Simulator Events list during active mode operation
+2. Fixed issue where two actors could be created in the same cell via connection
+3. Fixed infinite loading when opening actor's multi-layer view
+4. Fixed cursor jump when working with multiline text in comment input field
+5. Fixed issue where shared users were not displayed after re-entering the script page
+6. Fixed real-time updates not working in Event title and color in Stream
+7. Fixed scroll to quoted text not working in Chats
+### ⚙️ Other Changes
+1. Disabled cron job `actorsFiltersSetTotal` by default
+2. Convert nginx logs to JSON format in frontend and widget subcharts
+3. Added "path": "$uri" field to JSON log format
+4. All existing log fields preserved in JSON structure with proper escaping
+5. Log format consistent between frontend and widget subcharts
+
 ## [5.126.0] - 2025-08-13
 ### Application Versions
 - **server**: 5.126.4

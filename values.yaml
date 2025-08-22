@@ -439,6 +439,8 @@ global:
           actors_cleaner:
             workers_count: 3
             ttl: 0
+          # actors_filters_set_total:
+          #   workers_count: 10
           # Example of ScyllaDB cleaner configuration (commented out by default)
           # scylladb_cleaner:
           #   workers_count: 5
