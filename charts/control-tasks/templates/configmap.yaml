@@ -106,7 +106,7 @@ data:
         "secretKey": "${CONFIG_SA_SECRETKEY}",
         "insecure_skip_verify": ${CONTROL_INSECURE_SKIP_VERIFY}
       }
-      {{- if or (and (hasKey $control_data "control_tasks") (hasKey $control_data.control_tasks "config") (hasKey $control_data.control_tasks.config "crons") (or (hasKey $control_data.control_tasks.config.crons "actors_cleaner") (hasKey $control_data.control_tasks.config.crons "scylladb_cleaner"))) (not (and (hasKey $control_data "control_tasks") (hasKey $control_data.control_tasks "config") (hasKey $control_data.control_tasks.config "crons"))) }}
+      {{- if or (and (hasKey $control_data "control_tasks") (hasKey $control_data.control_tasks "config") (hasKey $control_data.control_tasks.config "crons") (or (hasKey $control_data.control_tasks.config.crons "actors_cleaner") (hasKey $control_data.control_tasks.config.crons "scylladb_cleaner") (hasKey $control_data.control_tasks.config.crons "actors_filters_set_total"))) (not (and (hasKey $control_data "control_tasks") (hasKey $control_data.control_tasks "config") (hasKey $control_data.control_tasks.config "crons"))) }}
       ,
       "crons": {
         {{- if or (and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "scylladb_cleaner")) (not (and (hasKey $control_tasks_data "crons"))) }}
@@ -145,6 +145,16 @@ data:
           "ttl": {{ $control_tasks_data.crons.actors_cleaner.ttl }}
           {{- else }}
           "ttl": 0
+          {{- end }}
+        }
+        {{- if and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_filters_set_total") }},{{- end }}
+        {{- end }}
+        {{- if and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_filters_set_total") }}
+        "actors_filters_set_total": {
+          {{- if and (hasKey $control_tasks_data "crons") (hasKey $control_tasks_data.crons "actors_filters_set_total") (hasKey $control_tasks_data.crons.actors_filters_set_total "workers_count") }}
+          "workers_count": {{ $control_tasks_data.crons.actors_filters_set_total.workers_count }}
+          {{- else }}
+          "workers_count": 10
           {{- end }}
         }
         {{- end }}

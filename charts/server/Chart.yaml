@@ -2,5 +2,5 @@ apiVersion: v2
 name: server
 description: A Helm chart for Control Server
 type: application
-version: 0.3.55
-appVersion: 5.126.4
+version: 0.3.56
+appVersion: 5.127.0
