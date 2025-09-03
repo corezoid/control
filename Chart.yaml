@@ -3,7 +3,7 @@ name: control
 description: A Helm chart for Control
 icon: https://sim.simulator.company/static/logo.svg
 type: application
-version: 0.3.57
+version: 0.3.58
 appVersion: 5.127.0
 
 dependencies:
@@ -35,6 +35,6 @@ dependencies:
     repository: file://charts/sim-tei
     condition: global.control.simTei.enabled
   - name: claude-code-api
-    version: 0.1.0
+    version: 0.1.1
     repository: file://charts/claude-code-api
     condition: global.control.claude_code_api.enabled

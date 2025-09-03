@@ -43,14 +43,18 @@ spec:
             - name: SERVER_PORT
               value: "8000"
             - name: DB_CLAUDECODE_NAME
-              value: "{{ $claude_code_api_data.dbname }}"
+              value: "{{ $claude_code_api_data.db.secret.data.dbname | default ($claude_code_api_data.dbname | default "claude_code") }}"
             - name: DATABASE_TIMEZONE
               value: "{{ $claude_code_api_data.db_timezone | default "UTC" }}"
             - name: LOG_LEVEL
               value: "{{ $claude_code_api_data.log_level }}"
             - name: LOG_FORMAT
               value: "{{ $claude_code_api_data.log_format | default "json" }}"
-            {{- include "control.container_envs_db" . | nindent 12 }}
+            {{- if and (hasKey $claude_code_api_data "auth_api_key") $claude_code_api_data.auth_api_key }}
+            - name: AUTH_API_KEY
+              value: "{{ $claude_code_api_data.auth_api_key }}"
+            {{- end }}
+            {{- include "claude-code-api.container_envs_db" . | nindent 12 }}
           ports:
             - name: http
               containerPort: 8000
