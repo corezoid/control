@@ -51,11 +51,21 @@ spec:
           psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d $POSTGRES_DBNAME -U $POSTGRES_DBSUPERUSER -Atc "CREATE EXTENSION IF NOT EXISTS postgis;"
           psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d $POSTGRES_DBNAME -U $POSTGRES_DBSUPERUSER -Atc "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
           psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d $POSTGRES_DBNAME -U $POSTGRES_DBSUPERUSER -Atc "CREATE EXTENSION IF NOT EXISTS vector;"
-          {{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled (hasKey .Values.global.control.claude_code_api "dbname") .Values.global.control.claude_code_api.dbname }}
+          {{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled }}
+          {{- $claude_code_api_data := .Values.global.control.claude_code_api }}
+          {{- $db_secret_data := $claude_code_api_data.db.secret.data }}
+          {{- $claude_dbname := "" }}
+          {{- if $db_secret_data.dbname }}
+          {{- $claude_dbname = $db_secret_data.dbname }}
+          {{- else }}
+          {{- $claude_dbname = ($claude_code_api_data.dbname | default "claude_code") }}
+          {{- end }}
+          {{- if $claude_dbname }}
           # Create claude_code_api database if it does not exist
           echo "SELECT 'CREATE DATABASE $DB_CLAUDECODE_NAME' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_CLAUDECODE_NAME')\gexec" | psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d postgres -U $POSTGRES_DBSUPERUSER ;
           # Set database owner to POSTGRES_APPUSER
           psql -h $POSTGRES_DBHOST -p $POSTGRES_PORT -d postgres -U $POSTGRES_DBSUPERUSER -Atc "ALTER DATABASE $DB_CLAUDECODE_NAME OWNER TO $POSTGRES_APPUSER;"
+          {{- end }}
           {{- end }}
       securityContext:
         runAsUser: 70
@@ -92,8 +102,18 @@ spec:
             secretKeyRef:
               name: {{ include "control.postgresSecretName" . }}
               key: dbpwd
-{{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled (hasKey .Values.global.control.claude_code_api "dbname") .Values.global.control.claude_code_api.dbname }}
+{{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled }}
+{{- $claude_code_api_data := .Values.global.control.claude_code_api }}
+{{- $db_secret_data := $claude_code_api_data.db.secret.data }}
+{{- $claude_dbname := "" }}
+{{- if $db_secret_data.dbname }}
+{{- $claude_dbname = $db_secret_data.dbname }}
+{{- else }}
+{{- $claude_dbname = ($claude_code_api_data.dbname | default "claude_code") }}
+{{- end }}
+{{- if $claude_dbname }}
         - name: DB_CLAUDECODE_NAME
-          value: {{ .Values.global.control.claude_code_api.dbname }}
+          value: {{ $claude_dbname }}
+{{- end }}
 {{- end }}
   restartPolicy: OnFailure

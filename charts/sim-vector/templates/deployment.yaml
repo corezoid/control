@@ -55,6 +55,20 @@ spec:
               value: "http://sim-tei-service:80"
               {{- end }}
             {{- end }}
+            {{- if hasKey .Values.global.control "sim_vector" }}
+            {{- if .Values.global.control.sim_vector.milvusHost }}
+            - name: MILVUS_HOST
+              value: "{{ .Values.global.control.sim_vector.milvusHost }}"
+            {{- end }}
+            {{- if .Values.global.control.sim_vector.milvusPort }}
+            - name: MILVUS_PORT
+              value: "{{ .Values.global.control.sim_vector.milvusPort }}"
+            {{- end }}
+            {{- if .Values.global.control.sim_vector.env }}
+            - name: ENV
+              value: "{{ .Values.global.control.sim_vector.env }}"
+            {{- end }}
+            {{- end }}
             {{- include "control.container_envs_db" . | nindent 12 }}
           ports:
             - name: http
