@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [5.127.0] - 2025-09-03 (Optional update)
 - Refactor claude-code-api settings in subcharts.
+
+## [5.127.0] - 2025-09-03 (Optional update)
+- Refactor claude-code-api settings in subcharts.
 - Refactor sim-vector settings in subcharts.
 - Refactor sim-tei settings in subcharts.
 
