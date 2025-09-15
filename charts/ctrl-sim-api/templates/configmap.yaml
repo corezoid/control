@@ -13,6 +13,7 @@ data:
   config.yml: |
     port: {{ include "ctrl-sim-api.port" . }}
     log_level: {{ .Values.global.control.ctrl_sim_api.log_level | default "info" }}
+    trackUrl: https://{{- include "control.Domain" . }} # Control Admin domain
     metrics:
       port: 9001
 

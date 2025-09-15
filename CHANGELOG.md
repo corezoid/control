@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.127.0] - 2025-09-15
+### 🐞 Bug Fixes
+1. Fixed database environment variables type conversion issue in `templates/_container_envs_db.yaml`
+   - Added `| quote` filter to all database secret values to ensure proper string conversion
+   - Resolves Kubernetes deployment error: "cannot unmarshal number into Go struct field EnvVar.spec.template.spec.containers.env.value of type string"
+   - Affects: DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_SSLMODE, DB_SLAVE_HOST, DB_SLAVE_PORT
+
+## [5.127.0] - 2025-09-03 (Optional update)
+- Refactor claude-code-api settings in subcharts.
+
 ## [5.127.0] - 2025-09-03 (Optional update)
 - Refactor claude-code-api settings in subcharts.
 - Refactor sim-vector settings in subcharts.

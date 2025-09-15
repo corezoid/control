@@ -85,32 +85,32 @@
   value: "{{ .Values.global.db.bouncer_port }}"
 {{- else }}
 - name: DB_HOST
-  value: {{ $db_secret_data.dbhost }}
+  value: {{ $db_secret_data.dbhost | quote }}
 - name: DB_PORT
-  value: {{ $db_secret_data.dbport }}
+  value: {{ $db_secret_data.dbport | quote }}
     {{- if .Values.global.db.secret.slave }}
     {{- if .Values.global.db.secret.slave.enabled }}
 - name: DB_SLAVE_HOST
-  value: {{ $db_secret_data.dbslavehost }}
+  value: {{ $db_secret_data.dbslavehost | quote }}
 - name: DB_SLAVE_PORT
-  value: {{ $db_secret_data.dbslaveport }}
+  value: {{ $db_secret_data.dbslaveport | quote }}
     {{- end }}
     {{- end }}
 {{- end }}
 - name: DB_USER
-  value: {{ $db_secret_data.dbuser }}
+  value: {{ $db_secret_data.dbuser | quote }}
 - name: DB_PASSWORD
-  value: {{ $db_secret_data.dbpwd }}
+  value: {{ $db_secret_data.dbpwd | quote }}
 {{- if $db_secret_data.dbname }}
 - name: DB_NAME
-  value: {{ $db_secret_data.dbname }}
+  value: {{ $db_secret_data.dbname | quote }}
 {{- else }}
 - name: DB_NAME
   value: control
 {{- end }}
 {{- if $db_secret_data.sslmode }}
 - name: DB_SSLMODE
-  value: {{ $db_secret_data.sslmode }}
+  value: {{ $db_secret_data.sslmode | quote }}
 {{- else }}
 - name: DB_SSLMODE
   value: disable
