@@ -60,7 +60,7 @@ spec:
         {{ include "InitWait.postgres" . | nindent 8 }}
       containers:
         - name: {{ .Values.appName }}
-          image: {{ .Values.global.imageRegistry }}/hub.docker.com/bitnami/pgbouncer:latest
+          image: {{ .Values.global.imageRegistry }}/utils/bitnami/pgbouncer:latest
           imagePullPolicy: Always
           env:
             - name: POSTGRESQL_USERNAME

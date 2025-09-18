@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.127.0] - 2025-09-18
+### Application Versions
+- **server**: 5.127.1
+### 🐞 Bug Fixes
+- Server app: Bug fixes
+- InitContainers: Updated PgBouncer image path
+
 ## [5.127.0] - 2025-09-15
 ### 🐞 Bug Fixes
 1. Fixed database environment variables type conversion issue in `templates/_container_envs_db.yaml`

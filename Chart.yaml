@@ -3,12 +3,12 @@ name: control
 description: A Helm chart for Control
 icon: https://sim.simulator.company/static/logo.svg
 type: application
-version: 0.3.60
+version: 0.3.61
 appVersion: 5.127.0
 
 dependencies:
   - name: server
-    version: 0.3.56
+    version: 0.3.57
     repository: file://charts/server
   - name: frontend
     version: 0.3.56
