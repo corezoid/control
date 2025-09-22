@@ -2,6 +2,144 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.131.0] - 2025-09-17
+### Helm changes
+- Applications versions:
+  - server - 5.131.1
+  - frontend - 5.131.0
+  - realtime - 3.5.0
+  - control-tasks - 2.59.1
+  - widget - v1.66.0
+
+### 🎯 New Features & Enhancements
+
+#### 💬 Communication & Meetings
+#### 1. Enhanced Meeting Experience
+- 🎙️ Visual microphone activity indicator during calls in Simulator
+- 👥 Support for participation in meetings from multiple devices (parallel sessions)
+- 🔄 Media control across multiple devices (mic, camera, screen sharing)
+- 📝 Live Meeting Widget — Transcription & display improvements
+- 🎵 Audio error text in meeting callback notifications
+- ✋ Enhanced call reactions
+
+#### 📊 Smart Forms & Data Management
+#### 2. Smart Forms Improvements
+- 📈 Create graphs for all Smart Forms
+- 🎨 Add styleClass support for tooltip in Smart Forms
+- 📄 Add page-level style files support in Smart Forms constructor
+- 🔄 Add submitOnChange attribute support for copy component in Smart Forms Simulator
+- 🏷️ Smart Forms: Replace data-testid selectors with semantic CSS classes
+- ⚙️ Add "Valency Rules" section to Form Settings [front-end]
+- 📋 Smart form instead of static tiles in Events / Actor Bag / Graphs
+
+#### 🔍 Search & Filtering
+#### 3. Advanced Search Capabilities
+- 🔎 Vector Search Implementation with Milvus
+- 📁 Расширение API для поиска и получения форм (возврат description и открытие search API для backend)
+- 🎯 Add parameter for filtering streams by actorId in Events widget component
+- 📤 Implementation of Data Export from Actor Bag Using Filters
+- 💾 Export Filter Settings
+
+#### 📱 UI/UX Improvements
+#### 4. Interface Enhancements
+- 💬 Add ability to resize chat list in Simulator
+- 🔄 Change unread arrow behavior to instant scroll-to-bottom
+- 📋 Add "Copy name" option to account context menu in Simulator Account section
+- 🎨 Smooth Collapse of Top Menu
+- 💀 Add skeleton loader for chat list in Simulator streams
+- 🖼️ Display Collapsed Actor Indicators for "text", "block", and "image" Actors
+- 🔄 Automatic Focus on Input Field When Opening the Console
+- 📊 Enhance the display of accounts on the edge actor in the graph
+- 🏦 Actor Valency Accounts
+
+#### 🔧 System & API
+#### 5. Backend Capabilities
+- 🔄 TTL for Files in Simulator at the Workspace Level
+- 💰 Add highPrecision GET Parameter to Financial Account Balances API
+- 🔐 Добавить поддержку параметра hidden в API редактирования реакций
+- 📊 Event Widget - Add Details View Support
+- 🎯 Add new transfer type without amount validation
+- 📝 Transactions and Dynamic Transcription During a Call
+- 👁️ Show all workspace meetings to owner
+- 🎯 Displaying Active Participants in Live Mode
+
+### 🐛 Bug Fixes
+
+#### 🎤 Audio & Meeting Issues
+- ✅ Call button not working in contact book
+- ✅ Meeting: sometimes cannot select microphone
+- ✅ Muted speaker unexpectedly resumes playing audio after 10-30 seconds
+- ✅ Microphone device list is not clickable on meeting preview until mic is enabled
+- ✅ Selected microphone is not saved after joining a meeting
+- ✅ No audio in meeting for specific user; mic and speaker controls unresponsive, while others have no issues
+- ✅ Camera selection unavailable until enabled on preview, and choice isn't saved when joining meeting
+- ✅ Live Meeting counter does not decrease after deleting rooms
+- ✅ Audio Device Menu Overlaps and Fails to Close
+
+#### 💬 Chat & Messaging
+- ✅ Numbered lists are not formatted in event descriptions and chats but work in comments
+- ✅ Actor list is shown instead of script list after clearing search
+- ✅ Space character is deleted in stream filter search, making it impossible to enter two-word queries
+- ✅ Incorrect message grouping with metaInfo.originalUser in chat mode
+- ✅ Messages in UI simulator chat are displayed in incorrect order
+- ✅ Text selection is lost when adding a hyperlink
+- ✅ Reply link is displayed in the center of the screen instead of near the message
+- ✅ Incorrect Display of Quoted Comments
+- ✅ Scrolling to Quoted Text Does Not Work in Split Mode
+- ✅ Unable to delete tag chip or continue typing after inserting tag in comments
+- ✅ Tag creation window is overlapped by Snippets window in Chats
+
+#### 🖥️ UI & Display
+- ✅ CDU. In case of saving incorrect code in Scripts locale infinite 'Saving...' is shown on UI
+- ✅ Incorrect icon update after signing message
+- ✅ Cannot insert chip in actor profile card — chip popup is hidden
+- ✅ Inconsistent image behavior in header when collapsing
+- ✅ HTML tags and special characters are rendered incorrectly in actor history
+- ✅ Emojis are displayed incorrectly when editing a script in the custom bar
+- ✅ Column misalignment in the Transactions section
+- ✅ Menu is hidden in Smart Forms
+- ✅ "Graph" menu item appears with delay, causing accidental click on wrong item
+- ✅ Table component disabled state interactions remain functional in Simulator Smart Forms
+- ✅ Error message in AI Console is partially hidden
+- ✅ Dropdown for period selection is hidden under dashboard
+- ✅ Search panel for forms is shifted to the side
+
+#### 🔄 Split Mode Issues
+- ✅ [Events] Panel resize broken in Split mode
+- ✅ Leave Call Button Hidden in Split Mode
+- ✅ Universalizing Comment Functionality in Split Mode During Meeting
+- ✅ Duplicate reactions on frontend in Simulator when scrolling in split mode
+- ✅ Text selection buttons incorrectly scroll to comment input panel in Simulator Events Split mode
+- ✅ Fix memory leak in Simulator Events Split mode cache
+- ✅ Unread indicator position bug on push navigation
+- ✅ Event Creation Window Does Not Open After First Click on "+" in Split Mode
+- ✅ Improve skeleton loader logic for actor panel in split mode
+
+#### 🎯 Other Fixes
+- ✅ Account selection resets after choosing actors in a newly created workspace, requiring re-confirmation of "all accounts" selection
+- ✅ Clicking "Starred" in Smart Forms also adds script to Custom panel
+- ✅ Closing one account in Transactions filter closes all accounts
+- ✅ Remove "Top menus" from Smart Form Settings
+- ✅ Update the flag display on actor
+- ✅ Script appears twice in the Sidebar after adding
+- ✅ Dashboard stops working after reopening
+- ✅ Transactions list shows data for the wrong actor when selected from the chart
+- ✅ Unwanted horizontal scroll in Simulator Chats
+- ✅ Change spacebar from toggle to push-to-talk mode
+- ✅ Automatic reload of the support panel
+- ✅ Incorrect display of screens in Live mode
+- ✅ Autoscroll while dragging a edge beyond the graph boundary
+- ✅ Top menu does not collapse
+
+### 🔧 Technical Improvements
+- 🔧 Actor Verification [front-end]
+- 🔧 Dashboards - Account Balance View [front-end] [back-end]
+- 🔧 Add Script Actor Menu on Graph
+- 🔧 Mirror screen issue/Resolving the screen duplication issue when sharing a call window
+- 🔧 Block Creation and Display Requirements
+- 🔧 Cache actor reactions in Simulator
+- 🔧 Flag Unification on Graph Actors - text/flowchart/image
+
 ## [5.127.0] - 2025-09-18
 ### Application Versions
 - **server**: 5.127.1
