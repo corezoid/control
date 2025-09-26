@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.132.0] - 2025-09-24
+### Helm changes
+- Applications versions:
+  - server - 5.132.0
+  - frontend - 5.132.1
+  - realtime - 3.5.0
+  - control-tasks - 2.59.1
+  - widget - v1.67.0
+
+### Smart Forms
+
+#### 1. Fixed incorrect CSS class order handling in the constructor
+#### 2. Resolved issue where menu items became unavailable after sharing a script
+#### 3. Corrected problem where account was displayed on an actor after adding or updating a formula
+#### 4. Fixed preview container overflow in the editor
+#### 5. Corrected handling of + sign incorrectly displayed in the graph center
+#### 6. Fixed constructor not supporting @import url("...")
+
+### Simulator & Chat Widget
+
+#### 1. Added drag & drop file upload support in chat widget
+#### 2. Implemented full-screen image preview in chat widget
+#### 3. Fixed widget crash when resizing with incorrect date display in dashboard
+
+### Dashboard & Graphs
+
+#### 1. Corrected date display issues during resizing
+#### 2. Fixed account disappearing from actor after tag removal (now correctly moves to Untagged)
+#### 3. Implemented input field binding to blocks
+#### 4. Corrected incorrect placement of actors when screen sharing in read-only mode
+
+### Reactions & AI Assistant
+
+#### 1. Added new "suggestion" reaction type for AI Assistant
+#### 2. Fixed issue where reactions were not recorded in logs
+#### 3. Corrected display of "Reaction Done" in transcription
+
+### API & Backend Enhancements
+
+#### 1. Actor API enhancement: support for groupId and type
+#### 2. Implemented API user event grouping
+
+### Meetings & Collaboration
+
+#### 1. Introduced meeting comment sharing
+#### 2. Implemented prefill logic for events in Meetings and Live streams, including automatic linking to streams
+
+### UI & UX Improvements
+
+#### 1. Added empty field (null) check in filter settings
+#### 2. Implemented autoscroll during area selection
+#### 3. Improved autoscroll during resize for images, blocks, text, and states
+
 ## [5.131.0] - 2025-09-17
 ### Helm changes
 - Applications versions:
