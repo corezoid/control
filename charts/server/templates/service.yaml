@@ -4,8 +4,15 @@ metadata:
   name: {{ .Values.appName }}-service
   labels:
 {{- include "server.labels" . | nindent 4 }}
+{{- if or .Values.global.service.annotations .Values.global.control.server.annotations }}
   annotations:
-{{- include "control.server.annotations" . | nindent 2 }}
+{{- with .Values.global.service.annotations }}
+{{- toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.global.control.server.annotations }}
+{{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}
 spec:
   selector:
 {{- include "server.labels" . | nindent 4 }}

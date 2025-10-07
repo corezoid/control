@@ -2,6 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 global:
+  # Global service annotations that will be applied to all Control services (important-comment)
+  # Uncomment and add annotations as needed:
+  # service:
+  #   annotations:
+  #     example.com/annotation: "value" (important-comment)
+  service:
+    annotations: {}
   # second level domain only! / core domain (example: control.local)
   domain: "control.local"
   serviceMonitor:

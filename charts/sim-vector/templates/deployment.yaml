@@ -48,7 +48,7 @@ spec:
             - name: ALLOW_SEARCH
               value: "{{ $sim_vector_data.allowSearch }}"
             {{- if hasKey .Values.global.control "simTei" }}
-            - name: TEI_URL
+            - name: EMBEDDING_DENSE_URL
               {{- if and (hasKey .Values.global.control.simTei "teiDomain") .Values.global.control.simTei.teiDomain }}
               value: "https://{{ .Values.global.control.simTei.teiDomain }}"
               {{- else }}
@@ -68,6 +68,14 @@ spec:
             - name: ENV
               value: "{{ .Values.global.control.sim_vector.env }}"
             {{- end }}
+            - name: MILVUS_COLLECTION
+              value: "{{ .Values.global.control.sim_vector.milvusCollection }}"
+            - name: MILVUS_VECTOR_SIZE
+              value: "{{ .Values.global.control.sim_vector.milvusVectorSize }}"
+            - name: MILVUS_INDEX_TYPE
+              value: "{{ .Values.global.control.sim_vector.milvusIndexType }}"
+            - name: SIM_VECTOR_NAME
+              value: "{{ .Values.global.control.sim_vector.simVectorName }}"
             {{- end }}
             {{- include "control.container_envs_db" . | nindent 12 }}
           ports:

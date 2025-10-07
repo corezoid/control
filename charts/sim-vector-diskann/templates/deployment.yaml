@@ -1,0 +1,119 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $sim_vector_diskann_data := $global_data.control.sim_vector_diskann }}
+{{- if and (hasKey .Values.global.control "sim_vector_diskann") (hasKey .Values.global.control.sim_vector_diskann "enabled") $sim_vector_diskann_data.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+    {{- include "sim-vector-diskann.labels" . | nindent 4 }}
+spec:
+  {{- if not $sim_vector_diskann_data.autoscaling.enabled }}
+  replicas: {{ $sim_vector_diskann_data.autoscaling.minReplicas | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sim-vector-diskann.labels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        {{- include "sim-vector-diskann.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $global_data.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- include "InitWait.postgres" . | nindent 8 }}
+        {{- include "InitWait.postgres-extension-vector" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml $global_data.securityContext | nindent 12 }}
+          image: {{ include "sim-vector-diskann.imageUrl" . | quote }}
+          imagePullPolicy: {{ $sim_vector_diskann_data.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: BATCH_SIZE
+              value: "{{ $sim_vector_diskann_data.batchSize }}"
+            - name: VECTORIZATION_BATCH_SIZE
+              value: "{{ $sim_vector_diskann_data.VectorizationbatchSize }}"
+            - name: SLEEP_INTERVAL
+              value: "{{ $sim_vector_diskann_data.sleepInterval }}"
+            - name: ALLOW_SEARCH
+              value: "{{ $sim_vector_diskann_data.allowSearch }}"
+            {{- if hasKey .Values.global.control "simTei" }}
+            - name: EMBEDDING_DENSE_URL
+              {{- if and (hasKey .Values.global.control.simTei "teiDomain") .Values.global.control.simTei.teiDomain }}
+              value: "https://{{ .Values.global.control.simTei.teiDomain }}"
+              {{- else }}
+              value: "http://sim-tei-service:80"
+              {{- end }}
+            {{- end }}
+            {{- if hasKey .Values.global.control "simTeiSparse" }}
+            - name: EMBEDDING_SPARSE_URL
+              {{- if and (hasKey .Values.global.control.simTeiSparse "teiDomain") .Values.global.control.simTeiSparse.teiDomain }}
+              value: "https://{{ .Values.global.control.simTeiSparse.teiDomain }}"
+              {{- else }}
+              value: "http://sim-tei-sparse-service:80"
+              {{- end }}
+            {{- end }}
+            {{- if hasKey .Values.global.control "sim_vector_diskann" }}
+            {{- if .Values.global.control.sim_vector_diskann.milvusHost }}
+            - name: MILVUS_HOST
+              value: "{{ .Values.global.control.sim_vector_diskann.milvusHost }}"
+            {{- end }}
+            {{- if .Values.global.control.sim_vector_diskann.milvusPort }}
+            - name: MILVUS_PORT
+              value: "{{ .Values.global.control.sim_vector_diskann.milvusPort }}"
+            {{- end }}
+            {{- if .Values.global.control.sim_vector_diskann.env }}
+            - name: ENV
+              value: "{{ .Values.global.control.sim_vector_diskann.env }}"
+            {{- end }}
+            - name: MILVUS_COLLECTION
+              value: "{{ .Values.global.control.sim_vector_diskann.milvusCollection }}"
+            - name: MILVUS_VECTOR_SIZE
+              value: "{{ .Values.global.control.sim_vector_diskann.milvusVectorSize }}"
+            - name: MILVUS_INDEX_TYPE
+              value: "{{ .Values.global.control.sim_vector_diskann.milvusIndexType }}"
+            - name: SIM_VECTOR_NAME
+              value: "{{ .Values.global.control.sim_vector_diskann.simVectorName }}"
+            {{- end }}
+            {{- include "control.container_envs_db" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 180
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            {{- toYaml $sim_vector_diskann_data.resources | nindent 12 }}
+      {{- with $sim_vector_diskann_data.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $sim_vector_diskann_data.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $sim_vector_diskann_data.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

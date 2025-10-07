@@ -38,10 +38,20 @@ spec:
         - {{ .Values.global.control.sim_vector.vectorizerDomain }}
       secretName: tls-sim-vector
     {{- end }}
+    {{- if and (hasKey .Values.global.control "sim_vector_diskann") (hasKey .Values.global.control.sim_vector_diskann "enabled") .Values.global.control.sim_vector_diskann.enabled (hasKey .Values.global.control.sim_vector_diskann "vectorizerDomain") .Values.global.control.sim_vector_diskann.vectorizerDomain }}
+    - hosts:
+        - {{ .Values.global.control.sim_vector_diskann.vectorizerDomain }}
+      secretName: tls-sim-vector-diskann
+    {{- end }}
     {{- if and (hasKey .Values.global.control "simTei") (hasKey .Values.global.control.simTei "enabled") .Values.global.control.simTei.enabled (hasKey .Values.global.control.simTei "teiDomain") .Values.global.control.simTei.teiDomain }}
     - hosts:
         - {{ .Values.global.control.simTei.teiDomain }}
       secretName: tls-sim-tei
+    {{- end }}
+    {{- if and (hasKey .Values.global.control "simTeiSparse") (hasKey .Values.global.control.simTeiSparse "enabled") .Values.global.control.simTeiSparse.enabled (hasKey .Values.global.control.simTeiSparse "teiDomain") .Values.global.control.simTeiSparse.teiDomain }}
+    - hosts:
+        - {{ .Values.global.control.simTeiSparse.teiDomain }}
+      secretName: tls-sim-tei-sparse
     {{- end }}
     {{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled (hasKey .Values.global.control.claude_code_api "claudeCodeApiDomain") .Values.global.control.claude_code_api.claudeCodeApiDomain }}
     - hosts:
@@ -161,6 +171,23 @@ spec:
               servicePort: 8000
               {{- end }}
 {{- end }}
+{{- if and (hasKey .Values.global.control "sim_vector_diskann") (hasKey .Values.global.control.sim_vector_diskann "enabled") .Values.global.control.sim_vector_diskann.enabled (hasKey .Values.global.control.sim_vector_diskann "vectorizerDomain") .Values.global.control.sim_vector_diskann.vectorizerDomain }}
+    - host: {{ .Values.global.control.sim_vector_diskann.vectorizerDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: sim-vector-diskann-service
+                port:
+                  number: 8000
+              {{- else }}
+              serviceName: sim-vector-diskann-service
+              servicePort: 8000
+              {{- end }}
+{{- end }}
 {{- end -}}
 {{- if and (hasKey .Values.global.control "simTei") (hasKey .Values.global.control.simTei "enabled") .Values.global.control.simTei.enabled (hasKey .Values.global.control.simTei "teiDomain") .Values.global.control.simTei.teiDomain }}
     - host: {{ .Values.global.control.simTei.teiDomain }}
@@ -176,6 +203,23 @@ spec:
                   number: 80
               {{- else }}
               serviceName: sim-tei-service
+              servicePort: 80
+              {{- end }}
+{{- end }}
+{{- if and (hasKey .Values.global.control "simTeiSparse") (hasKey .Values.global.control.simTeiSparse "enabled") .Values.global.control.simTeiSparse.enabled (hasKey .Values.global.control.simTeiSparse "teiDomain") .Values.global.control.simTeiSparse.teiDomain }}
+    - host: {{ .Values.global.control.simTeiSparse.teiDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: sim-tei-sparse-service
+                port:
+                  number: 80
+              {{- else }}
+              serviceName: sim-tei-sparse-service
               servicePort: 80
               {{- end }}
 {{- end }}

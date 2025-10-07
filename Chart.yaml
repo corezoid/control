@@ -34,6 +34,14 @@ dependencies:
     version: 0.1.0
     repository: file://charts/sim-tei
     condition: global.control.simTei.enabled
+  - name: sim-tei-sparse
+    version: 0.1.0
+    repository: file://charts/sim-tei-sparse
+    condition: global.control.simTeiSparse.enabled
+  - name: sim-vector-diskann
+    version: 0.1.0
+    repository: file://charts/sim-vector-diskann
+    condition: global.control.sim_vector_diskann.enabled
   - name: claude-code-api
     version: 0.1.3
     repository: file://charts/claude-code-api

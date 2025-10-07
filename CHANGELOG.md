@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Added
+- [AE-11870] Added global service annotations support via `.Values.global.service.annotations` following singlespace pattern
+
 ## [5.132.0] - 2025-09-24
 ### Helm changes
 - Applications versions:

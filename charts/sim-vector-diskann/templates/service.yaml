@@ -1,0 +1,19 @@
+{{- if and (hasKey .Values.global.control "sim_vector_diskann") (hasKey .Values.global.control.sim_vector_diskann "enabled") .Values.global.control.sim_vector_diskann.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.appName }}-service
+  labels:
+    {{- include "sim-vector-diskann.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.global.control.sim_vector_diskann.annotations | nindent 4 }}
+spec:
+  selector:
+    {{- include "sim-vector-diskann.labels" . | nindent 4 }}
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+{{- end }}

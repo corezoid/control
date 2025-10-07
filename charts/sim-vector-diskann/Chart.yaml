@@ -1,0 +1,6 @@
+apiVersion: v2
+name: sim-vector-diskann
+description: A Helm chart for Sim Vector DiskANN
+type: application
+version: 0.1.0
+appVersion: 1.0.0

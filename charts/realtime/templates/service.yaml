@@ -4,6 +4,10 @@ metadata:
   name: {{ .Values.appName }}-service
   labels:
     {{- include "realtime.labels" . | nindent 4 }}
+  {{- with .Values.global.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     {{- include "realtime.labels" . | nindent 6 }}
