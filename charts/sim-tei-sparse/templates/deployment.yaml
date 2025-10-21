@@ -1,0 +1,96 @@
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $sim_tei_sparse_data := $global_data.control.simTeiSparse }}
+{{- if and (hasKey .Values "global") (hasKey .Values.global.control "simTeiSparse") (.Values.global.control.simTeiSparse.enabled) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+    {{- include "sim-tei-sparse.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  {{- if not $sim_tei_sparse_data.autoscaling.enabled }}
+  replicas: {{ $sim_tei_sparse_data.autoscaling.minReplicas | default 1 }}
+  {{- end }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sim-tei-sparse.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+        prometheus.io/path: "/metrics"
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "sim-tei-sparse.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ .Values.appName }}-serviceaccount
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ include "sim-tei-sparse.image.repository" . }}:{{ include "sim-tei-sparse.image.tag" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: MODEL_ID
+              value: {{ .Values.global.control.simTeiSparse.config.modelId | default .Values.tei.modelId | quote }}
+            - name: DTYPE
+              value: {{ .Values.global.control.simTeiSparse.config.dtype | default .Values.tei.dtype | quote }}
+            - name: MAX_INPUT_LENGTH
+              value: {{ .Values.global.control.simTeiSparse.config.maxInputLength | default .Values.tei.maxInputLength | quote }}
+            - name: MAX_BATCH_SIZE
+              value: {{ .Values.global.control.simTeiSparse.config.maxBatchSize | default .Values.tei.maxBatchSize | quote }}
+            - name: MAX_CLIENT_BATCH_SIZE
+              value: {{ .Values.global.control.simTeiSparse.config.maxClientBatchSize | default .Values.tei.maxClientBatchSize | quote }}
+            - name: MAX_CONCURRENT_REQUESTS
+              value: {{ .Values.global.control.simTeiSparse.config.maxConcurrentRequests | default .Values.tei.maxConcurrentRequests | quote }}
+            - name: BATCH_TIMEOUT_MICROS
+              value: {{ .Values.global.control.simTeiSparse.config.batchTimeoutMicros | default .Values.tei.batchTimeoutMicros | quote }}
+            - name: POOLING
+              value: {{ .Values.global.control.simTeiSparse.config.pooling | default .Values.tei.pooling | quote }}
+            - name: NORMALIZE
+              value: {{ .Values.global.control.simTeiSparse.config.normalize | default .Values.tei.normalize | quote }}
+            - name: RUST_BACKTRACE
+              value: {{ .Values.global.control.simTeiSparse.config.rustBacktrace | default .Values.tei.rustBacktrace | quote }}
+#           livenessProbe:
+#             httpGet:
+#               path: /health
+#               port: http
+#             initialDelaySeconds: 30
+#             periodSeconds: 10
+#           readinessProbe:
+#             httpGet:
+#               path: /health
+#               port: http
+#             initialDelaySeconds: 5
+#             periodSeconds: 5
+          resources:
+            {{- toYaml $sim_tei_sparse_data.resources | nindent 12 }}
+      {{- with $sim_tei_sparse_data.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $sim_tei_sparse_data.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $sim_tei_sparse_data.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

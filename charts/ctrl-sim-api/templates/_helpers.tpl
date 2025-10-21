@@ -35,7 +35,7 @@ readinessProbe:
     scheme: HTTP
     path: /health/readiness
     port: {{ include "ctrl-sim-api.port" . }}
-  initialDelaySeconds: 20
+  initialDelaySeconds: 1
   periodSeconds: 5
   timeoutSeconds: 5
   successThreshold: 1
@@ -51,7 +51,7 @@ livenessProbe:
     scheme: HTTP
     path: /health/liveness
     port: {{ include "ctrl-sim-api.port" . }}
-  initialDelaySeconds: 25
+  initialDelaySeconds: 1
   periodSeconds: 10
   timeoutSeconds: 5
   successThreshold: 1

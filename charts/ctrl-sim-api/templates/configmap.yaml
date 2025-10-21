@@ -13,6 +13,7 @@ data:
   config.yml: |
     port: {{ include "ctrl-sim-api.port" . }}
     log_level: {{ .Values.global.control.ctrl_sim_api.log_level | default "info" }}
+    debug_errors: {{ .Values.global.control.ctrl_sim_api.debug_errors | default false }}
     trackUrl: https://{{- include "control.Domain" . }} # Control Admin domain
     metrics:
       port: 9001
@@ -116,6 +117,32 @@ data:
         region: {{ .Values.global.control.livekit.storage.region | default "eu-west-1" }}
       url: {{ .Values.global.control.livekit.url | default "wss://sim-meet-dev.simulator.company" }}
     {{- end }}
+
+
+    filesStorage: # Shared folder for uploaded files
+      {{- if .Values.global.control.filesStorage.type }}
+      {{- if eq .Values.global.control.filesStorage.type "s3" }}
+      # If set S3, then will use AWS S3.
+      # Need to create S3 bucket and set next params.
+      # Also you can add AWS IAM policy to access this bucket by role
+      type: s3
+      bucket: {{ .Values.global.control.filesStorage.bucket }}
+      region: {{ .Values.global.control.filesStorage.region }}
+      {{- if .Values.global.control.filesStorage.credentials }}
+      # You can set AWS IAM AccessKey and SecretKey for IAM user with this bucet access
+      credentials:
+        accessKeyId: {{ .Values.global.control.filesStorage.credentials.accessKeyId }}
+        secretAccessKey: {{ .Values.global.control.filesStorage.credentials.secretAccessKey }}
+      {{- end }}
+      {{- else if eq .Values.global.control.filesStorage.type "efs" }}
+      type: fs
+      path: {{ .Values.global.control.filesStorage.eventFiles }}
+      {{- end }}
+      {{- else }}
+      type: fs
+      path: {{ .Values.global.control.filesStorage.eventFiles }}
+      {{- end }}
+
 
     webConfig:
       avatarPath: https://{{ .Values.global.control.auth.domain }}/avatars/52x52/{userId}.jpg

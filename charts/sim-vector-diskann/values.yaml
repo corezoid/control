@@ -1,0 +1,7 @@
+appName: sim-vector-diskann
+configName: sim_vector_diskann.yml
+prometheusPath: /metrics
+prometheusInterval: 15s
+appReadinessHttpPort: 8000
+image:
+  repository: sim-vector

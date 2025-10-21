@@ -2,6 +2,110 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [5.135.0] - 2025-10-15
+### Helm changes
+
+- Applications versions:
+  - server - 5.135.0
+  - frontend - 5.135.0
+  - realtime - 3.6.0
+  - control-tasks - 2.60.1
+  - widget - v1.70.0
+- Added global service annotations support via `.Values.global.service.annotations` following singlespace pattern
+- Added digitalSignature configuration support to server webConfig
+    - scriptUrl configuration for digital signature script
+    - callbackUrl template with publicApiUrl and actorId placeholders
+    - allowedProviders array configuration (supports diia, file, pb)
+
+## **Attention**! This Simulator version works with Account app version 3.21.0 or higher.
+
+### Improvements / New Features
+
+#### Graph & Comments
+#### 1. Implemented adding comments to graph cells
+#### 2. Implemented centering on comment coordinates
+#### 3. Implemented "History" tab for graph layer changes
+#### 4. Implemented actor-specific history view within the layer
+#### 5. Implemented comment creation design on the graph
+#### 6. Implemented ability to reply to a comment
+#### 7. Implemented displaying author in comments
+#### 8. Implemented unified stream for layer comments
+#### 9. Implemented commenting on the same cell as the actor (duplicate in actor stream)
+
+#### Events & Navigation
+#### 10. Implemented simultaneous sorting in filters by account and by date
+
+#### Actors & Timeline
+#### 11. Implemented adding start and end date for actors
+#### 12. Implemented logic for displaying time coordinates
+#### 13. Implemented displaying actor end date on graph
+#### 14. Implemented displaying inactive users in Simulator
+
+#### Chat Widget & Messaging
+#### 15. Implemented fix reply context display in Simulator widget
+#### 16. Implemented real-time filter updates: Expanded Actors
+#### 17. Implemented improved UX interaction with close and collapse buttons in chat
+#### 18. Implemented new reaction type (suggestion) for AI Assistant
+#### 19. Implemented Form ID display and copy chip to actor cards
+
+#### UI & UX
+#### 20. Implemented cross cursor UI improvement
+#### 21. Implemented fix text selection via key holding (Shift/Command) in event description and comments
+#### 22. Implemented autoscroll during resize: Expanded Actors
+#### 23. Implemented improved comment creation design on the graph
+
+#### Performance & Memory
+#### 24. Implemented Simulator memory leak in split mode/actor bag fix
+
+#### API & Webhooks
+#### 25. Implemented copy user rights webhook handler
+#### 26. Implemented webhook event types management in Simulator for API Keys
+#### 27. Implemented adding user activity metrics to Grafana (similar to API Key Activity)
+#### 28. Implemented asynchronous user rights replication
+
+#### Smart Forms
+#### 29. Implemented chat panel buttons overflow menu
+#### 30. Implemented adding reactions/comment transactions display in actor history
+#### 31. Implemented button visibility in Smart Forms (checking default type when using changes)
+#### 32. Implemented "shared script" prefix removal
+
+#### Dependencies
+#### 33. Upgraded LiveKit to v1.9.1 and Egress to v1.10.0
+
+### Bug Fixes
+
+#### 1. Fixed comment window scrolling when adding a comment at page bottom
+#### 2. Fixed incorrect display of long URLs in meeting comments
+#### 3. Fixed enhanced display of comments during a meeting
+#### 4. Fixed quote navigation broken in Events module
+#### 5. Fixed redirect 205 + viewModel triggers submitOnChange (edge cases)
+#### 6. Fixed duplicate messages display on widget scroll
+#### 7. Fixed duplicate push notifications when multiple Simulator tabs are open
+#### 8. Fixed all reply messages are deleted when using Decline
+#### 9. Fixed Actors Bag real-time filter updates show unfiltered actors
+#### 10. Fixed incorrect display of Created date in events
+#### 11. Fixed script window is displayed incorrectly (not adaptive to script size)
+#### 12. Fixed text display issue in console input field
+#### 13. Fixed call properties window is displayed incorrectly in split mode
+#### 14. Fixed usernames are misaligned in chats
+#### 15. Fixed error when clicking actor menu in Smart Form
+#### 16. Fixed smart forms - button visibility disabled not working with default type when using changes
+#### 17. Fixed cancel button does not work on the layer account selection tab
+#### 18. Fixed error when creating a connection
+#### 19. Fixed error when switching between layers - cannot create edge
+#### 20. Fixed online signature count is not updated correctly
+#### 21. Fixed leave call button can be clicked multiple times
+#### 22. Fixed different TOP results when selecting different numbers of bars
+#### 23. Fixed quick menu closes automatically on the graph
+#### 24. Fixed audio plays even when speaker is muted
+#### 25. Fixed cannot edit added hyperlinks in Safari
+#### 26. Fixed connections are not transferred when moving actors to another layer
+#### 27. Fixed call loading indicator is misaligned and partially hidden
+#### 28. Fixed incorrect message "the chart works on the All time period"
+#### 29. Fixed notification issues (PUMB)
+#### 30. Fixed graph layer access: "Create New Layer" and search don't work after re-login when user lacks access to previously selected layer
+
 ## [5.132.0] - 2025-09-24
 ### Helm changes
 - Applications versions:
