@@ -175,7 +175,7 @@ data:
       {{- end }}
 
     webConfig: # Client settings while startup
-      avatarPath: https://{{ .Values.global.control.auth.domain }}/avatars/52x52/{userId}.jpg # Avatar regexp
+      avatarPath: https://{{ .Values.global.control.auth.domain }}/avatars/workspaces/{workspaceId}/52x52/{userId}.jpg # Avatar regexp
       systemUserAvatar: https://{{- include "control.Domain" . }}/static/systemUserAvatar.svg # System super avatar
       adminCorezoid: https://{{ .Values.global.control.adminCorezoidDomain }} # Corezoid Admin domain
       widgetUrl: https://{{- include "control.WidgetDomain" . }} # Control widget host
@@ -220,6 +220,15 @@ data:
       {{- if .Values.global.control.webConfig.widgetSettings }}
       widgetSettings:
         sendWidgetLocalContext: {{ .Values.global.control.webConfig.widgetSettings.sendWidgetLocalContext }}
+      {{- end }}
+      {{- if .Values.global.control.webConfig.digitalSignature }}
+      digitalSignature:
+        scriptUrl: {{ .Values.global.control.webConfig.digitalSignature.scriptUrl }}
+        callbackUrl: '{{ "{{" }}publicApiUrl{{ "}}" }}/reactions/ds_callback/{{ "{{" }}actorId{{ "}}" }}'
+        allowedProviders:
+        {{- range .Values.global.control.webConfig.digitalSignature.allowedProviders }}
+          - {{ . }}
+        {{- end }}
       {{- end }}
     {{- if and (hasKey .Values.global.control "opentelemetry") .Values.global.control.opentelemetry.enabled }}
     {{- if .Values.global.control.opentelemetry.tracing }}

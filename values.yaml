@@ -245,6 +245,13 @@ global:
     webConfig:
       supportEmail: ''
       maxFileSize: '26214400'
+      # Example of digitalSignature configuration (important-comment)
+      # digitalSignature:
+      #   scriptUrl: 'https://example.com/digital-signature-script.js'
+      #   allowedProviders:
+      #     - diia
+      #     - file
+      #     - pb
     channels:
       gmail:
         clientId: "290516331007-kdznbto71dls7fv2e43rovxpay6lmwp2.apps.googleusercontent.com"
