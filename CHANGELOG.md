@@ -3,6 +3,61 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.65] - 2025-10-29
+### Helm changes
+
+- Applications versions:
+  - server - 5.137.2
+  - frontend - 5.137.1
+  - realtime - 3.6.0
+  - control-tasks - 2.61.0
+  - widget - v1.72.0
+
+### Improvements / New Features
+
+#### 1. Implement Electronic Digital Signature in Events
+#### 2. Add Digital Signature Configuration to Control-Server
+#### 3. Implement API to get the widget actor by actor ref + workspace ID
+#### 4. Graph Comments – Avatars & Last Comment Text
+#### 5. Replace the logic of copying a link to an actor in the graph through the context menu
+#### 6. Add weekday display option for Line and StackedBar dashboards
+#### 7. Add a visual representation of a pinned actor icon on the graph for text, image, and block actors
+#### 8. Integrating the Comment Stream in "Graph" Chats
+#### 9. Auto and Manual Refresh for Comment History
+#### 10. Comment Deletion on Graph and Stream Synchronization
+#### 11. [front-end] Custom Filters Cache Invalidation with Date Display
+#### 12. [back-end] Custom Filters Cache Invalidation with Date Display
+#### 13. Add unique install key for one-time deployable SmartForm
+#### 14. Реализовать нативную функцию «История коммуникаций» в консоли Simulator.Company
+#### 15. Добавить кнопку "+" в консоль для управления кастомными скриптами (Simulator.Company)
+#### 16. Доработка API взаимодействия с реакциями (Закрепить реакцию) в Simulator.Company
+#### 17. Доработать механизм инициализации webWidget в Simulator.Company для поддержки новых версий
+#### 18. Сохранение полезной нагрузки (data) и мета-информации при пересоздании AI реакции
+#### 19. Добавить параметр сортировки sort (asc/desc) в API /papi/1.0/sip/transcription/{actorId}
+
+### Smart Forms
+
+#### 1. Smart Forms Constructor Opens Random Stage Instead of Default Develop
+#### 2. Smart Forms Editor – Fix Clipboard Operations in Style File
+
+### Bug Fixes
+
+#### 1. Widget shows stale session state on reopening
+#### 2. User list opens incorrectly
+#### 3. Image preview not scaling to widget width in Simulator
+#### 4. Smart Forms pages with "error" in title not rendering
+#### 5. Fix push-to-talk permanent mic activation on first spacebar press
+#### 6. Attached file is not visible when adding a comment
+#### 7. Error "Duplicate reaction" when creating a new chat
+#### 8. Event Streams Disappearing (only ALL visible)
+#### 9. Microphone turns on when pressing space in a meeting
+#### 10. Simulator Smart Forms documentation tab title displays "-" instead of page title
+#### 11. 403 error appears when clicking the Back button
+#### 12. Clicking Back after refreshing the graph redirects to the Events page instead of the Graph page
+#### 13. [PROD] White screen appears when switching events in split mode
+#### 14. Guest user can create comments
+#### 15. maxRecursionLevel parameter is not passed during graph import
+
 ## [5.135.0] - 2025-10-15
 ### Helm changes
 
