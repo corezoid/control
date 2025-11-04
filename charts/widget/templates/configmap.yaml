@@ -74,7 +74,7 @@ data:
 
       add_header Permissions-Policy "autoplay=*, microphone=*, fullscreen=*, camera=*";
 
-      resolver kube-dns.kube-system.svc.cluster.local valid=10s;
+      resolver {{ .Values.global.control.widget.dnsResolver | default "kube-dns.kube-system.svc.cluster.local" }} valid=10s;
 
       client_max_body_size {{ include "control.frontend.nginx.client_max_body_size" . }};
 
