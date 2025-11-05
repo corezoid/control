@@ -7,11 +7,12 @@ All notable changes to this project will be documented in this file.
 ### Helm changes
 
 - Applications versions:
-  - server - 5.137.2
+  - server - 5.137.3
   - frontend - 5.137.1
   - realtime - 3.6.0
   - control-tasks - 2.61.0
   - widget - v1.72.0
+  - account - [3.21.0](https://github.com/corezoid/account/releases/tag/0.2.33)
 
 ### Improvements / New Features
 
