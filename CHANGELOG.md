@@ -3,6 +3,126 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.66] - 2025-12-03
+### Helm changes
+
+- Applications versions:
+  - server - 5.142.0
+  - frontend - 5.142.0
+  - realtime - 3.7.2
+  - control-tasks - 2.65.0
+  - widget - v1.77.0
+
+### New Features
+
+#### 1. Implement the "Hole" Entity on the Graph as a Debit Transaction Representing an Empty Slot for One Actor
+#### 2. [Front-end] AI Pipes implementation UI
+#### 3. [Backend] Implement back-end for AI Pipes
+
+### Improvements
+
+#### 1. Fix iframe Event Opening Behavior
+#### 2. Search Accounts by ID
+#### 3. Fix Operator Nick Persistence & Reply Display
+#### 4. Actor Valency Search Functionality [back-end]
+#### 5. Save Frequently Used Custom Colors in the Base Color List (Actors and Edges)
+#### 6. Add a Default List of Base Colors for Graph Edges
+#### 7. Header Checkbox Logic in Paginated Table
+#### 8. Customizing Select Dropdown Items
+#### 9. API for Counter Management
+#### 10. [front-end] Global Actor Search on Graph (Including Non-Loaded Actors)
+#### 11. Split Valency Accounts into Parent & Owner + Ownership Transactions [front-end]
+#### 12. Actor Valency Search Functionality [front-end]
+#### 13. Actor Valency Structured View
+#### 14. Change of Ownership via Valency Transactions [back-end]
+#### 15. Add form filter to actor search in graph
+#### 16. Global Actor Search on Graph (Including Non-Loaded Actors)
+#### 17. Transaction Filter API Optimization
+#### 18. Implement quoting in widget/console with the ability to optionally disable quoting
+#### 19. Add a parameter to block file drag-and-drop in chat
+#### 20. Graph nodes update after block form adding [back-end]
+#### 21. Add Hole and Actor from Valency Accounts
+#### 22. Add Hole via Graph Context Menu [front-end]
+#### 23. Display Actor as Block Form (2+ Forms on Actor)
+#### 24. Set up automated Storybook deployment to production server
+#### 25. Event List Redesign
+#### 26. Displaying the First Frame of an Animated Avatar
+#### 27. Hide header zone in eventsWidget via query parameter
+#### 28. Change Actor Representation on the Graph - Form Settings [front-end]
+#### 29. Change Actor Representation on the Graph - Form Settings [back-end]
+#### 30. Correcting the dimensions of user avatars and static images in calls
+#### 31. Add the ability to fully edit an event similar to the creation window
+#### 32. Implement a universal search across chats and contacts similar to the tag search
+#### 33. Share actor - sort users by date of interaction and domain [front-end]
+#### 34. Auto-scroll not working for new messages in split mode
+#### 35. Sprint 179 Grooming Coordination
+#### 36. Active Meeting Indicator (Red Camera Icon)
+#### 37. Optimize Comment Display for Collapsed User List
+#### 38. Display Comments - Replace Long Links in Meeting Avatars
+#### 39. Implement Global Mute/Unmute Functionality for AI Agent
+#### 40. Displaying a comment icon while writing on the graph
+#### 41. Add E-Sign Role (Digital Signature) and Combined Signing Flow [front-end]
+#### 42. Split the Signature Stream into Regular Sign / Digital Signature [front-end]
+#### 43. Extend API key scopes for Simulator.Company — add actor.verification
+#### 44. [back-end] Add ability to create statistical account types
+#### 45. Displaying the Number of Replies in Comment Preview on the Graph [back-end]
+#### 46. Displaying the Number of Replies in Comment Preview on the Graph [front-end]
+#### 47. Add Digital Signature Accounts for Actors and Users
+#### 48. Split the Signature Stream into Regular Sign / Digital Signature [back-end]
+#### 49. Add Role for Digital Signature and Combined Sign Flow
+#### 50. Displaying Images Sent in Comments During a Call
+#### 51. Add AI Agent Voice Control Feature
+#### 52. Switch from actorId to actorRef + workspaceId in Console Simulator.Company configuration
+#### 53. Unify Call Opening Behavior in Browser Tabs
+#### 54. Comment Window Positioning on Graph
+#### 55. Implement Modal Component for UI-Kit
+#### 56. Create a new CDU Menu component for menu creation
+#### 57. Share actor - sort users by date of interaction and domain [back-end]
+
+### Bug Fixes
+
+#### 1. AI Console Resizes When Moving the Mouse After Width Adjustment
+#### 2. Unable to scroll graph to the left using trackpad after scrolling the sidebar
+#### 3. Shared account dialog does not display users and groups with access
+#### 4. Quote displays only part of the selected phrase
+#### 5. Stream window cannot be moved — it appears underneath the side panel
+#### 6. Tooltip displays incorrect and non-informative data for events with tags
+#### 7. Unable to create a connection between actor copies
+#### 8. [Guest] Action buttons on the graph are active
+#### 9. Notifications are not displayed when muting or sending an unmute request
+#### 10. Smart Form copy not created after page refresh despite success notification
+#### 11. Multiple identical requests triggered when hovering over an actor link
+#### 12. Comment window opens partially hidden
+#### 13. Chat window opens in the wrong position in multi-window mode
+#### 14. XSS Vulnerability via Actor Name Field
+#### 15. [Mozilla] Error when deleting a connection — "Uncaught TypeError: can't access property 'focus', this.refEdit.current is undefined"
+#### 16. Deleting a styles file in Smart Forms editor causes white screen
+#### 17. Page styles not applied to Smart Form embedded in chat widget
+#### 18. Comment from Live stream not appearing in transcript during active call
+#### 19. Microphone is not selected in the list
+#### 20. TypeError when editing dashboard — Cannot read properties of undefined (reading '0')
+#### 21. Invoice total is not displayed after switching from Credit to Total
+#### 22. TypeError: Cannot read properties of null (reading 'current') when clicking on user actor
+#### 23. Share Button on Graph Displays Outdated Access List
+#### 24. Event Streams Disappearing (only ALL visible)
+#### 25. Graph > Dashboard settings: Search behavior and view should be fixed
+#### 26. Chat List Pagination Fix Without Scroll
+#### 27. Fix video avatar overlay on text and menu elements during calls
+#### 28. Host rights are not transferred to another user
+#### 29. Unexpected Behavior in Chart Title Field
+#### 30. Actor detaches from state after state rename & move
+#### 31. Fix Condition Block Removal in Actor Verification Form
+#### 32. Sound notification toggle button is hidden
+#### 33. Snippet Deletion Visibility Bug
+#### 34. Search results include actors that do not match the search criteria
+#### 35. Simulator Widget Unread Counter Not Clearing Automatically
+#### 36. Add to folder button is active for Guest user
+#### 37. Cursor remains in stream mode after closing the stream window
+#### 38. New layer is created instead of displaying imported system layer
+#### 39. Unified Display of Renamed Attachment File
+#### 40. Images are added incorrectly to the graph
+#### 41. Form list layout breaks intermittently when creating an actor on the graph
+
 ## [0.3.65] - 2025-10-29
 ### Helm changes
 

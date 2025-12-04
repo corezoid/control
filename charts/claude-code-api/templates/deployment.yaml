@@ -54,6 +54,10 @@ spec:
             - name: AUTH_API_KEY
               value: "{{ $claude_code_api_data.auth_api_key }}"
             {{- end }}
+            {{- if and (hasKey $claude_code_api_data "tls") (eq $claude_code_api_data.tls false) }}
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+            {{- end }}
             {{- include "claude-code-api.container_envs_db" . | nindent 12 }}
           ports:
             - name: http

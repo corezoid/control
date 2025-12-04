@@ -212,6 +212,9 @@ data:
       {{- if .Values.global.control.webConfig.dashboardPath }}
       dashboardPath: {{ .Values.global.control.webConfig.dashboardPath }}
       {{- end }}
+      {{- if .Values.global.control.webConfig.widgetAiConsoleRef }}
+      widgetAiConsoleRef: {{ .Values.global.control.webConfig.widgetAiConsoleRef }}
+      {{- end }}
       {{- if .Values.global.control.webConfig.hotjar }}
       hotjar:
         hjid: {{ .Values.global.control.webConfig.hotjar.hjid }}

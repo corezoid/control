@@ -417,6 +417,39 @@ global:
       #     cpu: 50m
       #     memory: 100Mi
 
+    ctrl_sim_api:
+      enabled: false
+      log_level: info
+      persistantVolumeClaimName: "ctrl-sim-api-pvc"
+      persistantVolumeClaimCreate: false
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      # tag: ""
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9001"
+        prometheus.io/scrape: "true"
+      autoscaling:
+        enabled: true
+        minReplicas: 2
+        maxReplicas: 5
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
+      resources:
+        limits:
+          memory: 600Mi
+        requests:
+          cpu: 500m
+          memory: 500Mi
+      serviceAccount:
+        # Specifies whether a service account should be created
+        create: true
+        # Annotations to add to the service account
+        annotations: {}
+        # The name of the service account to use.
+        # If not set and create is true, a name is generated using the fullname template
+        name: ""
+
     control_tasks:
       pullPolicy: IfNotPresent
       autoscaling:
