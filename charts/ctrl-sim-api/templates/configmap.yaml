@@ -155,4 +155,7 @@ data:
       maxFileSize: {{ .Values.global.control.webConfig.maxFileSize | default 26214400 }}
       scriptPath: "https://${CONTROL_DOMAIN}/script/{{ "{{" }}accId{{ "}}" }}/view_public/{{ "{{" }}ref{{ "}}" }}/{{ "{{" }}env{{ "}}" }}/{{ "{{" }}page{{ "}}" }}"
       dashboardPath: "https://${CONTROL_DOMAIN}/dashboard/{{ "{{" }}accId{{ "}}" }}/view/{{ "{{" }}actorId{{ "}}" }}"
+      {{- if .Values.global.control.webConfig.widgetAiConsoleRef }}
+      widgetAiConsoleRef: {{ .Values.global.control.webConfig.widgetAiConsoleRef }}
+      {{- end }}
 {{- end }}
