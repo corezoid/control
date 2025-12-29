@@ -58,6 +58,10 @@ spec:
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: "0"
             {{- end }}
+            {{- if and (hasKey $claude_code_api_data "git_token") $claude_code_api_data.git_token }}
+            - name: GIT_TOKEN
+              value: "{{ $claude_code_api_data.git_token }}"
+            {{- end }}
             {{- include "claude-code-api.container_envs_db" . | nindent 12 }}
           ports:
             - name: http

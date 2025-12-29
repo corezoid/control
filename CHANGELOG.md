@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.67] - 2025-12-24
+### Helm changes
+
+- Applications versions:
+  - server - 5.145.0
+  - frontend - 5.145.0
+  - realtime - 3.7.2
+  - control-tasks - 2.68.0
+  - widget - v1.80.0
+- Enabled ctrl-sim-api by default (`global.control.ctrl_sim_api.enabled: true`)
+
+### Improvements
+
+#### 1. Incorrect Data in the createAttachments Event (Attachment Sent from a Snippet)
+#### 2. Fixing Export Issues When Limiting Export Levels
+#### 3. Import/Export - Simulator API Key Owner Operations
+#### 4. Custom Modal Width and Height via CSS Variables
+#### 5. Fixing BBCode Editing and Rendering Behavior
+#### 6. Hide BBCode Tags in Notifications
+#### 7. Implement Drag-and-Drop Reordering for Select Field Options
+#### 8. CDU Library Updates Documentation
+#### 9. Real-Time Public API for Smart Form Files
+#### 10. Add resettable option to the Edit component in CDU
+#### 11. Add widget config channel for default widgets
+#### 12. Fixing Actor Image Import Issues
+#### 13. Migrate Redis client from go-redis to rueidis
+
+### Bug Fixes
+
+#### 1. Non-Functional "Open in New Tab" Button in the Widget
+#### 2. Implement Auto-Resize (Fit to Window) for Files in Widget
+#### 3. Unread Message Counters Not Updating for Messages Sent via Widget
+#### 4. Incorrect Link Count Displayed on Graph After Moving Actors Between Layers
+#### 5. Incorrect Stream Counter Display for "Viewed" Reaction
+#### 6. CDU script is not displayed in the header after exiting split mode
+#### 7. Unable to open individual account dashboard from actor dashboard
+#### 8. Snippet Deletion Visibility Bug
+#### 9. Dashboard list unexpectedly opens when switching screens
+#### 10. Snippets are duplicated in the search list
+#### 11. Incorrect actor count in list and counter after deletion and search
+#### 12. Incorrect behavior when sharing permissions after removing a user
+
 ## [0.3.66] - 2025-12-03
 ### Helm changes
 
