@@ -418,7 +418,7 @@ global:
       #     memory: 100Mi
 
     ctrl_sim_api:
-      enabled: false
+      enabled: true
       log_level: info
       persistantVolumeClaimName: "ctrl-sim-api-pvc"
       persistantVolumeClaimCreate: false
