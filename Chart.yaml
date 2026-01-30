@@ -3,24 +3,24 @@ name: control
 description: A Helm chart for Control
 icon: https://sim.simulator.company/static/logo.svg
 type: application
-version: 0.3.67
-appVersion: 5.145.0
+version: 0.3.68
+appVersion: 5.148.0
 
 dependencies:
   - name: server
-    version: 0.3.63
+    version: 0.3.64
     repository: file://charts/server
   - name: frontend
-    version: 0.3.62
+    version: 0.3.63
     repository: file://charts/frontend
   - name: realtime
-    version: 0.3.18
+    version: 0.3.19
     repository: file://charts/realtime
   - name: control-tasks
-    version: 0.1.32
+    version: 0.1.33
     repository: file://charts/control-tasks
   - name: widget
-    version: 0.3.53
+    version: 0.3.54
     repository: file://charts/widget
   - name: ctrl-sim-api
     version: 0.1.2

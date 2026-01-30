@@ -138,6 +138,78 @@ data:
       {{- end }}
       {{- include "control.server.redisPubSub.pool" . | nindent 6 }}
     {{- end }}
+    {{- if and (hasKey $control_server_config "kafka") (hasKey $control_server_config.kafka "broadcast") }}
+    kafka: # Kafka broadcast settings
+      broadcast:
+        enabled: {{ $control_server_config.kafka.broadcast.enabled | default false }}
+        settings:
+          {{- if $control_server_config.kafka.broadcast.settings }}
+          {{- if $control_server_config.kafka.broadcast.settings.clientId }}
+          clientId: {{ $control_server_config.kafka.broadcast.settings.clientId }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.settings.brokers }}
+          brokers:
+          {{- range $control_server_config.kafka.broadcast.settings.brokers }}
+            - {{ . }}
+          {{- end }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.settings.logLevel }}
+          logLevel: {{ $control_server_config.kafka.broadcast.settings.logLevel }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.settings.connectionTimeout }}
+          connectionTimeout: {{ $control_server_config.kafka.broadcast.settings.connectionTimeout }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.settings.requestTimeout }}
+          requestTimeout: {{ $control_server_config.kafka.broadcast.settings.requestTimeout }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.settings.retry }}
+          retry:
+            initialRetryTime: {{ $control_server_config.kafka.broadcast.settings.retry.initialRetryTime | default 300 }}
+            retries: {{ $control_server_config.kafka.broadcast.settings.retry.retries | default 5 }}
+            {{- if $control_server_config.kafka.broadcast.settings.retry.maxRetryTime }}
+            maxRetryTime: {{ $control_server_config.kafka.broadcast.settings.retry.maxRetryTime }}
+            {{- end }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.settings.compression }}
+          compression: {{ $control_server_config.kafka.broadcast.settings.compression }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.settings.batch }}
+          batch:
+            {{- if $control_server_config.kafka.broadcast.settings.batch.size }}
+            size: {{ $control_server_config.kafka.broadcast.settings.batch.size }}
+            {{- end }}
+            {{- if $control_server_config.kafka.broadcast.settings.batch.lingerMs }}
+            lingerMs: {{ $control_server_config.kafka.broadcast.settings.batch.lingerMs }}
+            {{- end }}
+            {{- if $control_server_config.kafka.broadcast.settings.batch.maxInFlightRequests }}
+            maxInFlightRequests: {{ $control_server_config.kafka.broadcast.settings.batch.maxInFlightRequests }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+        {{- if $control_server_config.kafka.broadcast.topics }}
+        topics:
+          {{- if $control_server_config.kafka.broadcast.topics.actors }}
+          actors:
+            name: {{ $control_server_config.kafka.broadcast.topics.actors.name }}
+            {{- if $control_server_config.kafka.broadcast.topics.actors.actions }}
+            actions:
+            {{- range $control_server_config.kafka.broadcast.topics.actors.actions }}
+              - {{ . }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if $control_server_config.kafka.broadcast.topics.transactions }}
+          transactions:
+            name: {{ $control_server_config.kafka.broadcast.topics.transactions.name }}
+            {{- if $control_server_config.kafka.broadcast.topics.transactions.actions }}
+            actions:
+            {{- range $control_server_config.kafka.broadcast.topics.transactions.actions }}
+              - {{ . }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+    {{- end }}
 
     corezoid: # Corezoid processes settings
       processes:
@@ -145,6 +217,12 @@ data:
           directUrl: {{ .Values.global.control.corezoid.processes.sendEmail.directUrl }}
         accRegistrations: # Corezoid process for Control registrations
           directUrl: {{ .Values.global.control.corezoid.processes.accRegistrations.directUrl }}
+      {{- if .Values.global.control.corezoid.apiLogin }}
+      apiLogin: {{ .Values.global.control.corezoid.apiLogin }}
+      {{- end }}
+      {{- if .Values.global.control.corezoid.apiSecret }}
+      apiSecret: {{ .Values.global.control.corezoid.apiSecret }}
+      {{- end }}
     {{- with .Values.global.control.livekit }}
     livekit:
       {{- toYaml . | nindent 6 }}

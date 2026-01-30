@@ -394,6 +394,37 @@ global:
           contactPoints: [SCYLLADB_HOST]
           localDataCenter: eu-west
           keyspace: simulator
+        # Example of Kafka broadcast configuration (commented out by default)
+        # kafka:
+        #   broadcast:
+        #     enabled: true
+        #     settings:
+        #       clientId: "control-server-broadcast"
+        #       brokers:
+        #         - "KAFKA_BROKER_HOST:9092"
+        #       logLevel: "ERROR"  # NOTHING, ERROR, WARN, INFO, DEBUG
+        #       connectionTimeout: 3000
+        #       requestTimeout: 30000
+        #       retry:
+        #         initialRetryTime: 300
+        #         retries: 5
+        #         maxRetryTime: 30000
+        #       compression: "GZIP"  # NONE, GZIP, SNAPPY, LZ4, ZSTD
+        #       batch:
+        #         size: 16384
+        #         lingerMs: 10
+        #         maxInFlightRequests: 5
+        #     topics:
+        #       actors:
+        #         name: "control.actors.v1"
+        #         actions:
+        #           - create
+        #           - update
+        #           - delete
+        #       transactions:
+        #         name: "control.transactions.v1"
+        #         actions:
+        #           - create
 
     widget:
       pullPolicy: Always
