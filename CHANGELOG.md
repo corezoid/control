@@ -3,6 +3,44 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.68] - 2026-01-21
+### Helm changes
+
+- Applications versions:
+  - server - 5.148.0
+  - frontend - 5.148.0
+  - realtime - 3.8.0
+  - control-tasks - 2.71.0
+  - widget - v1.82.0
+- Comment out `apiSecret` field in `global.control.corezoid` configuration in values.yaml
+
+### Improvements
+
+#### 1. Change debit Logic in Valency — Delete Link Instead of Actor
+#### 2. Search and Tagging Optimization in Events
+#### 3. Rules for Automatic Start/End Date Handling for Events
+#### 4. New system accounts for stream counters
+#### 5. Global menu switcher Static - Smart Form
+#### 6. Deferred File Upload in AI Console
+#### 7. Account header click does not expand statistical accounts
+#### 8. Actor Bag: Missing Active Highlight for Open Action Menu
+
+### Bug Fixes
+
+#### 1. Unread Message Counters Not Updating for Messages Sent via Widget
+#### 2. Unread message counter is displayed when switching between events
+#### 3. Dashboard rename: impossible to select text with mouse
+#### 4. Fix Resizer Visibility and Dragging Behavior in Split View
+#### 5. Connection between actor and dashboard disappears after editing the dashboard
+#### 6. [Prod][Meeting] Two different microphones are shown as selected at the same time
+#### 7. Color picker appears under neighboring elements
+#### 8. Transfer button appears when resizing the browser window
+#### 9. Microphone and camera dropdown does not close correctly
+#### 10. Message counter is not reset when navigating between events
+#### 11. Error when dragging state onto actor – Cannot read properties of undefined
+#### 12. Pasted text in event description overflows container and has no scroll
+#### 13. Users are not added to "ALL" chats and starring a chat returns 403 error
+
 ## [0.3.67] - 2025-12-24
 ### Helm changes
 
@@ -13,6 +51,12 @@ All notable changes to this project will be documented in this file.
   - control-tasks - 2.68.0
   - widget - v1.80.0
 - Enabled ctrl-sim-api by default (`global.control.ctrl_sim_api.enabled: true`)
+- Added Kafka broadcast configuration support to control-server
+    - Enable/disable broadcasting via config flag (`kafka.broadcast.enabled`)
+    - Configurable Kafka broker connections (`kafka.broadcast.brokers`)
+    - Topic names for transactions and actors broadcasting
+    - Retry configuration with customizable retries and initial retry time
+    - Reference documentation: pong-server repository KAFKA.md
 
 ### Improvements
 
