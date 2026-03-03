@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.69] - 2026-02-18
+### Helm changes
+
+- Applications versions:
+  - server - 5.152.0
+  - frontend - 5.152.0
+  - realtime - 3.9.1
+  - control-tasks - 2.72.1
+  - widget - v1.85.0
+
+### Improvements
+
+#### 1. Script Editor: Attachments Folder with Pseudo-link References
+#### 2. CDU: First-Level Icon Menu
+#### 3. Improve Actor Valency List UI (Actor Name Truncation Fix)
+#### 4. Add Custom Size Configuration for Custom Bar Widgets
+#### 5. description field not populated when creating/editing flowchart
+#### 6. Add API endpoint to update Smart-Forms JSON configuration
+#### 7. Automatic Call Recording: Server-Side Stabilization
+#### 8. Video Calls: Avatar Display Logic Update
+#### 9. Feasibility Analysis and Scope Estimation for Collaborative CDU Development
+#### 10. CDU Documentation Extension: Event Management in the widget Component via allowedEvents
+#### 11. New dashboard type KPI Card
+
+### Bug Fixes
+
+#### 1. Account Type Persistence When Editing a Dashboard
+#### 2. AI Console does not close when clicking the close icon; session is not terminated
+#### 3. New comment is not displayed automatically and counter is not updated
+#### 4. Actor shadow is displayed incorrectly and actor is not centered in cell after expanding event
+#### 5. Filter settings are not saved on first attempt (deleted columns are restored after refresh)
+#### 6. Invitation field does not appear after entering a full email address
+#### 7. COMFY UA — Second template inserts into the middle of another template
+#### 8. COMFY UA — Second template inserts into the middle of another template
+#### 9. Avatars appear "speaking" in Safari even when microphones are muted
+#### 10. Close button unavailable while large video is loading
+#### 11. Form search does not return all available forms
+#### 12. Incorrect user order in UI search results — does not match API response
+#### 13. [Prod] User avatars stop displaying in calls with many participants
+#### 14. Checkboxes from the bottom form overlap another form when sharing an actor
+#### 15. Bug at typing Cyrillic characters in reaction form input field
+#### 16. Bug at Cyrillic Input Field
+
 ## [0.3.68] - 2026-01-21
 ### Helm changes
 
