@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.70] - 2026-03-18
+### Helm changes
+
+- Applications versions:
+  - server - 5.156.0
+  - frontend - 5.156.0
+  - realtime - 3.10.0
+  - control-tasks - 2.75.0
+  - widget - v1.87.0
+
+### Improvements / New Features
+
+#### 1. User Tagging Logic in Event Comments (Group Users Support)
+#### 2. Implement Account & Currency Search API with Vector Search Support
+#### 3. Automatic Callback for the Missing Call Participant
+#### 4. autoSubmit timer activation with visibililty changes & maxCount 500
+#### 5. Documentation for Realtime API pages/realtime
+#### 6. API-based Grouping of Events into Hierarchical Folders (Graph-Based, Infinite Nesting) [front-end]
+#### 7. Add In-Product User Guide for Collaborative Code Usage in Smart Forms Editor
+#### 8. Access Requests for Actors and Meetings — Backend Migration
+#### 9. Add push notifications for actor access requests
+#### 10. CDU Refresh logic
+#### 11. Meeting room - user extension
+#### 12. Document MainMenu postMessage navigation and Comments autoScroll
+
+### Bug Fixes
+
+#### 1. Incorrect time displayed in email notification (Due date / Created)
+#### 2. Numeric text value is rounded in Text field
+#### 3. Access request buttons do not disappear after granting permissions
+#### 4. Delay when joining a meeting — no UI feedback after clicking "Join Meeting"
+#### 5. Same Tag Can Be Selected Multiple Times
+#### 6. Invalid visibility value breaks dropdown behavior
+#### 7. Script Import Styles Cache Refresh Issue
+#### 8. Multiselect crashes when entering "[" in the search field
+#### 9. Error when creating a connection – Cannot read properties of undefined (reading 'laId')
+#### 10. Show latest reactions disappears after creating a reply
+#### 11. Error when selecting multiple smart chips in comments
+#### 12. User is redirected to 403 page when changing graph settings or clicking dashboard pin with mixed permissions
+#### 13. Filter Counter Is Not Updated in Real Time
+#### 14. Error Cannot read properties of undefined (reading 'laId') When Moving State with Actors Between Layers
+#### 15. User cannot remove their reaction (signature)
+#### 16. Sign button state is not restored after internet connection is recovered
+#### 17. CDU: Content loop changes issue with definition refs
+
+
 ## [0.3.69] - 2026-02-18
 ### Helm changes
 
