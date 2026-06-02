@@ -137,6 +137,14 @@ data:
       {{- else if eq .Values.global.control.filesStorage.type "efs" }}
       type: fs
       path: {{ .Values.global.control.filesStorage.eventFiles }}
+      {{- else if eq .Values.global.control.filesStorage.type "ufs" }}
+      type: ufs
+      path: {{ .Values.global.control.filesStorage.eventFiles | default "assets/eventFiles" }}
+      ufs:
+        url: {{ .Values.global.control.filesStorage.ufs.url }}
+        bucket: {{ .Values.global.control.filesStorage.ufs.bucket }}
+        async: {{ .Values.global.control.filesStorage.ufs.async | default false }}
+        antivirus: {{ .Values.global.control.filesStorage.ufs.antivirus | default "clamav" }}
       {{- end }}
       {{- else }}
       type: fs

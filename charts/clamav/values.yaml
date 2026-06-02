@@ -1,0 +1,8 @@
+appName: clamav
+appPort: 3310
+
+image:
+  registry: ""
+  repository: clamav/clamav
+  tag: "stable"
+  pullPolicy: IfNotPresent

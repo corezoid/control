@@ -242,6 +242,12 @@ global:
 #       region: "eu-west-1"
 #       bucket: "mw-dev-control-2-storage" # for AWS S3
 #       efsFileSystemId: fs-0aaa210ad904c3991   # for AWS EFS
+#       type: "ufs" # Universal File Storage
+#       ufs:
+#         url: "https://ufs-pre.simulator.company"
+#         bucket: "mw-pre-control-1-euw1-storage"
+#         async: true   # true for pre (async antivirus + ws callback), false for dev (sync)
+#         antivirus: clamav
     webConfig:
       supportEmail: ''
       maxFileSize: '26214400'
@@ -589,6 +595,115 @@ global:
       tracing:
         enabled: false
         serverAddress: ''
+    ufs:
+      enabled: false
+      ufsDomain: ""
+      maxBodySize: "2048m"
+      proxyReadTimeout: "3600"
+      proxySendTimeout: "3600"
+      pullPolicy: IfNotPresent
+      # tag: ""
+      env: production
+      log_level: info
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
+      resources:
+        limits:
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      nodeSelector: {}
+      tolerations: []
+      affinity: {}
+      server:
+        read_timeout: 600s
+        write_timeout: 600s
+        idle_timeout: 120s
+        shutdown_timeout: 10s
+      db:
+        maxOpenConns: 25
+        maxIdleConns: 5
+        connMaxLifetime: 5m
+      redis:
+        db: 0
+      serviceAccount:
+        create: false
+        annotations: {}
+      storage:
+        # Configure exactly one backend: s3, seaweedfs, or filesystem.
+        #
+        # --- Direct S3 (AWS or S3-compatible) ---
+        s3:
+          enabled: true
+          bucket: ""
+          region: ""
+          endpoint: ""          # optional, omit for AWS S3
+          accessKeyId: ""       # optional, omit when using IAM role
+          secretAccessKey: ""   # optional, omit when using IAM role
+          forcePathStyle: false # set true for MinIO / non-AWS
+        # --- SeaweedFS ---
+        seaweedfs:
+          enabled: false
+          endpoint: ""          # Filer HTTP API, e.g. http://seaweedfs-filer:8888
+        # --- Local filesystem (requires PVC) ---
+        filesystem:
+          enabled: false
+          path: "/ebsmnt/attachments"
+          storageClassName: ""          # override global storageClassName, e.g. EFS class for ReadWriteMany
+          persistantVolumeClaimCreate: false
+          persistantVolumeClaimName: "ufs-pvc"
+          persistantVolumeClaimSize: "1Gi"
+      allowed_buckets: []     # whitelist of valid bucket names; remove or leave empty to allow all
+      antivirus:
+        clamav:
+          enabled: true
+          network: tcp
+        syncapi:
+          enabled: false
+          host: ""
+          apiLogin: ""
+          apiSecret: ""
+          companyId: ""
+          convId: ""
+          insecureSkipVerify: true
+        corezoid:
+          enabled: false
+          url: ""
+          insecureSkipVerify: true
+      secret:
+        name: ufs-secret
+        create: true
+        data:
+          dbhost: "postgres"
+          dbport: "5432"
+          dbuser: "dbuser"
+          dbpwd: "dbpwd"
+          dbname: "ufs"
+          apiSecret: ""
+          redisAddr: "redis-master:6379"
+          redisPassword: ""
+          clamavAddress: "clamav:3310"
+    clamav:
+      enabled: false
+      resources:
+        limits:
+          memory: 2Gi
+        requests:
+          cpu: 100m
+          memory: 1Gi
+      nodeSelector: {}
+      tolerations: []
+      affinity: {}
+
   sa:
     subDomain: "account.corezoid.local"
     config:

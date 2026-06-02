@@ -107,7 +107,7 @@ spec:
               subPath: assetlinks.json
             {{- end }}
             {{- if .Values.global.control.filesStorage.type }}
-            {{- if ne .Values.global.control.filesStorage.type "s3" }}
+            {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "ufs") }}
             - name: {{ .Values.appName }}-attachments
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}

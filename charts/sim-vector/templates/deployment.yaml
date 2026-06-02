@@ -77,6 +77,13 @@ spec:
             - name: SIM_VECTOR_NAME
               value: "{{ .Values.global.control.sim_vector.simVectorName }}"
             {{- end }}
+            {{- if .Values.global.control.auth.key }}
+            - name: API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.configSecretName" . }}
+                  key: configSaSecretKey
+            {{- end }}
             {{- include "control.container_envs_db" . | nindent 12 }}
           ports:
             - name: http

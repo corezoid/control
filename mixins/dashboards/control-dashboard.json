@@ -1650,7 +1650,7 @@
             "type": "prometheus",
             "uid": "$datasource"
           },
-          "description": "returns the current number of idle workers",
+          "description": "returns the current number of tasks waiting in the pool's queue",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1728,13 +1728,13 @@
                 "uid": "$datasource"
               },
               "editorMode": "code",
-              "expr": "IdleWorkers{namespace=\"$namespace\"}",
+              "expr": "WaitingTasks{namespace=\"$namespace\"}",
               "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Tasks IdleWorkers",
+          "title": "Tasks WaitingTasks",
           "type": "timeseries"
         },
         {

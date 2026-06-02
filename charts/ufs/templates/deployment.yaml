@@ -1,0 +1,189 @@
+{{- $global_data := .Values.global }}
+{{- $ufs_data := $global_data.control.ufs }}
+{{- if and (hasKey .Values.global.control "ufs") (hasKey .Values.global.control.ufs "enabled") $ufs_data.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+    {{- include "ufs.labels" . | nindent 4 }}
+spec:
+  {{- if not $ufs_data.autoscaling.enabled }}
+  replicas: {{ $ufs_data.autoscaling.minReplicas | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "ufs.labels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        {{- include "ufs.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      {{- if $ufs_data.serviceAccount.create }}
+      serviceAccountName: {{ .Values.appName }}-serviceaccount
+      {{- end }}
+      securityContext:
+        {{- toYaml $global_data.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- include "InitWait.postgres" . | nindent 8 }}
+        {{- if $ufs_data.storage.filesystem.enabled }}
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chmod 777 {{ $ufs_data.storage.filesystem.path }}"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: ufs-attachments
+              mountPath: {{ $ufs_data.storage.filesystem.path }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml $global_data.securityContext | nindent 12 }}
+          image: {{ include "ufs.imageUrl" . | quote }}
+          imagePullPolicy: {{ $ufs_data.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: UFS_CONFIG
+              value: "/opt/conf/config.yml"
+            - name: UFS_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: apiSecret
+            - name: UFS_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: dbhost
+            - name: UFS_DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: dbport
+            - name: UFS_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: dbuser
+            - name: UFS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: dbpwd
+            - name: UFS_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: dbname
+            - name: UFS_CLAMAV_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: clamavAddress
+            - name: COREZOID_SYNC_API
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: syncapiHost
+            - name: SYNC_API_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: syncapiLogin
+            - name: SYNC_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: syncapiSecret
+            - name: SYNC_API_COMPANY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: syncapiCompanyId
+            - name: SYNC_API_CONV_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: syncapiConvId
+            - name: ANTIVIRUS_PROCESS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: corezoidUrl
+            - name: S3_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: s3Endpoint
+            - name: S3_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: s3AccessKeyId
+            - name: S3_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: s3SecretAccessKey
+            - name: SEAWEEDFS_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ufs.secretName" . }}
+                  key: seaweedfsEndpoint
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: config
+              mountPath: /opt/conf
+              readOnly: true
+            {{- if $ufs_data.storage.filesystem.enabled }}
+            - name: ufs-attachments
+              mountPath: {{ $ufs_data.storage.filesystem.path }}
+            {{- end }}
+          resources:
+            {{- toYaml $ufs_data.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Values.appName }}-configmap
+        {{- if $ufs_data.storage.filesystem.enabled }}
+        - name: ufs-attachments
+          persistentVolumeClaim:
+            claimName: {{ $ufs_data.storage.filesystem.persistantVolumeClaimName | default "ufs-pvc" }}
+        {{- end }}
+      {{- with $ufs_data.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $ufs_data.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $ufs_data.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
