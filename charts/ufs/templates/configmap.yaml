@@ -1,0 +1,98 @@
+{{- $ufs_data := .Values.global.control.ufs }}
+{{- if and (hasKey .Values.global.control "ufs") (hasKey .Values.global.control.ufs "enabled") $ufs_data.enabled }}
+{{- $storage := $ufs_data.storage }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-configmap
+  labels:
+    {{- include "ufs.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    app:
+      name: ufs
+      url: "https://{{ $ufs_data.ufsDomain | default "" }}"
+      version: "{{ .Chart.AppVersion }}"
+      env: "{{ $ufs_data.env | default "production" }}"
+      {{- if $ufs_data.allowed_buckets }}
+      allowed_buckets:
+        {{- range $ufs_data.allowed_buckets }}
+        - {{ . }}
+        {{- end }}
+      {{- end }}
+
+    server:
+      port: 8080
+      read_timeout: {{ $ufs_data.server.read_timeout | default "30s" }}
+      write_timeout: {{ $ufs_data.server.write_timeout | default "30s" }}
+      idle_timeout: {{ $ufs_data.server.idle_timeout | default "60s" }}
+      shutdown_timeout: {{ $ufs_data.server.shutdown_timeout | default "10s" }}
+      api_secret: "${UFS_API_SECRET}"
+
+    database:
+      host: "${UFS_DB_HOST}"
+      port: {{ $ufs_data.db.secret.data.dbport | default "5432" }}
+      user: "${UFS_DB_USER}"
+      password: "${UFS_DB_PASSWORD}"
+      database: "${UFS_DB_NAME}"
+      max_open_conns: {{ $ufs_data.db.maxOpenConns | default 25 }}
+      max_idle_conns: {{ $ufs_data.db.maxIdleConns | default 5 }}
+      conn_max_lifetime: {{ $ufs_data.db.connMaxLifetime | default "5m" }}
+
+    simulator_database:
+      {{- if .Values.global.db.bouncer }}
+      host: {{ include "pgbouncer.service.name" . }}
+      port: {{ .Values.global.db.bouncer_port }}
+      {{- else }}
+      host: {{ .Values.global.db.secret.data.dbhost }}
+      port: {{ .Values.global.db.secret.data.dbport | default "5432" }}
+      {{- end }}
+      user: {{ .Values.global.db.secret.data.dbuser }}
+      password: {{ .Values.global.db.secret.data.dbpwd }}
+      database: {{ .Values.global.db.secret.data.dbname | default "control" }}
+      max_open_conns: 25
+      max_idle_conns: 5
+      conn_max_lifetime: 5m
+
+    storage:
+      # Configure exactly one backend: s3, seaweedfs, or filesystem.
+      s3:
+        enabled: {{ $storage.s3.enabled | default false }}
+        bucket: {{ $storage.s3.bucket | default "" }}
+        region: {{ $storage.s3.region | default "" }}
+        {{- if $storage.s3.endpoint }}
+        endpoint: "${S3_ENDPOINT}"
+        {{- end }}
+        {{- if $storage.s3.accessKeyId }}
+        access_key_id: "${S3_ACCESS_KEY_ID}"
+        secret_access_key: "${S3_SECRET_ACCESS_KEY}"
+        {{- end }}
+        force_path_style: {{ $storage.s3.forcePathStyle | default false }}
+      seaweedfs:
+        enabled: {{ $storage.seaweedfs.enabled | default false }}
+        endpoint: "${SEAWEEDFS_ENDPOINT}"
+      filesystem:
+        enabled: {{ $storage.filesystem.enabled | default false }}
+        path: {{ $storage.filesystem.path | default "" }}
+
+    antivirus:
+      clamav:
+        enabled: {{ $ufs_data.antivirus.clamav.enabled | default false }}
+        network: {{ $ufs_data.antivirus.clamav.network | default "tcp" }}
+        address: "${UFS_CLAMAV_ADDRESS}"
+      syncapi:
+        enabled: {{ $ufs_data.antivirus.syncapi.enabled | default false }}
+        host: "${COREZOID_SYNC_API}"
+        api_login: "${SYNC_API_LOGIN}"
+        api_secret: "${SYNC_API_SECRET}"
+        company_id: "${SYNC_API_COMPANY_ID}"
+        conv_id: ${SYNC_API_CONV_ID}
+        insecure_skip_verify: {{ $ufs_data.antivirus.syncapi.insecureSkipVerify | default true }}
+      corezoid:
+        enabled: {{ $ufs_data.antivirus.corezoid.enabled | default false }}
+        url: "${ANTIVIRUS_PROCESS_URL}"
+        insecure_skip_verify: {{ $ufs_data.antivirus.corezoid.insecureSkipVerify | default true }}
+
+    log:
+      level: {{ $ufs_data.log_level | default "info" }}
+{{- end }}

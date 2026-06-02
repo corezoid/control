@@ -284,6 +284,11 @@ data:
         proxy_intercept_errors on;
         add_header             Cache-Control max-age=31536000;
         proxy_pass             https://$bucket/$2;
+        {{- else if eq .Values.global.control.filesStorage.type "ufs" }}
+        add_header             Content-Disposition "inline" always;
+        client_max_body_size   {{ include "control.frontend.nginx.client_max_body_size" . }};
+        rewrite                ^/(api|papi)/1\.0/download/(.+)$ /api/v1/download/$2 break;
+        proxy_pass             http://ufs-service:8080;
         {{- end }}
         {{- else }}
         {{ include "control.nginx.add_header" . | nindent 8 }}

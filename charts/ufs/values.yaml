@@ -1,0 +1,7 @@
+appName: ufs
+prometheusPath: /metrics
+prometheusInterval: 15s
+appPort: 8080
+
+image:
+  repository: ufs

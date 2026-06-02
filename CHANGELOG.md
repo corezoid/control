@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.71] - 2026-05-27
+### Helm changes
+
+- Applications versions:
+  - server - 5.166.0
+  - frontend - 5.166.0
+  - realtime - 3.12.0
+  - control-tasks - 2.77.0
+  - widget - v1.91.0
+
+### Improvements / New Features
+
+#### 1. Open task actor from Gantt mode
+#### 2. Progress for task actor in Gantt
+#### 3. Add edge title without editing it
+#### 4. Widget: Create reaction with attachments via single API flow
+#### 5. Dashboards: Migrate to Chart.js 4.5.1
+#### 6. Preserve per-file editing history and cursor position in ScriptEditor
+#### 7. Add editing actor title in graph
+
+### Bug Fixes
+
+#### 1. [Simulator] Screen Share Not Syncing Slides for Viewers During Presentation
+#### 2. Actors bag > Accounts > Dashboard: transactions sent today are displayed under incorrect dates
+#### 3. 500 Internal Error occurs when changing owner of actor
+#### 4. Different number of fields displayed in filter and dashboard
+#### 5. Bold text in event creation changes structure
+
+
 ## [0.3.70] - 2026-03-18
 ### Helm changes
 

@@ -8,7 +8,8 @@ tier: claude-code-api
 Image url
 */}}
 {{- define "claude-code-api.imageUrl" -}}
-{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.claude_code_api.tag | default .Chart.AppVersion }}
+{{- $repo := ((.Values.global.control.claude_code_api.image).repository) | default (printf "%s/%s" (.Values.global.repotype | default "public") .Values.image.repository) -}}
+{{ .Values.global.imageRegistry }}/{{ $repo }}:{{ .Values.global.control.claude_code_api.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{/*

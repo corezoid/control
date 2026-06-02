@@ -1,0 +1,20 @@
+{{- $ufs_data := .Values.global.control.ufs }}
+{{- if and (hasKey .Values.global.control "ufs") (hasKey .Values.global.control.ufs "enabled") $ufs_data.enabled }}
+{{- if $ufs_data.storage.filesystem.enabled }}
+{{- if $ufs_data.storage.filesystem.persistantVolumeClaimCreate }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $ufs_data.storage.filesystem.persistantVolumeClaimName | default "ufs-pvc" }}
+  labels:
+    {{- include "ufs.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ $ufs_data.storage.filesystem.storageClassName | default .Values.global.storageClassName }}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ $ufs_data.storage.filesystem.persistantVolumeClaimSize | default "1Gi" }}
+{{- end }}
+{{- end }}
+{{- end }}
