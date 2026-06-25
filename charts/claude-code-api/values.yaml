@@ -5,3 +5,9 @@ prometheusInterval: 15s
 appReadinessHttpPort: 8000
 image:
   repository: claude-code-api
+# -- OpenTelemetry tracing (OTLP/HTTP).
+# When enabled, injects TELEMETRY_ENABLED, OTEL_TRACES_ENABLED, OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_SERVICE_NAME.
+# otel:
+#   enabled: false
+#   endpoint: "http://observability-tempo-distributor.observability:4318/v1/traces"
+#   service_name: "cc-api"

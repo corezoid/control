@@ -3,27 +3,27 @@ name: control
 description: A Helm chart for Control
 icon: https://sim.simulator.company/static/logo.svg
 type: application
-version: 0.3.71
-appVersion: 5.166.0
+version: 0.3.72
+appVersion: 5.168.0
 
 dependencies:
   - name: server
-    version: 0.3.67
+    version: 0.3.68
     repository: file://charts/server
   - name: frontend
-    version: 0.3.66
+    version: 0.3.67
     repository: file://charts/frontend
   - name: realtime
-    version: 0.3.22
+    version: 0.3.23
     repository: file://charts/realtime
   - name: control-tasks
-    version: 0.1.36
+    version: 0.1.37
     repository: file://charts/control-tasks
   - name: widget
-    version: 0.3.57
+    version: 0.3.58
     repository: file://charts/widget
   - name: ctrl-sim-api
-    version: 0.1.2
+    version: 0.1.3
     repository: file://charts/ctrl-sim-api
     condition: global.control.ctrl_sim_api.enabled
   - name: sim-vector
@@ -47,7 +47,7 @@ dependencies:
     repository: file://charts/claude-code-api
     condition: global.control.claude_code_api.enabled
   - name: ufs
-    version: 0.1.0
+    version: 0.1.1
     repository: file://charts/ufs
     condition: global.control.ufs.enabled
   - name: clamav

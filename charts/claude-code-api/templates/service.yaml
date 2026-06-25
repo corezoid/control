@@ -16,4 +16,8 @@ spec:
       targetPort: 8000
       protocol: TCP
       name: http
+    - port: {{ .Values.global.control.claude_code_api.mcp_server_port | default 8001 }}
+      targetPort: {{ .Values.global.control.claude_code_api.mcp_server_port | default 8001 }}
+      protocol: TCP
+      name: mcp
 {{- end }}
