@@ -93,6 +93,11 @@ data:
         url: "${ANTIVIRUS_PROCESS_URL}"
         insecure_skip_verify: {{ $ufs_data.antivirus.corezoid.insecureSkipVerify | default true }}
 
+    worker:
+      # Skip TLS cert verification for async_url callbacks sent by the quarantine
+      # worker (use when the caller endpoint serves a self-signed cert).
+      callback_insecure_skip_verify: {{ $ufs_data.worker.callbackInsecureSkipVerify | default false }}
+
     log:
       level: {{ $ufs_data.log_level | default "info" }}
 {{- end }}

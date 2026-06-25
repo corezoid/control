@@ -679,6 +679,11 @@ global:
           enabled: false
           url: ""
           insecureSkipVerify: true
+      worker:
+        # Skip TLS cert verification for async_url callbacks sent by the
+        # quarantine worker (set true when the caller endpoint uses a
+        # self-signed cert).
+        callbackInsecureSkipVerify: false
       secret:
         name: ufs-secret
         create: true

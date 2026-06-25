@@ -42,6 +42,14 @@ spec:
               value: "0.0.0.0"
             - name: SERVER_PORT
               value: "8000"
+            - name: MCP_SERVER_PORT
+              value: "{{ $claude_code_api_data.mcp_server_port | default 8001 }}"
+            - name: MCP_ACCOUNT_URL
+              value: "{{ $claude_code_api_data.mcp_account_url | default "https://account.dev.corezoid.com" }}"
+            - name: MCP_SIMULATOR_URL
+              value: "{{ $claude_code_api_data.mcp_simulator_url | default "https://sim-dev.simulator.company" }}"
+            - name: MCP_RESOURCE_URL
+              value: "{{ $claude_code_api_data.mcp_resource_url | default "https://mcp-dev.simulator.company" }}"
             - name: DB_CLAUDECODE_NAME
               value: "{{ $claude_code_api_data.db.secret.data.dbname | default ($claude_code_api_data.dbname | default "claude_code") }}"
             - name: DATABASE_TIMEZONE
@@ -50,6 +58,10 @@ spec:
               value: "{{ $claude_code_api_data.log_level }}"
             - name: LOG_FORMAT
               value: "{{ $claude_code_api_data.log_format | default "json" }}"
+            - name: LITELLM_SPEND_KEY
+              value: "{{ $claude_code_api_data.litellm_spend_key | default "sk-1234" }}"
+            - name: LITELLM_SPEND_PULL_BUDGET_MINUTES
+              value: "{{ $claude_code_api_data.litellm_spend_pull_budget_minutes | default 30 }}"
             {{- if and (hasKey $claude_code_api_data "auth_api_key") $claude_code_api_data.auth_api_key }}
             - name: AUTH_API_KEY
               value: "{{ $claude_code_api_data.auth_api_key }}"
@@ -62,10 +74,23 @@ spec:
             - name: GIT_TOKEN
               value: "{{ $claude_code_api_data.git_token }}"
             {{- end }}
+            {{- if and (hasKey $claude_code_api_data "otel") $claude_code_api_data.otel.enabled }}
+            - name: TELEMETRY_ENABLED
+              value: "true"
+            - name: OTEL_TRACES_ENABLED
+              value: "true"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "{{ $claude_code_api_data.otel.endpoint }}"
+            - name: OTEL_SERVICE_NAME
+              value: "{{ $claude_code_api_data.otel.service_name | default "cc-api" }}"
+            {{- end }}
             {{- include "claude-code-api.container_envs_db" . | nindent 12 }}
           ports:
             - name: http
               containerPort: 8000
+              protocol: TCP
+            - name: mcp
+              containerPort: {{ $claude_code_api_data.mcp_server_port | default 8001 }}
               protocol: TCP
           livenessProbe:
             httpGet:

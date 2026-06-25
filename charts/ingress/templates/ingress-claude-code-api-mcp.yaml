@@ -1,0 +1,45 @@
+{{- if and (hasKey .Values.global.control "claude_code_api") (hasKey .Values.global.control.claude_code_api "enabled") .Values.global.control.claude_code_api.enabled (hasKey .Values.global.control.claude_code_api "mcpDomain") .Values.global.control.claude_code_api.mcpDomain -}}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ include "control.fullname" . }}-mcp
+  labels:
+    {{- include "control.labels" . | nindent 4 }}
+  annotations:
+    {{- include "control.ingressAnnotations" . | nindent 4 }}
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  {{- if and .Values.global.control.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.global.control.ingress.className }}
+  {{- end }}
+  {{- if .Values.global.control.ingress.tls }}
+  tls:
+    - hosts:
+        - {{ .Values.global.control.claude_code_api.mcpDomain }}
+      secretName: tls-claude-code-api-mcp
+  {{- end }}
+  rules:
+    - host: {{ .Values.global.control.claude_code_api.mcpDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: claude-code-api-service
+                port:
+                  number: {{ .Values.global.control.claude_code_api.mcp_server_port | default 8001 }}
+              {{- else }}
+              serviceName: claude-code-api-service
+              servicePort: {{ .Values.global.control.claude_code_api.mcp_server_port | default 8001 }}
+              {{- end }}
+{{- end }}

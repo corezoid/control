@@ -340,4 +340,13 @@ data:
       apiKey: {{ .apiKey }}
       voice: {{ .voice }}
     {{- end }}
+    {{- if and (hasKey $control_server_config "aiAgent") $control_server_config.aiAgent.enabled }}
+    aiAgent:
+      enabled: {{ $control_server_config.aiAgent.enabled }}
+      apiUrl: {{ $control_server_config.aiAgent.apiUrl }}
+      mcp: {{ $control_server_config.aiAgent.mcp }}
+      ttlSeconds: {{ $control_server_config.aiAgent.ttlSeconds | default 1800 }}
+      timeoutMs: {{ $control_server_config.aiAgent.timeoutMs | default 600000 }}
+      stream: {{ $control_server_config.aiAgent.stream | default true }}
+    {{- end }}
     {{- end }}
