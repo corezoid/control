@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.3.73] - 2026-07-01
+### Helm changes
+
+- Applications versions:
+  - server - 5.171.0
+  - frontend - 5.171.0
+  - realtime - 3.14.0
+  - control-tasks - 2.81.0
+  - widget - v1.96.0
+  - claude-code-api - 1.3.0
+- Dependencies:
+  - account - 3.29.3 (minimum required Account/SingleSpace version)
+
+### Improvements / New Features
+
+#### 1. AI & MCP Integration
+#### 2. Smart Forms Lifecycle
+#### 3. Graph & Visual Modeling
+#### 4. Public API Expansion
+#### 5. Data Export Tools
+#### 6. Dashboards & Charts
+#### 7. Meetings & Collaboration
+#### 8. Content Editing Experience
+#### 9. Attachments & Actor Panels
+#### 10. Performance & Scalability
+#### 11. Platform Observability
+#### 12. UX & Navigation
+
+### Bug Fixes
+
+#### 1. Access & Permissions
+#### 2. Graph & Actor Operations
+#### 3. Dashboards & Charts
+#### 4. Meetings
+#### 5. Text Editor & Formatting
+#### 6. Tags, Filters & Events
+#### 7. Backend & API Stability
+
+
 ## [0.3.71] - 2026-05-27
 ### Helm changes
 

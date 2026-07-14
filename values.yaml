@@ -708,6 +708,49 @@ global:
       nodeSelector: {}
       tolerations: []
       affinity: {}
+    claude_code_api:
+      enabled: false
+      image:
+        repository: ""
+      pullPolicy: Always
+      # Overrides the image tag whose default is the claude-code-api chart appVersion.
+      # tag: ""
+      claudeCodeApiDomain: ""
+      mcpDomain: ""
+      mcp_server_port: 8001
+      mcp_account_url: ""
+      mcp_simulator_url: ""
+      mcp_resource_url: ""
+      log_level: info
+      log_format: json
+      litellm_spend_key: ""
+      litellm_spend_pull_budget_minutes: 30
+      # auth_api_key: ""
+      # tls: true
+      # git_token: ""
+      otel:
+        enabled: false
+        endpoint: ""
+        service_name: "cc-api"
+      db_timezone: UTC
+      db:
+        secret:
+          create: true
+          name: "claude-code-api-postgresql-secret"
+          data:
+            dbhost: "postgres"
+            dbport: "5432"
+            dbuser: "dbuser"
+            dbpwd: "dbpwd"
+            dbname: "claude_code"
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 3
+      resources: {}
+      nodeSelector: {}
+      tolerations: []
+      affinity: {}
 
   sa:
     subDomain: "account.corezoid.local"

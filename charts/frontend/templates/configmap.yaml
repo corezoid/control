@@ -64,6 +64,13 @@ data:
       "apmHost": ""
     }
   control_{{ .Values.appName }}.conf: |
+    {{- if and .Values.global.control.filesStorage.type (eq .Values.global.control.filesStorage.type "ufs") }}
+    # CE-15636: never inline actively-executable content served from UFS downloads
+    map $upstream_http_content_type $ufs_download_content_disposition {
+        default "inline";
+        "~*^(text/html|application/xhtml\+xml|application/xml|text/xml|application/javascript|image/svg\+xml)" "attachment";
+    }
+    {{- end }}
     {{ if .Values.global.control.apiOld -}}
     {{- if .Values.global.control.apiOld.enabled -}}
     server {
@@ -285,7 +292,8 @@ data:
         add_header             Cache-Control max-age=31536000;
         proxy_pass             https://$bucket/$2;
         {{- else if eq .Values.global.control.filesStorage.type "ufs" }}
-        add_header             Content-Disposition "inline" always;
+        add_header             X-Content-Type-Options "nosniff" always;
+        add_header             Content-Disposition $ufs_download_content_disposition always;
         client_max_body_size   {{ include "control.frontend.nginx.client_max_body_size" . }};
         rewrite                ^/(api|papi)/1\.0/download/(.+)$ /api/v1/download/$2 break;
         proxy_pass             http://ufs-service:8080;
