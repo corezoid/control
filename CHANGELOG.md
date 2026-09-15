@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.76] - 2026-09-09
+### Helm changes
+
+- Applications versions:
+  - server - 5.181.0
+  - frontend - 5.181.0
+  - realtime - 3.16.0
+  - control-tasks - 2.86.0
+  - widget - v1.102.0
+  - claude-code-api - 1.12.0
+
+### Improvements / New Features
+
+#### 1. Graphs & Graph Editing
+#### 2. Gantt & Planning
+#### 3. Forms, Accounts & Dashboards
+#### 4. Collaboration & Meetings
+#### 5. Accessibility
+#### 6. Performance & Reliability
+#### 7. Graph & Gantt UX
+#### 8. Security
+#### 9. UI Consistency
+
+### Bug Fixes
+
+#### 1. Permissions & Access
+#### 2. Graphs & Holes
+#### 3. Dashboards, Forms & Accounts
+#### 4. Gantt
+#### 5. Meetings & Screen Sharing
+#### 6. UI & Stability
+
+## [0.3.74] - 2026-08-19
+### Helm changes
+- server: render optional `webConfig.posthog` (apiKey/apiHost/uiHost) into control.yml (CE-15855) —
+  front-end reads it from /api/1.0/init; block is omitted when values have no `webConfig.posthog`.
 
 ## [0.3.73] - 2026-07-01
 ### Helm changes
