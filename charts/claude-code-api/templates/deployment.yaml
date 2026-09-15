@@ -28,7 +28,10 @@ spec:
       {{- end }}
       {{- end }}
       securityContext:
-        {{- toYaml $global_data.podSecurityContext | nindent 8 }}
+        fsGroup: 1001
+        {{- with $global_data.podSecurityContext }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       initContainers:
         {{- include "InitWait.postgres" . | nindent 8 }}
       containers:
@@ -50,6 +53,18 @@ spec:
               value: "{{ $claude_code_api_data.mcp_simulator_url | default "https://sim-dev.simulator.company" }}"
             - name: MCP_RESOURCE_URL
               value: "{{ $claude_code_api_data.mcp_resource_url | default "https://mcp-dev.simulator.company" }}"
+            {{- /* The service's own public origin. Besides documentation it is
+                   the base of the OAuth callback handed to MCP providers
+                   (<API_URL>/integrations/oauth/callback), which a provider
+                   matches byte for byte — so it must be the externally
+                   reachable https address, not a pod-local one. Derived from
+                   the ingress host unless overridden. */}}
+            - name: API_URL
+              value: "{{ $claude_code_api_data.api_url | default (printf "https://%s" $claude_code_api_data.claudeCodeApiDomain) }}"
+            {{- if and (hasKey $claude_code_api_data "corezoid_mcp_simulator_secret") $claude_code_api_data.corezoid_mcp_simulator_secret }}
+            - name: COREZOID_MCP_SIMULATOR_SECRET
+              value: "{{ $claude_code_api_data.corezoid_mcp_simulator_secret }}"
+            {{- end }}
             - name: DB_CLAUDECODE_NAME
               value: "{{ $claude_code_api_data.db.secret.data.dbname | default ($claude_code_api_data.dbname | default "claude_code") }}"
             - name: DATABASE_TIMEZONE
@@ -62,6 +77,19 @@ spec:
               value: "{{ $claude_code_api_data.litellm_spend_key | default "sk-1234" }}"
             - name: LITELLM_SPEND_PULL_BUDGET_MINUTES
               value: "{{ $claude_code_api_data.litellm_spend_pull_budget_minutes | default 30 }}"
+            {{- /* LiteLLM management API: workspace technical user + virtual keys.
+                   Both are required together — cc-api answers 501 on the
+                   provisioning endpoints unless each is non-empty. Rendered only
+                   when set, deliberately without a chart default: a default here
+                   would silently arm the feature on every environment. */}}
+            {{- if and (hasKey $claude_code_api_data "litellm_base_url") $claude_code_api_data.litellm_base_url }}
+            - name: LITELLM_BASE_URL
+              value: "{{ $claude_code_api_data.litellm_base_url }}"
+            {{- end }}
+            {{- if and (hasKey $claude_code_api_data "litellm_admin_key") $claude_code_api_data.litellm_admin_key }}
+            - name: LITELLM_ADMIN_KEY
+              value: "{{ $claude_code_api_data.litellm_admin_key }}"
+            {{- end }}
             {{- if and (hasKey $claude_code_api_data "auth_api_key") $claude_code_api_data.auth_api_key }}
             - name: AUTH_API_KEY
               value: "{{ $claude_code_api_data.auth_api_key }}"
@@ -92,22 +120,24 @@ spec:
             - name: mcp
               containerPort: {{ $claude_code_api_data.mcp_server_port | default 8001 }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /health/live
-              port: http
-            initialDelaySeconds: 180
-            periodSeconds: 60
-            timeoutSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 10
           resources:
             {{- toYaml $claude_code_api_data.resources | nindent 12 }}
+          volumeMounts:
+            - name: workspace
+              mountPath: /tmp
+      volumes:
+        - name: workspace
+          ephemeral:
+            volumeClaimTemplate:
+              metadata:
+                labels:
+                  {{- include "claude-code-api.labels" . | nindent 18 }}
+              spec:
+                accessModes: [ReadWriteOnce]
+                storageClassName: {{ $claude_code_api_data.workspace_storage_class | default .Values.global.storageClassName }}
+                resources:
+                  requests:
+                    storage: {{ $claude_code_api_data.workspace_size | default "100Gi" }}
       {{- with $claude_code_api_data.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -83,7 +83,13 @@ nginx.ingress.kubernetes.io/ssl-redirect: "true"
 nginx.ingress.kubernetes.io/proxy-body-size: "{{ .Values.global.control.webConfig.maxFileSize }}"
 nginx.ingress.kubernetes.io/enable-cors: "true"
 nginx.ingress.kubernetes.io/cors-expose-headers: "*"
-nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,X-App-Client,X-App-Platform,X-App-Device-Id,X-App-Version"
+# The value REPLACES the nginx default wholesale, so every header a browser may send on a
+# cross-origin request must be listed or its preflight fails. X-App-Tab-Id is sent on EVERY
+# JSON-RPC call by the runtime SPA and X-App-Packet-Id on mutating ones
+# (simulator-ui-kit packages/sim-api/src/transport/client.ts); without them cross-origin
+# runtime traffic is blocked by the browser even though curl (which skips preflight) works.
+# X-Request-ID / X-CSRF-Token are already accepted by the apps themselves. CE-15811.
+nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,X-App-Client,X-App-Platform,X-App-Device-Id,X-App-Version,X-App-Tab-Id,X-App-Packet-Id,X-Request-ID,X-CSRF-Token"
 {{- end }}
 
 {{- define "control.nginx.add_header.cors" -}}

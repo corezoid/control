@@ -292,6 +292,12 @@ data:
       {{- if .Values.global.control.webConfig.gtagAnalytics }}
       gtagAnalytics: {{ .Values.global.control.webConfig.gtagAnalytics }}
       {{- end }}
+      {{- if .Values.global.control.webConfig.posthog }}
+      posthog: # PostHog product analytics (CE-15855); apiKey is a public write-only ingestion key
+        apiKey: {{ .Values.global.control.webConfig.posthog.apiKey }}
+        apiHost: {{ .Values.global.control.webConfig.posthog.apiHost }}
+        uiHost: {{ .Values.global.control.webConfig.posthog.uiHost }}
+      {{- end }}
       {{- if .Values.global.control.webConfig.scriptPath }}
       scriptPath: {{ .Values.global.control.webConfig.scriptPath }}
       {{- end }}
