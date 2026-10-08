@@ -250,6 +250,9 @@ global:
 #         antivirus: clamav
     webConfig:
       supportEmail: ''
+      # UI defaults passed to the frontend as-is (block absent = app defaults), e.g.
+      # uiDefaults:
+      #   eventsDndLinking: false   # disable parent/child linking by drag & drop (5.185+)
       maxFileSize: '26214400'
       # Example of digitalSignature configuration (important-comment)
       # digitalSignature:
@@ -457,6 +460,15 @@ global:
     ctrl_sim_api:
       enabled: true
       log_level: info
+      # Optional sim-api (0.12+) blocks, rendered as-is when set; absent = app defaults.
+      # config:
+      #   transactions:
+      #     strictLimits: true            # false only as a temporary rollback
+      #     transferEffectsV1Ready: false # keep false until control-tasks supports schema v1
+      #   shortUrls:
+      #     missesPerMinute: 30           # short Smart Form URL misses per client per minute
+      #   kafka:
+      #     broadcast: {enabled: false}
       persistantVolumeClaimName: "ctrl-sim-api-pvc"
       persistantVolumeClaimCreate: false
       pullPolicy: IfNotPresent
@@ -590,6 +602,34 @@ global:
     #               operator: In
     #               values:
     #                 - control-1
+    # imageProxy — SSRF guard for /api/1.0/image and /api/1.0/proxy (CE-15693).
+    # Block absent = app defaults. A host is allowed when it resolves to a PUBLIC
+    # address OR is listed in allowedHosts (server 5.185+: the list is an exception,
+    # not an allowlist-only mode). The platform's own origins (trackUrl,
+    # simulatorCloudUrl) are trusted automatically (allowSelfHosts, default true).
+    # On-prem installs whose OTHER hosts resolve to private IPs (auth/avatars
+    # domain, internal storage/CDN) get 400 "URL is not allowed" — list them.
+    # Entry forms: host.example.com (exact), *.example.com (any subdomain, not the
+    # apex), host:port. Server 5.181-5.184 treated a non-empty list as allowlist-only.
+    # imageProxy:
+    #   enabled: true             # false -> all proxy endpoints return 403
+    #   allowSelfHosts: true
+    #   allowedHosts:
+    #     - auth.example.com
+    #     - "*.internal.example.com"
+    #   timeout: 5000            # ms, optional (default: unlimited)
+    #   maxContentLength: 10485760  # bytes, optional (default: unlimited)
+    # systemAccounts — automatic system account creation (server 5.185+, sim-api 0.12+;
+    # rendered into both). Set enabled: false per client to stop it.
+    # sim-api also reads workers / queueSize.
+    systemAccounts:
+      enabled: true
+    # counters — ScyllaDB counters tuning for the server (block absent = app defaults).
+    # counters:
+    #   read:
+    #     # years scanned by balance reads (year partitions per get()); app default 10
+    #     # keeps the historical behavior, 2-3 cuts read fan-out (recommended: 2)
+    #     maxYearsInBalance: 2
     opentelemetry:
       enabled: false
       tracing:
@@ -659,13 +699,19 @@ global:
           enabled: false
           path: "/ebsmnt/attachments"
           storageClassName: ""          # override global storageClassName, e.g. EFS class for ReadWriteMany
+          # chmod 777 on the mount before start. Harmless to leave on: on volumes that
+          # manage their own permissions (EFS access point) the chmod is skipped instead
+          # of failing. Set to false to drop the init container entirely.
+          fixPermissions: true
           persistantVolumeClaimCreate: false
           persistantVolumeClaimName: "ufs-pvc"
           persistantVolumeClaimSize: "1Gi"
       allowed_buckets: []     # whitelist of valid bucket names; remove or leave empty to allow all
       antivirus:
+        # clamav scanning needs the clamav sub-chart (global.control.clamav.enabled)
+        # or an external clamd; with it off UFS stores files without a scan
         clamav:
-          enabled: true
+          enabled: false
           network: tcp
         syncapi:
           enabled: false
@@ -684,18 +730,21 @@ global:
         # quarantine worker (set true when the caller endpoint uses a
         # self-signed cert).
         callbackInsecureSkipVerify: false
+      # TLS secret for the ufs ingress (when global.control.ingress.tls is on)
+      tlsSecretName: tls-ufs
       secret:
         name: ufs-secret
         create: true
         data:
-          dbhost: "postgres"
-          dbport: "5432"
-          dbuser: "dbuser"
-          dbpwd: "dbpwd"
+          # Empty dbhost/dbport/dbuser/dbpwd are taken from global.db.secret.data
+          # (control DB server and app user). The database itself is created by the
+          # postgres-post-install hook. apiSecret is always global.control.auth.key,
+          # the same key the server signs UFS requests with.
+          dbhost: ""
+          dbport: ""
+          dbuser: ""
+          dbpwd: ""
           dbname: "ufs"
-          apiSecret: ""
-          redisAddr: "redis-master:6379"
-          redisPassword: ""
           clamavAddress: "clamav:3310"
     clamav:
       enabled: false
@@ -720,6 +769,10 @@ global:
       mcp_server_port: 8001
       mcp_account_url: ""
       mcp_simulator_url: ""
+      # Extra origins (comma-separated) the MCP resolver may use besides the
+      # mcp_simulator_url host and its sibling subdomains; set when Simulator is
+      # served from a different domain.
+      # mcp_resolver_allowed_origins: ""
       mcp_resource_url: ""
       log_level: info
       log_format: json

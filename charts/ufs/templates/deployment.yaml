@@ -33,10 +33,14 @@ spec:
         {{- toYaml $global_data.podSecurityContext | nindent 8 }}
       initContainers:
         {{- include "InitWait.postgres" . | nindent 8 }}
-        {{- if $ufs_data.storage.filesystem.enabled }}
+        {{- if and $ufs_data.storage.filesystem.enabled (ne $ufs_data.storage.filesystem.fixPermissions false) }}
         - name: fix-permissions
-          image: busybox
-          command: ["sh", "-c", "chmod 777 {{ $ufs_data.storage.filesystem.path }}"]
+          image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
+          imagePullPolicy: {{ .Values.global.imageInit.pullPolicy | default "IfNotPresent" }}
+          # На EFS access point chmod запрещён: access point принудительно подменяет
+          # uid/gid, и каталог уже создан с нужным владельцем. Неудача chmod не должна
+          # ронять под - на таких томах права и так корректные.
+          command: ["sh", "-c", "chmod 777 {{ $ufs_data.storage.filesystem.path }} || echo 'chmod skipped: volume manages permissions itself'"]
           securityContext:
             runAsUser: 0
           volumeMounts:

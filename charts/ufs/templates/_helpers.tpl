@@ -17,5 +17,5 @@ Image url
 Secret name for ufs credentials
 */}}
 {{- define "ufs.secretName" -}}
-{{- .Release.Name }}-{{ .Values.global.control.ufs.db.secret.name }}
+{{- .Release.Name }}-{{ .Values.global.control.ufs.secret.name | default "ufs-secret" }}
 {{- end }}
