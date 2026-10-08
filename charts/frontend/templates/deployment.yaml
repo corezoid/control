@@ -144,7 +144,7 @@ spec:
             name: {{ .Values.appName }}-assetlinks-json-configmap
         {{- end }}
         {{- if .Values.global.control.filesStorage.type }}
-        {{- if ne .Values.global.control.filesStorage.type "s3" }}
+        {{- if and (ne .Values.global.control.filesStorage.type "s3") (ne .Values.global.control.filesStorage.type "ufs") }}
         {{- if $control_data.server.persistantVolumeClaimCreate }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:

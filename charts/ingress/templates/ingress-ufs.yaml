@@ -24,7 +24,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.global.control.ufs.ufsDomain }}
-      secretName: tls-ufs
+      secretName: {{ .Values.global.control.ufs.tlsSecretName | default "tls-ufs" }}
   {{- end }}
   rules:
     - host: {{ .Values.global.control.ufs.ufsDomain }}

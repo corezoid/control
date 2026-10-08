@@ -85,6 +85,9 @@ data:
           ],
       {{- else }}
           "contactPoints": {{ toJson $control_data.scylladb.contactPoints }},
+          {{- if $control_data.scylladb.localDataCenter }}
+          "localDataCenter": "{{ $control_data.scylladb.localDataCenter }}",
+          {{- end }}
       {{- end }}
           "keyspace": "{{ $control_data.scylladb.keyspace }}"
       },

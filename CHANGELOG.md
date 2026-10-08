@@ -2,6 +2,125 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.77] - 2026-10-07
+### Helm changes
+
+- Applications versions:
+  - server - 5.185.0
+  - frontend - 5.185.0
+  - realtime - 3.16.0
+  - control-tasks - 2.88.0
+  - widget - v1.104.0
+  - claude-code-api - 1.16.0
+  - ctrl-sim-api - 0.12.0
+- Dependencies:
+  - account - 3.31.2 (minimum required Account/SingleSpace version)
+- UFS: enabling `global.control.ufs.enabled` is now enough — the chart creates the UFS secret
+  and the `ufs` database, using the control DB connection unless `ufs.secret.data` overrides it.
+  ClamAV scanning is off by default; enable it together with `global.control.clamav.enabled`.
+- New optional values:
+  - `global.control.imageProxy` — the control domain is trusted automatically and `allowedHosts`
+    only adds exceptions (wildcards `*.example.com` supported); list other hosts that resolve
+    to private IPs, e.g. the auth domain.
+  - `global.control.systemAccounts.enabled` — automatic system account creation (default `true`;
+    set `false` to disable).
+  - `global.control.counters.read.maxYearsInBalance` — balance read depth (recommended: 2).
+  - `global.control.webConfig.uiDefaults` — UI defaults, e.g. `eventsDndLinking: false`.
+- `scylladb.localDataCenter` is now applied to control-tasks and ctrl-sim-api as well.
+- Fixes for UFS, frontend attachments volume and imageProxy/claude-code-api settings.
+- Upgrade notes:
+  - DB migration 5.182.0 drops the legacy `layer_to_actors_position_gis` index (irreversible).
+    If `global.control.ctrl_sim_api.tag` is pinned below 0.8.1, remove the pin or bump it
+    in the same upgrade.
+
+### Improvements / New Features
+
+#### 1. Graphs & Collaboration
+- Added Graph import/export with support for preserving graph metadata and names.
+- Added Universal Search across actors, forms, accounts, and users.
+- Added Graph and Task access permissions with separate access control for graphs and entities within them.
+- Added Workspace Webhooks management with search, creation, editing, and deletion.
+- Added Console Custom Functions with context-aware function management and a redesigned toolbar.
+- Added MCP tool allow-list configuration for the Simulator.Company AI Console.
+
+#### 2. Events & Planning
+- Added automatic parent task progress calculation in Gantt based on child task status.
+
+#### 3. Accessibility
+- Added WCAG 2.1 accessibility improvements for the Simulator CDU widget.
+
+#### 4. Performance & Reliability
+- Improved performance of account tree and counter operations, reducing unnecessary resource consumption.
+- Improved handling of large file uploads to prevent browser crashes.
+- Migrated Simulator UI Kit CI to scalable Kubernetes-based GitLab runners with ARM64/AMD64 support.
+- Improved real-time updates for counters, actors, and events.
+
+#### 5. Graph & UI/UX
+- Improved graph interaction and navigation across actors, accounts, and connections.
+- Improved handling of graph layers and phase creation.
+- Improved Actor and Account views with better navigation and contextual actions.
+- Improved filtering behavior in actor and account lists.
+- Improved console custom-bar integration with actors.
+- Improved interaction feedback and tooltip behavior in Live Calls.
+- Improved session handling for anonymous users after session expiration.
+
+#### 6. Access Control
+- Improved permission handling for Graph, Task, Actor, Account, and Trigger entities.
+- Improved handling of inaccessible triggers and permission-restricted actions.
+- Added configuration to disable automatic system account creation when required.
+
+### Bug Fixes
+
+#### 1. Graphs & Layers
+- Fixed automatic graph layout returning a 400 error instead of positioning nodes.
+- Fixed actor connections not appearing or updating correctly.
+- Fixed incorrect connection rendering and connection replacement behavior.
+- Fixed validation and highlighting issues when creating or editing graph connections.
+- Fixed phases failing to be added to an Actor Graph Layer because of incorrect occupied-cell coordinates.
+- Fixed actors count being incorrect after changing filters.
+- Fixed graph UI elements overlapping after icon updates.
+
+#### 2. Accounts & Transactions
+- Fixed transfer transactions incorrectly crediting the sender account instead of debiting it.
+- Fixed errors when opening or navigating to an Actor Account page.
+- Fixed incorrect account data and balances being displayed in certain views.
+- Fixed incorrect dashboard values related to account data.
+- Fixed transaction submission errors caused by invalid decimal precision.
+- Fixed Account and Trigger management permission issues.
+
+#### 3. Dashboards & Charts
+- Fixed Stacked Bar dashboards getting stuck on an infinite loader after creation.
+- Fixed Top-N chart errors when the filter source does not contain an account.
+- Fixed dashboard filtering and data display issues.
+- Fixed account dashboard and chart rendering problems.
+
+#### 4. Events & Calls
+- Fixed incorrect event sharing images for users with long email addresses.
+- Fixed incorrect URLs and text when replying to messages containing event chips.
+- Fixed Live Calls layout shifting when screen sharing is enabled or disabled.
+- Fixed incorrect tooltip positioning in calls.
+- Fixed issues opening calls from shared links.
+- Fixed trigger names not being displayed correctly.
+- Fixed inaccessible trigger actions incorrectly redirecting users to a 403 page.
+
+#### 5. Description Editor & UI
+- Fixed text overlap and content clipping in Actor View.
+- Fixed long continuous text and JSON overflowing adjacent UI elements.
+- Fixed description content displaying outdated data.
+- Fixed text-selection toolbar positioning.
+- Fixed image attachment previews incorrectly showing "This file is no longer stored."
+- Fixed several Smart Form, Event, Chat, and navigation UI inconsistencies.
+- Fixed AI Console conversation rendering issues.
+- Fixed search by Form ID.
+- Fixed multiple UI stability issues related to dialogs, dropdowns, and navigation.
+
+#### 6. Access, Permissions & Stability
+- Fixed incorrect access redirects for users without Actor access.
+- Fixed permission checks for deleted or inaccessible entities.
+- Fixed repeated API requests when opening the Actor sidebar.
+- Fixed trigger management inconsistencies between accessible and inaccessible triggers.
+- Fixed multiple permission-related edge cases across Graph, Task, Actor, Account, and Trigger entities.
+
 ## [0.3.76] - 2026-09-09
 ### Helm changes
 
@@ -16,23 +135,120 @@ All notable changes to this project will be documented in this file.
 ### Improvements / New Features
 
 #### 1. Graphs & Graph Editing
+- Added Graph import/export through the Simulator API, including preservation of graph metadata and names.
+- Added Sequence Diagram view for visualizing graph execution flows.
+- Added Hole management improvements, including collapse, conditional closing, and returning to a hole after editing.
+- Added support for displaying holes and hole relationships in Gantt view.
+- Added Actor and User Entity Pickers for easier selection of entities in forms and graph configuration.
+- Added Origin information to the Graphs list.
+- Added layer search by ID when adding layers to a graph.
+- Added improved support for multi-layer graph structures and layer-to-layer relationships.
+- Added Graph sharing in Rooms for collaborative work.
+
 #### 2. Gantt & Planning
+- Added task dependencies with the ability to add and remove dependencies.
+- Added manual phases as section dividers.
+- Added a resizable actor/task panel.
+- Added overdue indicators with the number of overdue days.
+- Added predicted overdue indication when an event reaches 70% of its available time.
+- Added contextual hints for overdue events.
+
 #### 3. Forms, Accounts & Dashboards
+- Added improved account visibility and period filtering on dashboards.
+- Added sorting and filtering for Actor Bag and Account Templates.
+- Smart Form now opens by default when a graph is opened.
+- Added support for additional CDU components, including progress bars and improved input capabilities.
+- Added speech-to-text/dictation support for multiline CDU inputs.
+
 #### 4. Collaboration & Meetings
+- Added recurring meetings support in the UI.
+- Improved screen-sharing integration with meeting transcription: recording of the screen-sharing start event; transcript visibility during screen demonstration.
+- Added improved meeting and transcription behavior for collaborative sessions.
+
 #### 5. Accessibility
+- Improved the Simulator chatbot widget to better align with Web Accessibility / WCAG requirements.
+
 #### 6. Performance & Reliability
+- Optimized Graph and Form list requests.
+- Optimized graph update handling to reduce flickering during real-time updates.
+- Improved browser memory behavior during multi-participant screen sharing.
+- Improved database performance for transaction creation and counter operations.
+- Improved runtime and frontend deployment infrastructure.
+
 #### 7. Graph & Gantt UX
+- Improved graph navigation, hole rendering, and connection editing.
+- Improved visualization and interaction with holes and nested graph structures.
+- Improved Gantt layout, resizing, overdue indicators, and task navigation.
+- Improved actor and layer selection workflows.
+- Improved Graphs, Actor Bag, and Account Template list usability with sorting and filtering.
+- Improved Smart Form and CDU interaction patterns.
+
 #### 8. Security
+- Strengthened cross-origin messaging and frontend security controls.
+- Improved access-control handling across actors, events, widgets, and deleted entities.
+- Improved protection of application and deployment configuration secrets.
+
 #### 9. UI Consistency
+- Added and standardized reusable UI Kit components such as Accordion, EmojiPicker, Link, and Recurring Meetings.
+- Updated the AI Console UI according to the latest design system.
+- Improved visual behavior of Graph details, dashboards, dialogs, dropdowns, chips, and navigation elements.
 
 ### Bug Fixes
 
 #### 1. Permissions & Access
+- Fixed incorrect redirects for users without Actor access.
+- Fixed access checks for deleted Actors.
+- Fixed cases where global user permissions could be incorrectly restricted by local Actor roles.
+- Fixed permission changes not being reflected until a page refresh.
+- Fixed incorrect widget navigation after access rights were removed.
+- Fixed repeated access prompts when opening public meeting links.
+- Fixed Firefox-specific 403 access issues.
+
 #### 2. Graphs & Holes
+- Fixed holes not appearing immediately after conversion or editing.
+- Fixed holes not being displayed correctly after graph changes.
+- Fixed incorrect behavior when replacing hole Actors.
+- Fixed transitions not appearing immediately after hole replacement.
+- Fixed hole values not being preserved after editing.
+- Fixed validation states not being highlighted correctly when closing holes.
+- Fixed incorrect connection behavior after adding transactions to hole connections.
+- Fixed connection types changing incorrectly after closing holes.
+- Fixed hole link counters not updating correctly.
+- Fixed incorrect positioning and rendering of hole connections.
+- Fixed graph names being lost during import/export.
+- Fixed several layer search and layer rendering issues.
+
 #### 3. Dashboards, Forms & Accounts
+- Fixed accounts not appearing on dashboards after creation.
+- Fixed dashboards displaying no data in certain accounts.
+- Fixed incorrect account values and date ranges in dashboards.
+- Fixed incorrect field rendering when selecting users.
+- Fixed errors when creating Actors on new layers.
+- Fixed incorrect values shown in Actor Bag metadata.
+- Fixed issues with dashboard title visibility.
+- Fixed UI errors when hovering over chips and interacting with filters.
+
 #### 4. Gantt
+- Fixed completed events incorrectly appearing as overdue.
+- Fixed overdue text overlapping the overdue label.
+- Fixed incorrect overdue calculations and indicators.
+- Fixed Gantt rendering and interaction issues after graph changes.
+
 #### 5. Meetings & Screen Sharing
+- Fixed missing call exit events in transcription.
+- Fixed incorrect participant counts after network reconnection.
+- Fixed meeting sidebar scrolling issues.
+- Fixed transcript and screen-sharing synchronization issues.
+- Fixed browser memory growth during multi-participant screen sharing.
+
 #### 6. UI & Stability
+- Fixed broken dropdown positioning and dialogs being hidden behind other UI elements.
+- Fixed incorrect Trash page column alignment.
+- Fixed PDF rendering errors.
+- Fixed Firefox session expiration issues.
+- Fixed HTML entities being rendered incorrectly in bot prompts and responses.
+- Fixed several Smart Form, Event, Chat, and navigation UI issues.
+- Fixed multiple production and deployment configuration issues.
 
 ## [0.3.74] - 2026-08-19
 ### Helm changes

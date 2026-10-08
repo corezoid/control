@@ -53,6 +53,10 @@ spec:
               value: "{{ $claude_code_api_data.mcp_simulator_url | default "https://sim-dev.simulator.company" }}"
             - name: MCP_RESOURCE_URL
               value: "{{ $claude_code_api_data.mcp_resource_url | default "https://mcp-dev.simulator.company" }}"
+            {{- with $claude_code_api_data.mcp_resolver_allowed_origins }}
+            - name: MCP_RESOLVER_ALLOWED_ORIGINS
+              value: {{ . | quote }}
+            {{- end }}
             {{- /* The service's own public origin. Besides documentation it is
                    the base of the OAuth callback handed to MCP providers
                    (<API_URL>/integrations/oauth/callback), which a provider
@@ -67,7 +71,7 @@ spec:
             {{- end }}
             - name: DB_CLAUDECODE_NAME
               value: "{{ $claude_code_api_data.db.secret.data.dbname | default ($claude_code_api_data.dbname | default "claude_code") }}"
-            - name: DATABASE_TIMEZONE
+            - name: DB_TIMEZONE
               value: "{{ $claude_code_api_data.db_timezone | default "UTC" }}"
             - name: LOG_LEVEL
               value: "{{ $claude_code_api_data.log_level }}"

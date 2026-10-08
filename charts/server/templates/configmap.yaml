@@ -32,6 +32,25 @@ data:
     {{- if .Values.global.control.simulatorCloudUrl }}
     simulatorCloudUrl: {{ .Values.global.control.simulatorCloudUrl }}
     {{- end }}
+    {{- if .Values.global.control.imageProxy }}
+    imageProxy: # SSRF guard for /api/1.0/image and /api/1.0/proxy (CE-15693)
+      enabled: {{ ternary .Values.global.control.imageProxy.enabled true (hasKey .Values.global.control.imageProxy "enabled") }}
+      {{- if hasKey .Values.global.control.imageProxy "allowSelfHosts" }}
+      allowSelfHosts: {{ .Values.global.control.imageProxy.allowSelfHosts }}
+      {{- end }}
+      {{- if .Values.global.control.imageProxy.allowedHosts }}
+      allowedHosts:
+        {{- range .Values.global.control.imageProxy.allowedHosts }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.global.control.imageProxy.timeout }}
+      timeout: {{ .Values.global.control.imageProxy.timeout }}
+      {{- end }}
+      {{- if .Values.global.control.imageProxy.maxContentLength }}
+      maxContentLength: {{ .Values.global.control.imageProxy.maxContentLength }}
+      {{- end }}
+    {{- end }}
 
     auth: # Auth settings via Single Account
       disablePublicApiCheck: {{ .Values.global.control.auth.disablePublicApiCheck }}
@@ -227,6 +246,14 @@ data:
     livekit:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.global.control.systemAccounts }}
+    systemAccounts:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.global.control.counters }}
+    counters:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     requestLimits:
       ip: {{ .Values.global.control.requestLimits.ip }}
 
@@ -254,7 +281,13 @@ data:
         url: {{ .Values.global.control.filesStorage.ufs.url }}
         bucket: {{ .Values.global.control.filesStorage.ufs.bucket }}
         async: {{ .Values.global.control.filesStorage.ufs.async | default false }}
-        antivirus: {{ .Values.global.control.filesStorage.ufs.antivirus | default "clamav" }}
+        {{- /* ask UFS for a scan only with a backend UFS actually runs */}}
+        {{- $ufs_av := (.Values.global.control.ufs | default dict).antivirus | default dict }}
+        {{- if .Values.global.control.filesStorage.ufs.antivirus }}
+        antivirus: {{ .Values.global.control.filesStorage.ufs.antivirus }}
+        {{- else if ($ufs_av.clamav | default dict).enabled }}
+        antivirus: clamav
+        {{- end }}
       {{- end }}
       {{- else }}
       eventFiles: {{ .Values.global.control.filesStorage.eventFiles }}
@@ -266,6 +299,10 @@ data:
       adminCorezoid: https://{{ .Values.global.control.adminCorezoidDomain }} # Corezoid Admin domain
       widgetUrl: https://{{- include "control.WidgetDomain" . }} # Control widget host
       supportEmail: {{ .Values.global.control.webConfig.supportEmail }} # Email for support
+      {{- with .Values.global.control.webConfig.uiDefaults }}
+      uiDefaults: # UI defaults, e.g. eventsDndLinking: false
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       realtimeApi: wss://{{- include "control.Domain" . }} # Control-realtime host
       apiDoc: https://{{- include "control.Domain" . }}/api.html # API doc host
       maxFileSize: {{ .Values.global.control.webConfig.maxFileSize }} # Max filesize
@@ -353,6 +390,10 @@ data:
       mcp: {{ $control_server_config.aiAgent.mcp }}
       ttlSeconds: {{ $control_server_config.aiAgent.ttlSeconds | default 1800 }}
       timeoutMs: {{ $control_server_config.aiAgent.timeoutMs | default 600000 }}
-      stream: {{ $control_server_config.aiAgent.stream | default true }}
+      stream: {{ ternary $control_server_config.aiAgent.stream true (hasKey $control_server_config.aiAgent "stream") }}
+      {{- with $control_server_config.aiAgent.allowedTools }}
+      allowedTools:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     {{- end }}
     {{- end }}

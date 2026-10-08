@@ -31,7 +31,7 @@ data:
 
     database:
       host: "${UFS_DB_HOST}"
-      port: {{ $ufs_data.db.secret.data.dbport | default "5432" }}
+      port: {{ $ufs_data.secret.data.dbport | default .Values.global.db.secret.data.dbport | default "5432" }}
       user: "${UFS_DB_USER}"
       password: "${UFS_DB_PASSWORD}"
       database: "${UFS_DB_NAME}"

@@ -26,6 +26,9 @@ spec:
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        {{- with $sim_tei_data.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         {{- include "sim-tei.selectorLabels" . | nindent 8 }}
     spec:
@@ -67,18 +70,28 @@ spec:
               value: {{ .Values.global.control.simTei.config.normalize | default .Values.tei.normalize | quote }}
             - name: RUST_BACKTRACE
               value: {{ .Values.global.control.simTei.config.rustBacktrace | default .Values.tei.rustBacktrace | quote }}
-#           livenessProbe:
-#             httpGet:
-#               path: /health
-#               port: http
-#             initialDelaySeconds: 30
-#             periodSeconds: 10
-#           readinessProbe:
-#             httpGet:
-#               path: /health
-#               port: http
-#             initialDelaySeconds: 5
-#             periodSeconds: 5
+            {{- /* optional: bounds warm-up/batch memory; required for the CPU (ONNX) image */}}
+            {{- with $sim_tei_data.config.maxBatchTokens }}
+            - name: MAX_BATCH_TOKENS
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with $sim_tei_data.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- /* probes are opt-in via values; without a readinessProbe a RollingUpdate drops the old pod
+               before the new one has loaded the model (2-4 min gap) */}}
+          {{- with $sim_tei_data.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $sim_tei_data.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $sim_tei_data.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml $sim_tei_data.resources | nindent 12 }}
       {{- with $sim_tei_data.nodeSelector }}

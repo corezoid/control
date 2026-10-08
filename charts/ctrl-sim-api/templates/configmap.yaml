@@ -30,6 +30,9 @@ data:
       {{- end }}
       {{- end }}
       keyspace: {{ $control_data.scylladb.keyspace }}
+      {{- if $control_data.scylladb.localDataCenter }}
+      localDataCenter: {{ $control_data.scylladb.localDataCenter }}
+      {{- end }}
       {{- end }}
 
     postgres:
@@ -144,7 +147,13 @@ data:
         url: {{ .Values.global.control.filesStorage.ufs.url }}
         bucket: {{ .Values.global.control.filesStorage.ufs.bucket }}
         async: {{ .Values.global.control.filesStorage.ufs.async | default false }}
-        antivirus: {{ .Values.global.control.filesStorage.ufs.antivirus | default "clamav" }}
+        {{- /* ask UFS for a scan only with a backend UFS actually runs (same as server) */}}
+        {{- $ufs_av := (.Values.global.control.ufs | default dict).antivirus | default dict }}
+        {{- if .Values.global.control.filesStorage.ufs.antivirus }}
+        antivirus: {{ .Values.global.control.filesStorage.ufs.antivirus }}
+        {{- else if ($ufs_av.clamav | default dict).enabled }}
+        antivirus: clamav
+        {{- end }}
       {{- end }}
       {{- else }}
       type: fs
@@ -166,4 +175,31 @@ data:
       {{- if .Values.global.control.webConfig.widgetAiConsoleRef }}
       widgetAiConsoleRef: {{ .Values.global.control.webConfig.widgetAiConsoleRef }}
       {{- end }}
+      {{- if .Values.global.control.webConfig.apiGateway }}
+      apiGateway:
+        ref: {{ .Values.global.control.webConfig.apiGateway.ref }}
+      {{- end }}
+      {{- with .Values.global.control.webConfig.featureFlags }}
+      featureFlags:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- /* shared with the server: both create system accounts, so one switch for both */}}
+    {{- with .Values.global.control.systemAccounts }}
+    systemAccounts:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if $ctrl_sim_api_config }}
+    {{- with $ctrl_sim_api_config.transactions }}
+    transactions:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with $ctrl_sim_api_config.shortUrls }}
+    shortUrls:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with $ctrl_sim_api_config.kafka }}
+    kafka:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- end }}
 {{- end }}
