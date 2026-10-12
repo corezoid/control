@@ -92,6 +92,10 @@ global:
     internal: true
     ## pvc name if it already exist or was created manualy
     persistantVolumeClaimName: "redis-pvc"
+    ## name of the PV the claim is bound to (kubectl get pvc -o jsonpath='{.spec.volumeName}').
+    ## Optional; set it for an existing claim so an Argo CD sync with Replace=true does not fail
+    ## on the immutable PVC spec.
+    # volumeName: ""
     ## secret configuration for redis
     sentinel:
       enable: false
