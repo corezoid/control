@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.78] - 2026-10-12
+### Helm changes
+
+- Applications versions:
+  - server - 5.185.0
+  - frontend - 5.185.2
+  - realtime - 3.16.0
+  - control-tasks - 2.88.0
+  - widget - v1.104.1
+  - claude-code-api - 1.16.0
+  - ctrl-sim-api - 0.12.0
+- UFS: values written before 0.3.77 (`global.control.ufs.db.secret`) are honoured again;
+  the post-install job creates the `ufs` database only when UFS uses the control app user.
+- New optional value `global.redis.volumeName` — the PV name an existing redis PVC is bound to.
+
+### Bug Fixes
+
+#### 1. Fixed dropdown (select) fields in forms: a value chosen with the mouse was not applied, the form change event was not sent and dependent buttons (e.g. Start Chat in the widget welcome form) stayed disabled.
+
 ## [0.3.77] - 2026-10-07
 ### Helm changes
 

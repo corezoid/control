@@ -12,6 +12,10 @@ metadata:
     application: control-{{ .Values.appName }}
 spec:
   storageClassName: {{ .Values.global.storageClassName }}
+  {{- with .Values.global.redis.volumeName }}
+  # bound PV; keeps the spec identical to the live claim so Argo Replace sync does not fail
+  volumeName: {{ . }}
+  {{- end }}
   accessModes:
 {{- if eq .Values.global.storage "efs" }}
   - ReadWriteMany

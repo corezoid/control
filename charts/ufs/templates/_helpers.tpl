@@ -17,5 +17,19 @@ Image url
 Secret name for ufs credentials
 */}}
 {{- define "ufs.secretName" -}}
-{{- .Release.Name }}-{{ .Values.global.control.ufs.secret.name | default "ufs-secret" }}
+{{- $s := include "ufs.secretValues" . | fromYaml -}}
+{{- .Release.Name }}-{{ $s.name | default "ufs-secret" }}
+{{- end }}
+
+{{/*
+UFS secret values: global.control.ufs.secret, or the legacy
+global.control.ufs.db.secret when it is set (values written before 0.3.77)
+*/}}
+{{- define "ufs.secretValues" -}}
+{{- $ufs := .Values.global.control.ufs -}}
+{{- $s := $ufs.secret | default dict -}}
+{{- if and (hasKey $ufs "db") $ufs.db (hasKey $ufs.db "secret") $ufs.db.secret -}}
+{{- $s = $ufs.db.secret -}}
+{{- end -}}
+{{- toYaml $s -}}
 {{- end }}
