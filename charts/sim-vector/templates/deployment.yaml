@@ -43,6 +43,10 @@ spec:
               value: "{{ $sim_vector_data.batchSize }}"
             - name: VECTORIZATION_BATCH_SIZE
               value: "{{ $sim_vector_data.VectorizationbatchSize }}"
+            {{- if $sim_vector_data.retryMaxDelay }}
+            - name: RETRY_MAX_DELAY
+              value: "{{ $sim_vector_data.retryMaxDelay }}"
+            {{- end }}
             - name: SLEEP_INTERVAL
               value: "{{ $sim_vector_data.sleepInterval }}"
             - name: ALLOW_SEARCH
@@ -76,6 +80,63 @@ spec:
               value: "{{ .Values.global.control.sim_vector.milvusIndexType }}"
             - name: SIM_VECTOR_NAME
               value: "{{ .Values.global.control.sim_vector.simVectorName }}"
+            {{- end }}
+            {{- with $sim_vector_data.embedding }}
+            {{- if .provider }}
+            - name: EMBEDDING_PROVIDER
+              value: {{ .provider | quote }}
+            {{- end }}
+            {{- if has (.provider | default "tei") (list "apigw" "hybrid") }}
+            - name: EMBEDDING_APIGW_URL
+              value: {{ required "global.control.sim_vector.embedding.apigwUrl is required when provider is apigw or hybrid" .apigwUrl | quote }}
+            {{- end }}
+            {{- if .apigwToken }}
+            - name: EMBEDDING_APIGW_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sim-vector.secretName" $ }}
+                  key: embeddingApigwToken
+            {{- end }}
+            {{- if .apigwMaxBatchSize }}
+            - name: EMBEDDING_APIGW_MAX_BATCH_SIZE
+              value: {{ .apigwMaxBatchSize | quote }}
+            {{- end }}
+            {{- if .timeout }}
+            - name: EMBEDDING_TIMEOUT
+              value: {{ .timeout | quote }}
+            {{- end }}
+            {{- if .apigwTimeout }}
+            - name: EMBEDDING_APIGW_TIMEOUT
+              value: {{ .apigwTimeout | quote }}
+            {{- end }}
+            {{- if hasKey . "hybridCooldown" }}
+            - name: EMBEDDING_HYBRID_COOLDOWN
+              value: {{ .hybridCooldown | quote }}
+            {{- end }}
+            {{- if .apigwMode }}
+            {{- if eq .apigwMode "async" }}
+            {{- if ne (.provider | default "tei") "apigw" }}
+            {{- fail "global.control.sim_vector.embedding.apigwMode async works only with provider apigw" }}
+            {{- end }}
+            {{- if not .apigwCallbackUrl }}
+            {{- fail "global.control.sim_vector.embedding.apigwCallbackUrl is required for apigwMode async" }}
+            {{- end }}
+            {{- end }}
+            - name: EMBEDDING_APIGW_MODE
+              value: {{ .apigwMode | quote }}
+            {{- end }}
+            {{- if .apigwCallbackUrl }}
+            - name: EMBEDDING_APIGW_CALLBACK_URL
+              value: {{ .apigwCallbackUrl | quote }}
+            {{- end }}
+            {{- if .apigwCallbackTimeout }}
+            - name: EMBEDDING_APIGW_CALLBACK_TIMEOUT
+              value: {{ .apigwCallbackTimeout | quote }}
+            {{- end }}
+            {{- if .apigwMaxInFlight }}
+            - name: EMBEDDING_APIGW_MAX_IN_FLIGHT
+              value: {{ .apigwMaxInFlight | quote }}
+            {{- end }}
             {{- end }}
             {{- if .Values.global.control.auth.key }}
             - name: API_SECRET

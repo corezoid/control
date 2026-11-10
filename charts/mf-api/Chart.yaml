@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mf-api
+description: A Helm chart for MF API (Migration Factory API)
+type: application
+version: 0.1.2
+appVersion: 1.0.6

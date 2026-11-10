@@ -12,3 +12,10 @@ Image url
 {{- $repotype := .Values.global.control.sim_vector.repotype | default .Values.global.repotype -}}
 {{ $imageRegistry }}/{{ $repotype }}/{{ .Values.image.repository }}:{{ .Values.global.control.sim_vector.tag | default .Chart.AppVersion }}
 {{- end }}
+
+{{/*
+Secret with sim-vector credentials (embedding API Gateway token)
+*/}}
+{{- define "sim-vector.secretName" -}}
+{{ .Release.Name }}-sim-vector
+{{- end }}

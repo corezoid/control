@@ -1,0 +1,51 @@
+{{- $mf_api_data := index .Values.global.control "mf-api" -}}
+{{- if and (hasKey .Values.global.control "mf-api") (hasKey $mf_api_data "enabled") $mf_api_data.enabled (hasKey $mf_api_data "mfApiDomain") $mf_api_data.mfApiDomain -}}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ include "control.fullname" . }}-mf-api
+  labels:
+    {{- include "control.labels" . | nindent 4 }}
+  annotations:
+    {{- include "control.ingressAnnotations" . | nindent 4 }}
+    nginx.ingress.kubernetes.io/proxy-body-size: "{{ $mf_api_data.maxBodySize | default "32m" }}"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "{{ $mf_api_data.proxyReadTimeout | default "600" }}"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "{{ $mf_api_data.proxySendTimeout | default "600" }}"
+    # Overrides the platform list from control.ingressAnnotations: mf-api reads
+    # the caller identity from X-Auth-Token and the migration from
+    # X-Session-Ref, and a header missing from this list fails the browser
+    # preflight even though curl (which skips it) works.
+    nginx.ingress.kubernetes.io/cors-allow-headers: "{{ $mf_api_data.corsAllowHeaders | default "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,X-Auth-Token,X-Session-Ref,X-App-Client,X-App-Platform,X-App-Device-Id,X-App-Version,X-App-Tab-Id,X-App-Packet-Id,X-Request-ID,X-CSRF-Token" }}"
+spec:
+  {{- if and .Values.global.control.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.global.control.ingress.className }}
+  {{- end }}
+  {{- if .Values.global.control.ingress.tls }}
+  tls:
+    - hosts:
+        - {{ $mf_api_data.mfApiDomain }}
+      secretName: tls-mf-api
+  {{- end }}
+  rules:
+    - host: {{ $mf_api_data.mfApiDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: mf-api-service
+                port:
+                  number: 8080
+              {{- else }}
+              serviceName: mf-api-service
+              servicePort: 8080
+              {{- end }}
+{{- end }}

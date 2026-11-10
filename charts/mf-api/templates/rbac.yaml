@@ -1,0 +1,15 @@
+{{- $mf_api_data := index .Values.global.control "mf-api" }}
+{{- if and (hasKey .Values.global.control "mf-api") (hasKey $mf_api_data "enabled") $mf_api_data.enabled }}
+{{- if $mf_api_data.serviceAccount.create -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.appName }}-serviceaccount
+  labels:
+    {{- include "mf-api.labels" . | nindent 4 }}
+  {{- with $mf_api_data.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

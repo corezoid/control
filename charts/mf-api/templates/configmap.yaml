@@ -1,0 +1,119 @@
+{{- $mf_api_data := index .Values.global.control "mf-api" }}
+{{- if and (hasKey .Values.global.control "mf-api") (hasKey $mf_api_data "enabled") $mf_api_data.enabled }}
+{{- $migration := $mf_api_data.migration | default dict }}
+{{- $server := $mf_api_data.server | default dict }}
+{{- $ccApi := $mf_api_data.ccApi | default dict }}
+{{- $account := $mf_api_data.account | default dict }}
+{{- $session := $mf_api_data.session | default dict }}
+{{- $simulator := $mf_api_data.simulator | default dict }}
+{{- $firecrawl := $mf_api_data.firecrawl | default dict }}
+{{- $airbyte := $mf_api_data.airbyte | default dict }}
+{{- $typesafe := $mf_api_data.typesafe | default dict }}
+{{- $build := $mf_api_data.build | default dict }}
+{{- $hermes := $mf_api_data.hermes | default dict }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-configmap
+  labels:
+    {{- include "mf-api.labels" . | nindent 4 }}
+data:
+  # config.json is read by internal/config.Load, which expands ${VAR} from the
+  # environment before parsing. Every secret below therefore stays a
+  # placeholder here and arrives as an env var from the secret.
+  #
+  # The shape has to match internal/config.Config key for key: json.Unmarshal
+  # drops a key it does not know without a word, so a spelling that fell out of
+  # the service still reads as configured here while the field behind it takes
+  # its zero value. Delete a key here when it leaves the service, do not park it.
+  config.json: |
+    {
+      "app": {
+        "name": "mf-api",
+        "version": "{{ .Chart.AppVersion }}",
+        "url": "https://{{ $mf_api_data.mfApiDomain | default "" }}",
+        "env": "{{ $mf_api_data.env | default "production" }}"
+      },
+      "server": {
+        "port": {{ .Values.appPort }},
+        "read_timeout": "{{ $server.read_timeout | default "30s" }}",
+        "write_timeout": "{{ $server.write_timeout | default "30s" }}",
+        "idle_timeout": "{{ $server.idle_timeout | default "60s" }}",
+        "shutdown_timeout": "{{ $server.shutdown_timeout | default "10s" }}",
+        "api_secret": "${MF_API_SECRET}"
+      },
+      "log": {
+        "level": "{{ $mf_api_data.log_level | default "info" }}"
+      },
+      "cc_api": {
+        "base_url": "{{ include "mf-api.ccApiBaseUrl" . }}",
+        "workspace_secret": "${MF_API_CC_WORKSPACE_SECRET}",
+        "timeout": "{{ $ccApi.timeout | default "" }}",
+        "ai_url": "{{ $ccApi.aiUrl | default "" }}",
+        "ai_token": "${MF_API_CC_AI_TOKEN}",
+        "ai_model": "{{ $ccApi.aiModel | default "" }}",
+        "ai_model_lite": "{{ $ccApi.aiModelLite | default "claude-haiku-4-5" }}"
+      },
+      "simulator": {
+        "mw": "{{ $simulator.mw | default $simulator.baseUrl | default "https://mw.simulator.company/papi/1.0" }}",
+        "sim": "{{ $simulator.sim | default "" }}"
+      },
+      "account": {
+        "base_url": "{{ $account.baseUrl | default "" }}"
+      },
+      "firecrawl": {
+        "base_url": "{{ $firecrawl.baseUrl | default "" }}",
+        "api_key": "${MF_API_FIRECRAWL_API_KEY}"
+      },
+      "airbyte": {
+        "base_url": "{{ $airbyte.baseUrl | default "" }}",
+        "client_id": "${MF_API_AIRBYTE_CLIENT_ID}",
+        "client_secret": "${MF_API_AIRBYTE_CLIENT_SECRET}",
+        "workspace_id": "{{ $airbyte.workspaceId | default "" }}",
+        "destination_id": "{{ $airbyte.destinationId | default "" }}",
+        "landing_bucket": "{{ $airbyte.landingBucket | default "" }}"
+      },
+      "typesafe": {
+        "base_url": "{{ $typesafe.baseUrl | default "" }}",
+        "api_key": "${MF_API_TYPESAFE_API_KEY}",
+        "model": "{{ $typesafe.model | default "" }}"
+      },
+      "migration": {
+        "actor_migration_form_id": {{ $migration.actorMigrationFormId | default 0 }},
+        "gant_layer_id": "{{ $migration.gantLayerId | default "" }}",
+        "dto_layer_id": "{{ $migration.dtoLayerId | default "" }}",
+        "gant_graph_id": "{{ $migration.gantGraphId | default "" }}",
+        "dto_graph_id": "{{ $migration.dtoGraphId | default "" }}",
+        "system_workspace_id": "{{ $migration.systemWorkspaceId | default "" }}",
+        "system_api_key": "${MF_API_SYSTEM_API_KEY}",
+        "dto_status_form_id": {{ $migration.dtoStatusFormId | default 0 }},
+        "dto_status_initial_ref": "{{ $migration.dtoStatusInitialRef | default "dto_status_start_migration" }}",
+        "source_form_id": {{ $migration.sourceFormId | default 0 }},
+        "public_gantt_graph_id": "{{ $migration.publicGanttGraphId | default "" }}",
+        "demo_group_id": {{ $migration.demoGroupId | default 0 }},
+        "view_signer_key": "${MF_API_VIEW_SIGNER_KEY}",
+        "view_signer_id": "{{ $migration.viewSignerId | default "" }}",
+        "view_viewer_user_id": {{ $migration.viewViewerUserId | default 0 }},
+        "view_token_ttl": "{{ $migration.viewTokenTtl | default "15m" }}"
+      },
+      "session": {
+        "ttl": "{{ $session.ttl | default "24h" }}"
+      },
+      "build": {
+        "mock": {{ $build.mock | default false }},
+        "runner": "{{ $build.runner | default "" }}"
+      },
+      "hermes": {
+        "base_url": "{{ $hermes.baseUrl | default "" }}",
+        "profile": "{{ $hermes.profile | default "" }}",
+        "api_key": "${MF_API_HERMES_API_KEY}",
+        "timeout": "{{ $hermes.timeout | default "" }}",
+        "model": "{{ $hermes.model | default "" }}",
+        "model_lite": "{{ $hermes.modelLite | default "" }}",
+        "runs_dir": "{{ $hermes.runsDir | default "" }}",
+        "skill_prefix": "{{ $hermes.skillPrefix | default "" }}",
+        "poll_every": "{{ $hermes.pollEvery | default "10s" }}",
+        "pricing": {{ $hermes.pricing | default dict | toJson }}
+      }
+    }
+{{- end }}
