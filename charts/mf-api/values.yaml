@@ -1,0 +1,7 @@
+appName: mf-api
+prometheusPath: /metrics
+prometheusInterval: 15s
+appPort: 8080
+
+image:
+  repository: mf-api

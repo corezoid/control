@@ -331,6 +331,14 @@ global:
       #log_level: info
       # Overrides the image tag whose default is the chart appVersion.
       # tag: ""
+      # Optional WebSocket settings, rendered as the `ws:` section of control_realtime.yml.
+      # config:
+      #   ws:
+      #     ping_interval_sec: 15
+      #     pong_timeout_sec: 10
+      #     queue_size: 256
+      #     overflow: resync
+      #     resync_limit_per_min: 3
       autoscaling:
         enabled: false
         minReplicas: 1
@@ -466,6 +474,12 @@ global:
       log_level: info
       # Optional sim-api (0.12+) blocks, rendered as-is when set; absent = app defaults.
       # config:
+      #   # Origins (scheme://host[:port]) of web clients on an origin other than trackUrl
+      #   # (runtime, Flutter web) that may receive the OAuth code; login from any other
+      #   # origin is refused with "returnUrl is not allowed" (sim-api SEC-1423; older
+      #   # sim-api ignores the key).
+      #   authReturnUrls:
+      #     - https://app.example.com
       #   transactions:
       #     strictLimits: true            # false only as a temporary rollback
       #     transferEffectsV1Ready: false # keep false until control-tasks supports schema v1
@@ -750,6 +764,152 @@ global:
           dbpwd: ""
           dbname: "ufs"
           clamavAddress: "clamav:3310"
+    ##########  MF API (Migration Factory API)  ##########
+    # Go service that opens migration sessions against Simulator.Company and
+    # drives the actors behind them, calling claude-code-api for the agent
+    # turns. Stateless: no database of its own, the session state is
+    # write-through to a Simulator form.
+    mf-api:
+      enabled: false
+      # Public host of mf-api itself (used for app.url and the ingress rule),
+      # e.g. mf-dev.simulator.company / mf-pre.simulator.company.
+      mfApiDomain: ""
+      maxBodySize: "32m"
+      proxyReadTimeout: "600"
+      proxySendTimeout: "600"
+      # Leave unset to take the ingress default, which already lists the
+      # X-Auth-Token and X-Session-Ref headers mf-api reads.
+      # corsAllowHeaders: ""
+      pullPolicy: IfNotPresent
+      # image:
+      #   repository: ""   # overrides the chart default "mf-api"
+      # Overrides the image tag whose default is the mf-api chart appVersion.
+      # tag: ""
+      env: production
+      log_level: info
+      annotations: {}
+      metrics:
+        # mf-api serves no /metrics endpoint yet — turning this on before it
+        # does only gets the target marked down.
+        enabled: false
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
+      resources:
+        limits:
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      nodeSelector: {}
+      tolerations: []
+      affinity: {}
+      # /etc/hosts entries for the pod. mf-api posts to callback URLs its
+      # caller names and refuses any that resolve to a private address (SSRF
+      # guard); a host the cluster's DNS answers with an internal address
+      # (split-horizon, e.g. www.corezoid.com) is pinned here to its public
+      # one. Static: a host whose public addresses change needs this updated.
+      # hostAliases:
+      #   - ip: "203.0.113.10"
+      #     hostnames: ["www.example.com"]
+      hostAliases: []
+      serviceAccount:
+        create: false
+        annotations: {}
+      server:
+        read_timeout: 30s
+        write_timeout: 30s
+        idle_timeout: 60s
+        shutdown_timeout: 10s
+      # claude-code-api, the agent backend. baseUrl defaults to the in-cluster
+      # service of the claude-code-api subchart; set it only when mf-api must
+      # reach an instance outside this release.
+      ccApi:
+        baseUrl: ""
+        # Client-side deadline as a Go duration. Empty (or "0s") means none,
+        # which is what agent turns want — they are long-running.
+        timeout: ""
+        # Upstream LLM a cc-api session talks to, passed per session rather
+        # than configured inside cc-api: the gateway and the model id. The key
+        # it accepts lives in secret.data.ccAiToken. All three empty falls back
+        # to whatever cc-api is configured with; aiModel empty makes dto-fill
+        # refuse the run, since cc-api requires a model on the chat route.
+        aiUrl: ""
+        aiModel: ""
+        # Absolute URL cc-api posts session callbacks back to, route included.
+        # Empty falls back to app.url (i.e. https://<mfApiDomain>) plus the
+        # route, which is right whenever mfApiDomain is the origin cc-api can
+        # actually reach — override only behind a tunnel or split-horizon DNS.
+        callbackUrl: ""
+      simulator:
+        # Simulator.Company gateway. A bare host works too: the client
+        # normalises it and appends /papi/1.0.
+        baseUrl: "https://mw.simulator.company/papi/1.0"
+      account:
+        # Corezoid Single Account.
+        baseUrl: "https://account.corezoid.com/face/api/1"
+      # Firecrawl, the crawler behind link sources. baseUrl empty leaves the
+      # client with nowhere to go; the key it needs is in
+      # secret.data.firecrawlApiKey.
+      firecrawl:
+        baseUrl: ""
+        # Ceilings of a single crawl: pages in total, and link depth from the
+        # seed url.
+        maxPages: 200
+        maxDepth: 5
+        # How many crawled pages are handed on at a time.
+        pagesPerBatch: 10
+        # How often a running crawl is polled, and how many polls before it is
+        # given up on — 15s * 240 is an hour of patience.
+        pollInterval: "15s"
+        maxPolls: 240
+      # Wiring of the actor migration. These have no sensible defaults — the
+      # service refuses a migration and reports the missing keys when any is
+      # unset, so fill every one of them per environment.
+      migration:
+        # Simulator form that drives a migration run.
+        actorMigrationFormId: 0
+        # Workspace holding that form, and the API key used to reach it.
+        systemWorkspaceId: ""
+        # The key itself lives in secret.data.systemApiKey below.
+        # Graphs and layers the migrated actors are written to.
+        gantGraphId: ""
+        gantLayerId: ""
+        dtoGraphId: ""
+        dtoLayerId: ""
+        # "DTO Population Status" dictionary form, and the entry a freshly
+        # opened session starts on.
+        dtoStatusFormId: 0
+        dtoStatusInitialRef: "dto_status_start_migration"
+        # Form whose actors are a session's input sources — one per text,
+        # file, link, Drive item or archive. Unset breaks /api/v1/sources.
+        sourceFormId: 0
+        # Shared graph in systemWorkspaceId holding anonymous sessions' Gantt
+        # layers. Unset makes an anonymous /api/v1/init fail.
+        publicGanttGraphId: ""
+      session:
+        # How long an untouched session survives. "-1s" disables expiry.
+        ttl: "24h"
+      secret:
+        name: mf-api-secret
+        create: true
+        data:
+          # Guards the /api/v1 routes. Empty falls back to
+          # global.control.auth.key, the platform-wide key ufs uses too.
+          apiSecret: ""
+          # Bearer token for the /v1 routes of claude-code-api.
+          ccWorkspaceSecret: ""
+          # Operator-level key for the claude-code-api OAuth-client registry.
+          ccAdminKey: ""
+          # Key the LLM gateway at ccApi.aiUrl accepts.
+          ccAiToken: ""
+          # Simulator API key of migration.systemWorkspaceId.
+          systemApiKey: ""
+          # Key the Firecrawl instance at firecrawl.baseUrl accepts.
+          firecrawlApiKey: ""
     clamav:
       enabled: false
       resources:

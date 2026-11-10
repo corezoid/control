@@ -1,0 +1,144 @@
+{{- $global_data := .Values.global }}
+{{- $mf_api_data := index $global_data.control "mf-api" }}
+{{- if and (hasKey .Values.global.control "mf-api") (hasKey $mf_api_data "enabled") $mf_api_data.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+    {{- include "mf-api.labels" . | nindent 4 }}
+spec:
+  {{- if not $mf_api_data.autoscaling.enabled }}
+  replicas: {{ $mf_api_data.autoscaling.minReplicas | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mf-api.labels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        # Roll the pods when the rendered config changes: the file is read once
+        # at start-up, so without this a values edit would sit unapplied.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "mf-api.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      {{- if $mf_api_data.serviceAccount.create }}
+      serviceAccountName: {{ .Values.appName }}-serviceaccount
+      {{- end }}
+      {{- with $global_data.control.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with $global_data.control.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: {{ include "mf-api.imageUrl" . | quote }}
+          imagePullPolicy: {{ $mf_api_data.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: MF_API_CONFIG
+              value: "/opt/conf/config.json"
+            - name: MF_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: apiSecret
+            - name: MF_API_CC_WORKSPACE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: ccWorkspaceSecret
+            - name: MF_API_CC_AI_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: ccAiToken
+            - name: MF_API_SYSTEM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: systemApiKey
+            - name: MF_API_FIRECRAWL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: firecrawlApiKey
+            - name: MF_API_TYPESAFE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: typesafeApiKey
+            - name: MF_API_AIRBYTE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: airbyteClientId
+            - name: MF_API_AIRBYTE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: airbyteClientSecret
+            - name: MF_API_VIEW_SIGNER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: viewSignerKey
+            - name: MF_API_HERMES_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mf-api.secretName" . }}
+                  key: hermesApiKey
+          ports:
+            - name: http
+              containerPort: {{ .Values.appPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: config
+              mountPath: /opt/conf
+              readOnly: true
+          resources:
+            {{- toYaml $mf_api_data.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Values.appName }}-configmap
+      {{- with $mf_api_data.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mf_api_data.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mf_api_data.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mf_api_data.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

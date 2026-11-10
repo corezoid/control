@@ -1,0 +1,23 @@
+{{/*
+mf-api does not serve /metrics yet, so the ServiceMonitor is gated on its own
+switch on top of the platform one. Flip global.control.mf-api.metrics.enabled
+once the endpoint exists — nothing else here needs changing.
+*/}}
+{{- $mf_api_data := index .Values.global.control "mf-api" }}
+{{- if and (hasKey .Values.global.control "mf-api") (hasKey $mf_api_data "enabled") $mf_api_data.enabled $mf_api_data.metrics.enabled .Values.global.serviceMonitor.enabled }}
+apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.appName }}
+  labels:
+    {{- include "mf-api.labels" . | nindent 4 }}
+    {{- include "common.ServiceMonitor.metadata.labes" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "mf-api.labels" . | nindent 6 }}
+  endpoints:
+  - path: {{ .Values.prometheusPath | default "/metrics" }}
+    targetPort: {{ .Values.appPort }}
+    interval: {{ .Values.prometheusInterval | default "15s" }}
+{{- end }}

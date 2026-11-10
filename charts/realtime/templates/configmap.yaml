@@ -88,5 +88,9 @@ data:
             region: {{ .Values.global.control.realtime.config.ios_push_kit.certs.default.aws_secret.region }}
             name: {{ .Values.global.control.realtime.config.ios_push_kit.certs.default.aws_secret.name }}
     {{- end }}
+    {{- with (.Values.global.control.realtime.config | default dict).ws }}
+    ws:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     metrics:
       port: {{ include "control.realtime.metrics_port" . }}

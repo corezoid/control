@@ -1,0 +1,20 @@
+{{- $mf_api_data := index .Values.global.control "mf-api" }}
+{{- if and (hasKey .Values.global.control "mf-api") (hasKey $mf_api_data "enabled") $mf_api_data.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.appName }}-service
+  labels:
+    {{- include "mf-api.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml $mf_api_data.annotations | nindent 4 }}
+spec:
+  selector:
+    {{- include "mf-api.labels" . | nindent 4 }}
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.appPort }}
+      targetPort: {{ .Values.appPort }}
+      protocol: TCP
+      name: http
+{{- end }}

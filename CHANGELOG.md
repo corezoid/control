@@ -2,6 +2,157 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+## [0.3.80] - 2026-11-04
+### Helm changes
+
+- Applications versions:
+  - server - 5.189.0
+  - frontend - 5.189.1
+  - realtime - 3.18.1
+  - control-tasks - 2.92.0
+  - widget - v1.108.0
+  - claude-code-api - 1.17.0
+  - ctrl-sim-api - 0.15.11
+  - ufs - 1.1.0
+  - sim-vector - 1.3.1
+  - mf-api - 1.0.6
+- mf-api (Migration Factory API): new optional sub-chart (`charts/mf-api`, condition `global.control.mf-api.enabled`,
+  disabled by default), published by `ingress-mf-api.yaml` on `global.control.mf-api.mfApiDomain`.
+  New optional value `global.control.mf-api.hostAliases` — rendered as the pod's `hostAliases`, so a callback host
+  that the cluster's DNS resolves to a private address can be pinned to its public one.
+- ctrl-sim-api: `global.control.webConfig.digitalSignature` (`scriptUrl`, `allowedProviders`) is now rendered into
+  the sim-api `webConfig` too, so sim-api sees the e-signature widget the server already gets.
+- ctrl-sim-api: new optional values under `global.control.ctrl_sim_api.config`, rendered as is; not set — config unchanged:
+  - `ai` — AI Console: agent runtime, Hermes server, budget, router.
+  - `webhooks`, `vectorizer` — workspace webhooks and the vectorizer.
+  - `saNotify` — rendered as `sa.notify`; sim-api registers itself as the account notify URL.
+  - `peers` — trusted installations for remote smart form deploy.
+  - `authReturnUrls` — origins of web clients outside `trackUrl` allowed to receive the OAuth code.
+- sim-vector: new optional `global.control.sim_vector.embedding` — embedding provider (`tei`, `apigw`, `hybrid`),
+  API Gateway URL and token, batch size, timeouts, sync/async API Gateway mode with callback URL.
+  Rendering fails for `apigw`/`hybrid` without a URL and for async mode without `apigw` or a callback URL.
+- realtime: new optional value `global.control.realtime.config.ws` — rendered as the `ws:` section of `control_realtime.yml`
+  (`ping_interval_sec`, `pong_timeout_sec`, `queue_size`, `overflow`, `resync_limit_per_min`). Not set — config unchanged.
+- sim-tei: optional `global.control.simTei.podAnnotations`, `config.maxBatchTokens`, `extraEnv` and `startupProbe` / `readinessProbe` /
+  `livenessProbe` (off by default).
+- ingress: `Control-Client` added to `cors-allow-headers` — control-widget sends it on every API request,
+  and its cross-origin preflight failed without it.
+
+### Improvements / New Features
+
+#### 1. Graphs & AI
+- Added Graph Simulation action to launch scenario simulations through Simulator MCP directly from the Graph toolbar.
+- Added Add Source action to submit files, text, or links for graph enrichment through AI agent.
+
+#### 2. Events & Planning
+- Added Gantt Assignee Management with direct assignee selection, avatars, and support for workspace API keys.
+
+#### 3. Meetings & Collaboration
+- Added Scheduled Meeting Reminders five minutes before meetings and at their start.
+
+#### 4. Performance & Reliability
+- Improved counter storage performance, reducing unnecessary ScyllaDB resource consumption.
+- Improved real-time chart updates without recreating charts or resetting legends, axes, and selected series.
+- Improved real-time updates for events and chats, including recovery after WebSocket reconnection and inactive browser sessions.
+- Improved realtime connection handling to prevent lost updates during client queue overflow.
+- Improved production deployment reliability and on-premises infrastructure configuration.
+
+#### 5. Graph & UI/UX
+- Improved graph navigation and presentation with consistent handling of layers, actors, and embedded graph views.
+- Improved transaction navigation from account histories and chart drill-downs, preserving filters and list positions.
+- Added confirmation warnings for Graph Hole Rollback and Reopen operations.
+- Improved mention navigation across descriptions, comments, and forms.
+- Improved @mention suggestions with actor avatars and consistent visual presentation.
+
+#### 6. Description Editor
+- Introduced a unified Markdown rendering engine for consistent content editing and display.
+- Improved Markdown compatibility, including nested lists, tables, code blocks, and rich-text formatting.
+- Improved copy-paste formatting from Google Docs, Microsoft Word, Apple Notes, and Notion.
+- Improved image handling in descriptions, including pasting images alongside formatted text.
+- Improved rich-text list editing with indentation, numbering, keyboard shortcuts, and undo behavior.
+- Improved Markdown image rendering in both new and legacy interfaces.
+- Improved line-break handling in emails, push notifications, feeds, change history, descriptions, and graph exports.
+
+#### 7. Events & Integrations
+- Improved embedded Events List integration with external refresh commands and event selection callbacks.
+- Improved event synchronization when returning to inactive browser tabs or reconnecting to the server.
+- Improved file-upload callbacks with uploader identity and upload source information for antivirus integrations.
+- Removed technical viewed service events from user-visible chat histories.
+
+#### 8. Dashboards & Filters
+- Improved Top-N dashboard validation with clear errors for invalid or inaccessible account filters.
+- Improved Actor Filter compatibility between the new Simulator interface and legacy backend.
+- Improved dashboard configuration safeguards for Simulator MCP operations.
+
+#### 9. Access Control & Security
+- Improved workspace owner permission protection to prevent accidental revocation of essential access rights.
+- Strengthened anonymous session security with workspace membership and access validation.
+- Improved API-key and system-form access handling in Simulator MCP.
+- Improved image and proxy endpoint security with safer content validation.
+- Improved text-to-speech integration security by routing requests through an authenticated backend endpoint.
+
+#### 10. Meetings & Media
+- Improved noise cancellation handling by enabling it automatically without requiring manual configuration.
+
+### Bug Fixes
+
+#### 1. Graphs & Actors
+- Fixed errors when creating actor connections that already exist.
+- Fixed incorrect handling of saved Actor Filters and their conditions.
+- Fixed Actor Filters failing to save due to invalid backend operation combinations.
+- Fixed inconsistent access restrictions for system-form actors.
+
+#### 2. Accounts & Transactions
+- Fixed dashboard account selection displaying accounts outside the selected actor.
+- Fixed incorrect placeholder and helper text rendering in Account Formula Builder.
+- Fixed navigation inconsistencies when opening transactions from account histories.
+
+#### 3. Smart Forms & Widgets
+- Fixed Smart Form Button autoSubmit ignoring dynamically configured interval and maximum execution count values.
+- Fixed Select and Multiselect controls becoming unresponsive after selecting values.
+- Fixed single-value Actor, User, and Account selectors stopping after item selection.
+- Fixed 403 Access Denied errors during authorized anonymous file uploads in public Smart Forms.
+- Fixed missing source_upload events after multiple file uploads.
+- Fixed cleared Smart Form configuration fields not being removed after saving.
+- Fixed widget welcome forms failing to recognize required dropdown selections.
+- Fixed Tab and Shift+Tab navigation inside Smart Forms unexpectedly switching between events.
+- Fixed keyboard focus loss in searchable popup selectors.
+
+#### 4. Dashboards & Charts
+- Fixed real-time chart flickering and unexpected visual resets.
+- Fixed dashboard sources temporarily displaying "Untitled source".
+- Fixed dashboards created through Simulator MCP containing incompatible source configurations.
+- Fixed invalid or duplicate account entries in dashboard configurations.
+
+#### 5. Events & Calls
+- Fixed Events Owner filtering not applying the selected user or assigned operator.
+- Fixed event lists retaining outdated data after WebSocket reconnection.
+- Fixed embedded event lists failing to refresh after external changes.
+- Fixed missing error notifications when image uploads to event descriptions failed.
+- Fixed Test Microphone not playing back recorded audio in Media Settings.
+
+#### 6. Description Editor & UI
+- Fixed incorrect Markdown and BBCode rendering in descriptions.
+- Fixed nested Markdown lists losing indentation and numbering in exported PDFs.
+- Fixed image resizing, visibility, and clipboard insertion issues in the Description Editor.
+- Fixed images with custom dimensions not displaying correctly in notification emails.
+- Fixed incorrectly rendered mention chips in comments.
+- Fixed mention popups opening away from the cursor.
+- Fixed unwanted quote insertion when selecting text in widgets.
+- Fixed modal windows unexpectedly closing after text selection.
+- Fixed long actor names overlapping action buttons.
+- Fixed excessive spacing between Markdown list items.
+- Fixed incorrectly displayed tags in Calendar event descriptions and exported PDFs.
+
+## [0.3.79] - 2026-11-10
+### Helm changes
+
+- SIM API Grafana dashboard (`mixins/dashboards/sim-api.json`): new collapsed row «API anti-spam (CE-16182)» — the anti-spam admission gate and bans (empty until a sim-api with CE-16182 runs with `apiAbuse.mode` on); the standalone `mixins/dashboards/api-abuse.json` (ConfigMap `api-abuse-dashboard`) is removed.
+- AI Console Grafana dashboard (`mixins/dashboards/ai-console.json`, ConfigMap `ai-console-dashboard`, folder Control): the sim-api `docs/grafana/ai-console-dashboard.json` version (9 rows, 62 panels: usage, problems, speed, dialogs, money, router, Hermes). The SIM API dashboard (`mixins/dashboards/sim-api.json`) gains a link to it.
+- SIM API Grafana dashboard (`mixins/dashboards/sim-api.json`) updated to the sim-api `docs/grafana/sim-api-dashboard.json` version (15 rows, 72 panels, incl. "Users (people)").
+
 ## [0.3.78] - 2026-10-12
 ### Helm changes
 

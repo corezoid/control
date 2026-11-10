@@ -15,6 +15,16 @@ data:
     log_level: {{ .Values.global.control.ctrl_sim_api.log_level | default "info" }}
     debug_errors: {{ .Values.global.control.ctrl_sim_api.debug_errors | default false }}
     trackUrl: https://{{- include "control.Domain" . }} # Control Admin domain
+    {{- /* web clients on an origin other than trackUrl that may receive the OAuth code (sim-api SEC-1423) */}}
+    {{- with ($ctrl_sim_api_config | default dict).authReturnUrls }}
+    authReturnUrls:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- /* remote smart form deploy: this installation's name and its trusted peers (sim-api docs/14-remote-deploy.md); keep peers.trusted[].secret a ${aws:…} reference */}}
+    {{- with ($ctrl_sim_api_config | default dict).peers }}
+    peers:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     metrics:
       port: 9001
 
@@ -110,6 +120,11 @@ data:
     sa:
       url: https://{{ .Values.global.control.auth.domain }}
       secretKey: {{ .Values.global.control.auth.key }}
+      {{- /* CE-16153: register sim-api as account's version 2 notify URL (sim-api docs/06-auth-and-access.md) */}}
+      {{- with ($ctrl_sim_api_config | default dict).saNotify }}
+      notify:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 
     {{- if .Values.global.control.livekit }}
     livekit:
@@ -179,6 +194,15 @@ data:
       apiGateway:
         ref: {{ .Values.global.control.webConfig.apiGateway.ref }}
       {{- end }}
+      {{- /* CE-13713: the same e-signature widget as the server's webConfig; sim-api builds its own ds_callback URL, so no callbackUrl here */}}
+      {{- with .Values.global.control.webConfig.digitalSignature }}
+      digitalSignature:
+        scriptUrl: {{ .scriptUrl | quote }}
+        {{- with .allowedProviders }}
+        allowedProviders:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
       {{- with .Values.global.control.webConfig.featureFlags }}
       featureFlags:
         {{- toYaml . | nindent 8 }}
@@ -199,6 +223,21 @@ data:
     {{- end }}
     {{- with $ctrl_sim_api_config.kafka }}
     kafka:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- /* CE-16139: trusted internal webhook hosts that resolve to private IPs (SSRF guard, sim-api docs/09-realtime.md §6) */}}
+    {{- with $ctrl_sim_api_config.webhooks }}
+    webhooks:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- /* CE-16139: sim-vector search API; without it every search falls back to Postgres */}}
+    {{- with $ctrl_sim_api_config.vectorizer }}
+    vectorizer:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- /* AI Console: the agent runtime, its Hermes server and budget (sim-api config/example.yml, docs/simulator-ai-architecture.md "Розгортання на EKS"); keep ai.hermes.token and ai.hermes.runCredentialToken ${aws:…} references */}}
+    {{- with $ctrl_sim_api_config.ai }}
+    ai:
       {{- toYaml . | nindent 6 }}
     {{- end }}
     {{- end }}
