@@ -37,6 +37,7 @@ spec:
         - name: fix-permissions
           image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
           imagePullPolicy: {{ .Values.global.imageInit.pullPolicy | default "IfNotPresent" }}
+          {{- include "control.initResources" (list . 10) }}
           # На EFS access point chmod запрещён: access point принудительно подменяет
           # uid/gid, и каталог уже создан с нужным владельцем. Неудача chmod не должна
           # ронять под - на таких томах права и так корректные.

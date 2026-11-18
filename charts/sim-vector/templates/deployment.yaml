@@ -138,7 +138,13 @@ spec:
               value: {{ .apigwMaxInFlight | quote }}
             {{- end }}
             {{- end }}
-            {{- if .Values.global.control.auth.key }}
+            {{- if include "control.existingSecretName" . }}
+            - name: API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "authKey") }}
+            {{- else if .Values.global.control.auth.key }}
             - name: API_SECRET
               valueFrom:
                 secretKeyRef:

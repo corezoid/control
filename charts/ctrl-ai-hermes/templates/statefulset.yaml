@@ -1,0 +1,137 @@
+{{- if include "ctrl-ai-hermes.enabled" . }}
+{{- $global_data := .Values.global }}
+{{- $control_data := $global_data.control }}
+{{- $h := $control_data.ctrl_ai_hermes }}
+{{- $name := include "ctrl-ai-hermes.name" . }}
+{{- $_ := required "global.control.ctrl_ai_hermes.env.HERMES_MODEL_UPSTREAM_URL: the model endpoint (the company LiteLLM)" $h.env.HERMES_MODEL_UPSTREAM_URL }}
+{{- $_ := required "global.control.ctrl_ai_hermes.env.HERMES_MODEL: the model as LiteLLM names it" $h.env.HERMES_MODEL }}
+{{- $_ := required "global.control.ctrl_ai_hermes.persistence.storageClassName: a block storage class (EBS, e.g. ebs-gp3), never EFS/NFS; immutable" $h.persistence.storageClassName }}
+{{- $replicas := int (hasKey $h "replicas" | ternary $h.replicas 1) }}
+{{- /* More than one pod is only safe once sim-api lists them as shards: the ClusterIP Service would spread a
+dialog's turns over pods that do not hold its history, and rejoin/stop would miss the run. The shards are counted
+in ctrl_sim_api.config.ai.hermes.shards of these values; shardsConfiguredInSimApi is for a config.ai kept elsewhere. */}}
+{{- $shards := 0 }}
+{{- with $control_data.ctrl_sim_api }}{{ with .config }}{{ with .ai }}{{ with .hermes }}{{ with .shards }}{{ $shards = len . }}{{ end }}{{ end }}{{ end }}{{ end }}{{ end }}
+{{- if gt $replicas 1 }}
+{{- if gt $shards 0 }}{{ if lt $shards $replicas }}
+{{- fail (printf "global.control.ctrl_ai_hermes.replicas is %d but ctrl_sim_api.config.ai.hermes.shards lists %d: every pod must be a shard there first (sim-api docs/simulator-ai-architecture.md, \"Шарди Hermes\")" $replicas $shards) }}
+{{- end }}{{ else if not $h.shardsConfiguredInSimApi }}
+{{- fail (printf "global.control.ctrl_ai_hermes.replicas is %d: list every pod in sim-api config.ai hermes.shards first (sim-api docs/simulator-ai-architecture.md, \"Шарди Hermes\"); when that config.ai is not in these values, set ctrl_ai_hermes.shardsConfiguredInSimApi: true" $replicas) }}
+{{- end }}
+{{- end }}
+{{- /* placement: all of Hermes' own when any is set, otherwise all of global.control's — never a mix */}}
+{{- $placement := $control_data }}
+{{- if or $h.nodeSelector $h.affinity $h.tolerations }}{{ $placement = $h }}{{ end }}
+# Simulator AI (AI Console) agent runtime: Hermes + ai-hermes-local (model gateway, MCP relay, hook) + the
+# simulator-ai and corezoid MCP connectors, built by sim-api CI from cmd/ai-hermes-local. Driven only by
+# ctrl-sim-api (config.ai), every tool runs under the requesting person's Simulator token.
+# Design and limits: sim-api docs/simulator-ai-architecture.md, "Розгортання на EKS".
+#  - one gateway per state directory: a dialog's history is on this pod's volume (SQLite in /hermes-home).
+#    More replicas are shards, each with its own volume; sim-api pins every dialog to one pod and must list
+#    them first (config.ai hermes.shards: <name>-<N>.<name>-headless.<namespace>.svc.cluster.local).
+#  - the run credential (the person's token, for one turn) arrives from sim-api over HTTP into /data/runs,
+#    a tmpfs: never on disk. The model spend ledger (/data/model-spend.jsonl) is on the volume, so the
+#    gateway's budget fuse survives restarts.
+#  - the state volume must be block storage (EBS): on EFS/NFS the gateway refuses its profile lock
+#    ("Cannot reserve gateway profiles: unsafe gateway lock owner or type") and exits 1.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "ctrl-ai-hermes.labels" . | nindent 4 }}
+spec:
+  # immutable: the headless Service gives each pod (shard) its own DNS name
+  serviceName: {{ $name }}-headless
+  replicas: {{ $replicas }}
+  selector:
+    matchLabels:
+      {{- include "ctrl-ai-hermes.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ctrl-ai-hermes.labels" . | nindent 8 }}
+      {{- with $h.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      # sim-api stops a turn itself (ai.runTimeoutSeconds) and re-joins runs after its own restart, not after Hermes'
+      terminationGracePeriodSeconds: {{ hasKey $h "terminationGracePeriodSeconds" | ternary $h.terminationGracePeriodSeconds 30 }}
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      {{- with $h.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $global_data.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := $global_data.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      {{- with $placement.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $placement.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $placement.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: hermes
+          image: {{ include "ctrl-ai-hermes.imageUrl" . | quote }}
+          imagePullPolicy: {{ $h.pullPolicy | default "IfNotPresent" }}
+          {{- with $h.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - { name: api, containerPort: 8642 }
+            - { name: model, containerPort: 8643 }
+          envFrom:
+            # LITELLM_API_KEY, HERMES_API_KEY (= sim-api ai.hermes.token), HERMES_CREDENTIAL_KEY (= ai.hermes.runCredentialToken)
+            - secretRef: { name: {{ $h.secret.name | quote }} }
+          env:
+            # the simulator-ai MCP calls http://127.0.0.1:9100 (loopback only); serve forwards it to sim-api
+            - name: HERMES_SIM_API_UPSTREAM
+              value: {{ printf "ctrl-sim-api-service:%d" (int64 $h.simApiPort) | quote }}
+            {{- range $k, $v := $h.env }}
+            {{- /* values parse numbers as float64: whole ones as integers, not 1e+06 */}}
+            {{- $s := toString $v }}
+            {{- if kindIs "float64" $v }}{{ if eq $v (floor $v) }}{{ $s = printf "%d" (int64 $v) }}{{ end }}{{ end }}
+            {{- if and (ne $k "HERMES_SIM_API_UPSTREAM") (ne $s "") (ne $s "<nil>") }}
+            - name: {{ $k }}
+              value: {{ $s | quote }}
+            {{- end }}
+            {{- end }}
+          readinessProbe:
+            httpGet: { path: /health, port: api }
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /health, port: api }
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            failureThreshold: 6
+          resources:
+            {{- toYaml $h.resources | nindent 12 }}
+          volumeMounts:
+            - { name: state, mountPath: /data, subPath: data }
+            - { name: state, mountPath: /hermes-home, subPath: home }
+            - { name: runs, mountPath: /data/runs }
+      volumes:
+        - name: runs
+          emptyDir: { medium: Memory, sizeLimit: 16Mi }
+  # immutable after creation: changing it means deleting the StatefulSet and its PVCs (the dialogs' history)
+  volumeClaimTemplates:
+    - metadata: { name: state }
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: {{ $h.persistence.storageClassName | quote }}
+        resources: { requests: { storage: {{ $h.persistence.size | default "10Gi" | quote }} } }
+{{- end }}

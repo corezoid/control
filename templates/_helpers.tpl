@@ -120,6 +120,7 @@ Create block for init-wait containers
   command: ["sh", "-c", "until nc -zw1 {{ .Values.global.db.secret.data.dbhost }} {{ .Values.global.db.secret.data.dbport }}; do echo waiting for PostgeSQL; sleep 2; done;"]
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 
 {{- define "InitWait.postgres-extension-postgis" -}}
@@ -127,8 +128,12 @@ Create block for init-wait containers
   image: "{{ .Values.global.db.image }}"
   imagePullPolicy: IfNotPresent
   env:
+    {{- if include "control.existingSecretName" . }}
+    {{- include "control.existingSecretEnv" (list . "PGPASSWORD" "dbPassword") | nindent 4 }}
+    {{- else }}
     - name: PGPASSWORD
       value: "{{ .Values.global.db.secret.data.dbpwd }}"
+    {{- end }}
   command:
     - sh
     - -c
@@ -144,6 +149,7 @@ Create block for init-wait containers
       done;
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 
 {{- define "InitWait.postgres-extension-btree-gin" -}}
@@ -151,8 +157,12 @@ Create block for init-wait containers
   image: "{{ .Values.global.db.image }}"
   imagePullPolicy: IfNotPresent
   env:
+    {{- if include "control.existingSecretName" . }}
+    {{- include "control.existingSecretEnv" (list . "PGPASSWORD" "dbPassword") | nindent 4 }}
+    {{- else }}
     - name: PGPASSWORD
       value: "{{ .Values.global.db.secret.data.dbpwd }}"
+    {{- end }}
   command:
     - sh
     - -c
@@ -168,6 +178,7 @@ Create block for init-wait containers
       done;
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 
 {{- define "InitWait.postgres-extension-pg-trgm" -}}
@@ -175,8 +186,12 @@ Create block for init-wait containers
   image: "{{ .Values.global.db.image }}"
   imagePullPolicy: IfNotPresent
   env:
+    {{- if include "control.existingSecretName" . }}
+    {{- include "control.existingSecretEnv" (list . "PGPASSWORD" "dbPassword") | nindent 4 }}
+    {{- else }}
     - name: PGPASSWORD
       value: "{{ .Values.global.db.secret.data.dbpwd }}"
+    {{- end }}
   command:
     - sh
     - -c
@@ -192,6 +207,7 @@ Create block for init-wait containers
       done;
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 
 {{- define "InitWait.bouncer" -}}
@@ -202,6 +218,7 @@ Create block for init-wait containers
   command: ["sh", "-c", "until nc -zw1 {{ include "pgbouncer.service.name" . }} {{ .Values.global.db.bouncer_port }}; do echo waiting for PgBouncer; sleep 2; done;"]
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 {{- end }}
 
@@ -216,6 +233,7 @@ Create block for init-wait containers
 {{- end }}
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 
 {{- define "InitWait.pubsubredis" -}}
@@ -231,6 +249,7 @@ Create block for init-wait containers
 {{- end }}
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 
 {{- define "InitWait.scylla" -}}
@@ -258,6 +277,7 @@ Create block for init-wait containers
       {{- end }}
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 
 - name: init-wait-scylla
   image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}"
@@ -265,6 +285,7 @@ Create block for init-wait containers
   command: ["sh", "-c", "until nc -zw1 {{ if .Values.global.control.scylladb.internal }}scylla-service{{ else }}{{ index .Values.global.control.scylladb.contactPoints 0 }}{{ end }} 9042; do echo Waiting for ScyllaDB to be ready...; sleep 5; done;"]
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
 
 
@@ -309,8 +330,19 @@ simulator.observability/scrape: "true"
 {{ end -}}
 {{- end }}
 
+{{/* P-SIM-2: pre-created Redis/ElastiCache Secret (keys host, port, password, + *_PubSub etc. as in secret.data) */}}
+{{- define "control.redisExistingSecret" -}}
+{{- if .Values.global.control.redis -}}
+{{- dig "secret" "existingSecretName" "" (.Values.global.control.redis | toYaml | fromYaml) -}}
+{{- else -}}
+{{- dig "secret" "existingSecretName" "" ((.Values.global.redis | default dict) | toYaml | fromYaml) -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "control.redisSecretName" -}}
-{{- if .Values.global.control.redis }}
+{{- if include "control.redisExistingSecret" . }}
+{{- include "control.redisExistingSecret" . }}
+{{- else if .Values.global.control.redis }}
 {{- .Release.Name }}-control-{{ .Values.global.control.redis.secret.name }}
 {{- else }}
 {{- .Release.Name }}-control-{{ .Values.global.redis.secret.name }}
@@ -359,8 +391,12 @@ pgbouncer-control-service
   image: "{{ .Values.global.db.image }}"
   imagePullPolicy: IfNotPresent
   env:
+    {{- if include "control.existingSecretName" . }}
+    {{- include "control.existingSecretEnv" (list . "PGPASSWORD" "dbPassword") | nindent 4 }}
+    {{- else }}
     - name: PGPASSWORD
       value: "{{ .Values.global.db.secret.data.dbpwd }}"
+    {{- end }}
   command:
     - sh
     - -c
@@ -377,4 +413,123 @@ pgbouncer-control-service
       done;
   terminationMessagePath: /dev/termination-log
   terminationMessagePolicy: File
+  {{- include "control.initResources" (list . 2) }}
 {{- end }}
+
+{{/*
+control.initResources (list ctx indent) -- MARKETPLACE CH-01.
+`resources:` for the chart's init and hook containers, from
+global.control.initResources. Emits NOTHING (not even a newline) while the value
+is empty, which is the default, so the stock render is byte-identical.
+Usage, as the last line of a container at indent N:
+  {{- include "control.initResources" (list . N) }}
+*/}}
+{{- define "control.initResources" -}}
+{{- $ctx := index . 0 -}}
+{{- $r := ($ctx.Values.global.control | default dict).initResources -}}
+{{- if $r -}}
+{{- printf "\n%s" (printf "resources:\n%s" (toYaml $r | indent 2) | indent (int (index . 1))) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+control.pdb (dict "ctx" . "data" <component values> "labels" <selector labels>)
+-- MARKETPLACE CH-03. Optional PodDisruptionBudget for one component, rendered
+only when <component>.pdb.enabled is true (default false). maxUnavailable, when
+set, wins over minAvailable (default 1). The selector is the component
+Deployment's own matchLabels.
+*/}}
+{{- define "control.pdb" -}}
+{{- $ctx := .ctx -}}
+{{- $pdb := (.data | default dict).pdb | default dict -}}
+{{- if $pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $ctx.Values.appName }}-pdb
+  labels:
+{{- .labels | nindent 4 }}
+spec:
+  {{- if hasKey $pdb "maxUnavailable" }}
+  maxUnavailable: {{ $pdb.maxUnavailable }}
+  {{- else }}
+  minAvailable: {{ $pdb.minAvailable | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+{{- .labels | nindent 6 }}
+{{- end }}
+{{- end -}}
+
+{{/*
+control.hpa (dict "ctx" . "data" <component values> "labels" <labels>)
+-- MARKETPLACE CH-03. autoscaling/v2 HPA for components that had none (widget,
+ctrl-sim-api, control-tasks). Rendered only when BOTH <component>.autoscaling.enabled
+and <component>.autoscaling.createHPA are true. createHPA defaults to false so an
+install that already sets autoscaling.enabled (and maybe manages its own HPA)
+does not get a second one on upgrade.
+*/}}
+{{- define "control.hpa" -}}
+{{- $ctx := .ctx -}}
+{{- $a := (.data | default dict).autoscaling | default dict -}}
+{{- if and $a.enabled $a.createHPA }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $ctx.Values.appName }}-autoscale
+  labels:
+{{- .labels | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $ctx.Values.appName }}-deployment
+  minReplicas: {{ $a.minReplicas | default 1 }}
+  maxReplicas: {{ $a.maxReplicas | default 2 }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $a.targetCPUUtilizationPercentage | default 80 }}
+    {{- with $a.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+    {{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
+MARKETPLACE SEC-07 -- platform secrets from a pre-created Secret
+(global.control.existingSecret, see values.yaml). All three helpers are inert
+while existingSecret.name is empty (the default).
+  control.existingSecretName  ctx                -> "" or the Secret name
+  control.existingSecretKey   (list ctx "<id>")  -> key in that Secret; <id> is
+                              apiSecret | superAdminApiKey | authKey | dbPassword
+  control.existingSecretEnv   (list ctx "<ENV>" "<id>") -> one env entry (indent 0)
+*/}}
+{{- define "control.existingSecretName" -}}
+{{- (($.Values.global.control.existingSecret | default dict).name) | default "" -}}
+{{- end -}}
+
+{{- define "control.existingSecretKey" -}}
+{{- $ctx := index . 0 -}}
+{{- $id := index . 1 -}}
+{{- $defaults := dict "apiSecret" "apiSecret" "superAdminApiKey" "superAdminApiKey" "authKey" "saSecretKey" "dbPassword" "dbpwd" "corezoidApiSecret" "corezoidApiSecret" -}}
+{{- $keys := (($ctx.Values.global.control.existingSecret | default dict).keys | default dict) -}}
+{{- index $keys $id | default (index $defaults $id) -}}
+{{- end -}}
+
+{{- define "control.existingSecretEnv" -}}
+{{- $ctx := index . 0 -}}
+- name: {{ index . 1 }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "control.existingSecretName" $ctx }}
+      key: {{ include "control.existingSecretKey" (list $ctx (index . 2)) }}
+{{- end -}}

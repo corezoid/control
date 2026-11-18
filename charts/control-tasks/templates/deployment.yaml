@@ -54,9 +54,20 @@ spec:
           env:
             - name: CONTROL_TASKS_CONFIG
               value: {{ include "control.tasks.app.configFullPath" . }}
+            {{- if include "control.existingSecretName" . }}
+            - name: CONTROL_SUPERADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "superAdminApiKey") }}
+            {{- end }}
 
             - name: CONTROL_TOKEN
+              {{- if include "control.existingSecretName" . }}
+              value: {{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }}$(CONTROL_SUPERADMIN_API_KEY)
+              {{- else }}
               value: {{ include "control.token" . }}
+              {{- end }}
 
             - name: CONTROL_HOST
               value: {{ include "control.Domain" . | quote }}
@@ -72,8 +83,13 @@ spec:
             - name: CONFIG_SA_SECRETKEY
               valueFrom:
                 secretKeyRef:
+                  {{- if include "control.existingSecretName" . }}
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "authKey") }}
+                  {{- else }}
                   name: {{ include "control.configSecretName" . }}
                   key: configSaSecretKey
+                  {{- end }}
 
             - name: CONFIG_CONNECTORS_COREZOID_SYNCAPI_URL
               value: {{ $control_data.corezoidSyncApiUrl | quote }}

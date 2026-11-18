@@ -1,0 +1,1 @@
+{{- include "control.pdb" (dict "ctx" . "data" .Values.global.control.server "labels" (include "server.labels" .)) }}

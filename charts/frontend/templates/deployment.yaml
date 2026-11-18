@@ -93,6 +93,13 @@ spec:
             - name: config-site
               mountPath: /etc/nginx/conf.d/control_{{ .Values.appName }}.conf
               subPath: control_frontend.conf
+            {{- if .Values.global.control.nginxWritableDirs }}
+            # non-root nginx (podSecurityContext.runAsUser != 0) needs writable cache and pid dirs
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
+            {{- end }}
             - name: config-site
               mountPath: /usr/share/nginx/html/config.json
               subPath: config.json
@@ -117,6 +124,12 @@ spec:
               mountPath: {{ $control_data.filesStorage.eventFiles }}
             {{- end }}
       volumes:
+        {{- if .Values.global.control.nginxWritableDirs }}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        {{- end }}
         {{- if or (eq .Values.global.storage "manual") (eq .Values.global.storage "nfs") }}
         - name: {{ .Values.appName }}-attachments
           persistentVolumeClaim:

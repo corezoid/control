@@ -1,0 +1,1 @@
+{{- include "control.hpa" (dict "ctx" . "data" .Values.global.control.control_tasks "labels" (include "control-tasks.labels" .)) }}

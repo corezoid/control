@@ -71,6 +71,18 @@ spec:
           env:
             - name: K8S
               value: "true"
+            {{- if include "control.existingSecretName" . }}
+            - name: CONTROL_SA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "authKey") }}
+            - name: CONTROL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "dbPassword") }}
+            {{- end }}
             {{- if $ctrl_sim_api_data.selfsigned }}
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: "0"

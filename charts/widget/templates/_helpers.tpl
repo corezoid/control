@@ -12,7 +12,8 @@ chart: {{ include "control.fullname" . }}
 Image url
 */}}
 {{- define "widget.imageUrl" -}}
-{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.control.widget.tag | default .Chart.AppVersion }}
+{{- /* AWS Marketplace: image.registry + image.repository + image.tag win when image.registry is set */ -}}
+{{ if (.Values.image).registry }}{{ .Values.image.registry }}{{ else }}{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}{{ end }}/{{ .Values.image.repository }}:{{ (.Values.image).tag | default (.Values.global.control.widget.tag | default .Chart.AppVersion) }}
 {{- end }}
 
 {{- define "control.widget.annotations" -}}

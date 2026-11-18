@@ -1,0 +1,3 @@
+{{- if and (hasKey .Values.global.control "ctrl_sim_api") .Values.global.control.ctrl_sim_api.enabled }}
+{{- include "control.hpa" (dict "ctx" . "data" .Values.global.control.ctrl_sim_api "labels" (include "ctrl-sim-api.labels" .)) }}
+{{- end }}

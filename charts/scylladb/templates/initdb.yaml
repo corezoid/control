@@ -30,6 +30,7 @@ spec:
     - name: scylla-create-keyspace
       image: docker.io/scylladb/scylla:{{ .Values.appVersion }}
       imagePullPolicy: {{ $control_data.scylladb.imagePullPolicy | default "IfNotPresent" }}
+      {{- include "control.initResources" (list . 6) }}
       command:
         - sh
         - -c

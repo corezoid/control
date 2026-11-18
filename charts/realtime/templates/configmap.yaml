@@ -21,7 +21,7 @@ data:
           password: ${REDIS_PASSWORD}
           db: ${REDIS_DATABASE}
       {{- end }}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- include "control.realtime.redis.pool" . | nindent 6 }}
@@ -29,7 +29,7 @@ data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- if .Values.global.control.redisDb }}
@@ -46,7 +46,7 @@ data:
           password: ${REDIS_PASSWORD}
           db: ${REDIS_DATABASE}
       {{- end }}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- include "control.realtime.redisPubSub.pool" . | nindent 6 }}
@@ -54,7 +54,7 @@ data:
     redisPubSub:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- if .Values.global.control.redisDb }}

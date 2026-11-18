@@ -3,31 +3,35 @@ name: control
 description: A Helm chart for Control
 icon: https://sim.simulator.company/static/logo.svg
 type: application
-version: 0.3.80
-appVersion: 5.189.0
+version: 0.3.81
+appVersion: 5.190.0
 
 dependencies:
   - name: server
-    version: 0.3.72
+    version: 0.3.73
     repository: file://charts/server
   - name: frontend
-    version: 0.3.72
+    version: 0.3.73
     repository: file://charts/frontend
   - name: realtime
-    version: 0.3.26
+    version: 0.3.27
     repository: file://charts/realtime
   - name: control-tasks
-    version: 0.1.41
+    version: 0.1.42
     repository: file://charts/control-tasks
   - name: widget
-    version: 0.3.63
+    version: 0.3.64
     repository: file://charts/widget
   - name: ctrl-sim-api
-    version: 0.1.5
+    version: 0.1.6
     repository: file://charts/ctrl-sim-api
     condition: global.control.ctrl_sim_api.enabled
+  - name: ctrl-ai-hermes
+    version: 0.1.0
+    repository: file://charts/ctrl-ai-hermes
+    condition: global.control.ctrl_ai_hermes.enabled
   - name: sim-vector
-    version: 0.1.1
+    version: 0.1.2
     repository: file://charts/sim-vector
     condition: global.control.sim_vector.enabled
   - name: sim-tei
@@ -43,11 +47,11 @@ dependencies:
     repository: file://charts/sim-vector-diskann
     condition: global.control.sim_vector_diskann.enabled
   - name: claude-code-api
-    version: 0.1.7
+    version: 0.1.8
     repository: file://charts/claude-code-api
     condition: global.control.claude_code_api.enabled
   - name: ufs
-    version: 0.1.3
+    version: 0.1.4
     repository: file://charts/ufs
     condition: global.control.ufs.enabled
   - name: mf-api
@@ -58,3 +62,28 @@ dependencies:
     version: 0.1.0
     repository: file://charts/clamav
     condition: global.control.clamav.enabled
+  # Vendored infrastructure subcharts. They have always been rendered (each one
+  # gates its own templates on global.* flags such as global.db.internal,
+  # global.redis.internal, global.control.scylladb.internal, global.db.bouncer,
+  # global.storage), but were never declared here, so `helm lint` failed with
+  # "chart metadata is missing these dependencies". Declared without a
+  # `condition:` on purpose: a condition would add a second gate and change what
+  # renders for existing installs.
+  - name: redis
+    version: 0.1.2
+    repository: file://charts/redis
+  - name: redis-control
+    version: 0.0.1
+    repository: file://charts/redis-control
+  - name: postgres
+    version: 0.1.0
+    repository: file://charts/postgres
+  - name: pgbouncer
+    version: 0.1.0
+    repository: file://charts/pgbouncer-control
+  - name: scylladb
+    version: 0.1.1
+    repository: file://charts/scylladb
+  - name: nfs-provisioner
+    version: 1.4.0
+    repository: file://charts/nfs-provisioner
