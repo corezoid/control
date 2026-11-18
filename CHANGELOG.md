@@ -2,7 +2,96 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.3.81] - 2026-11-11
+### Helm changes
+
+- Applications versions:
+  - server - 5.190.0
+  - frontend - 5.190.0
+  - realtime - 3.19.0
+  - control-tasks - 2.93.0
+  - widget - v1.109.0
+  - claude-code-api - 1.18.0
+  - ctrl-sim-api - 0.16.0
+  - ctrl-ai-hermes - 0.16.0
+  - ufs - 1.2.0
+  - sim-vector - 1.3.2
+  - mf-api - 1.0.6
+- ctrl-sim-api: `corezoid.processes` (`sendEmail`, `accRegistrations`) is rendered into sim-api's config from
+  `global.control.corezoid.processes`, as charts/server already does for pong-server. Without it sim-api dropped every
+  notification e-mail (access grants, owner notices, reactions — prod log «directUrl is not configured, mail dropped»)
+  and its registration system events. Values without `processes` render as before.
+- Marketplace hardening (CH-01, CH-03, SEC-07), all opt-in — the stock render is byte-identical:
+  - `global.control.initResources`: `resources` for every init container and the `postgres-post-install` hook Pod.
+  - `global.control.existingSecret`: apiSecret, superAdminApiKey, `auth.key` and the app DB password from a
+    pre-created Secret via `secretKeyRef`; the ConfigMaps then carry only `${...}` placeholders (README).
+  - Optional PDB per component (`<component>.pdb.enabled`) and `autoscaling/v2` HPAs for widget, ctrl-sim-api
+    and control-tasks (`autoscaling.createHPA` + `autoscaling.enabled`).
+  - `values.yaml`: removed the duplicated `autoscaling:` blocks of frontend, realtime, server, widget and
+    control_tasks (YAML kept the last one; the surviving blocks are unchanged).
+  - `Chart.yaml` declares the vendored redis, redis-control, postgres, pgbouncer, scylladb and nfs-provisioner
+    subcharts, so `helm lint` passes. CI drops the three of them it excludes from the package.
+- control-tasks: optional cron `scylla_calc_amount_cleaner` (CE-16183) — deletes the zero `scylla_calculated_amount`
+  rows of counter accounts and orphans in ScyllaDB `counters`. Rendered into `crons` only when
+  `global.control.control_tasks.config.crons.scylla_calc_amount_cleaner` is set, passed through as is:
+  `{mode: dry_run|delete|off, workers_count, deletes_per_sec}`. Needs control-tasks with the cron (develop after CE-16183);
+  older images ignore the key. Runbook: control-tasks `docs/scylla-calc-amount-cleanup.md`.
+- ctrl-ai-hermes: `replicas` > 1 renders only when `ctrl_sim_api.config.ai.hermes.shards` lists at least as many pods
+  (or with `shardsConfiguredInSimApi: true` when sim-api's `config.ai` is kept elsewhere). The container drops all capabilities, forbids privilege escalation and uses the
+  `RuntimeDefault` seccomp profile (`securityContext` / `podSecurityContext`, still root).
+- ctrl-ai-hermes (Simulator AI / AI Console agent runtime, Hermes): new optional sub-chart (`charts/ctrl-ai-hermes`,
+  condition `global.control.ctrl_ai_hermes.enabled`, disabled by default). StatefulSet `sim-ai-hermes` (one state
+  volume per pod, `persistence.storageClassName` must be block storage — not EFS/NFS), Services `sim-ai-hermes` and
+  `sim-ai-hermes-headless` (one DNS name per shard), its own NetworkPolicy (ingress only from ctrl-sim-api and the
+  metrics namespace), ServiceMonitor, optional ExternalSecret. Image `<repotype>/ctrl-ai-hermes:<tag>`, the tag set by
+  sim-api CI through pong/control-deploy (`APP_NAME=ctrl_ai_hermes`). The names are those of the stands' former raw
+  manifests, so an existing `sim-ai-hermes` StatefulSet and its PVC `state-sim-ai-hermes-0` are taken over as they are
+  (`charts/ctrl-ai-hermes/README.md`).
+- pgbouncer-control: `reserve_pool_size` is configurable through `global.db.reserve_pool_size` (default `"400"`,
+  unchanged). Lets an install cap the extra server connections per pgbouncer pod (prod incident 2026-11-10).
+
+### Improvements / New Features
+
+#### 1. New Features
+- **AI Console** — Deployed the AI Console infrastructure across development, pre-production, and production environments.
+- **System Forms Access Management** — Enabled workspace owners and administrators to grant API keys View or Edit access to all existing and future actors of a system form.
+- **Grouped Option Lists** — Added expandable groups with improved search, keyboard navigation, and incremental loading for mentions and option selection.
+
+#### 2. Improvements
+- **Widget Accessibility** — Improved keyboard navigation, screen reader compatibility, button announcements, dropdown accessibility, and text-to-speech behavior.
+- **File Upload Metadata** — Extended the Universal File Storage service to capture uploader information, upload sources, and target actors or events.
+- **Rich Text Rendering** — Added support for basic HTML formatting, including links, lists, and styled text, in reactions and actor descriptions.
+- **Seamless Application Updates** — Improved deployment handling to apply new application versions during navigation without interrupting active calls or displaying unnecessary update dialogs.
+- **Mobile Application Stability** — Completed validation of iOS and Android version 1.0.45, including microphone controls, call termination, and reconnection scenarios.
+
+#### 3. Performance & Stability
+- **Actor Creation Performance** — Optimized actor creation to reduce unnecessary database writes and improve processing efficiency.
+- **Background Task Processing** — Introduced separate processing queues and concurrency limits for resource-intensive operations, including access management, graph cloning, and imports/exports.
+- **API Reliability** — Improved database connection handling, error responses, and recovery from temporary connection failures.
+- **Monitoring & Observability** — Enhanced Grafana dashboards for Simulator API and AI Console with persistent configuration and additional operational metrics.
+- **Event Delivery** — Extended OAuth client notification subscriptions to support multiple endpoints, improving event delivery across platform services.
+
+### Bug Fixes
+
+#### 1. Actors & Forms
+- **Linked Actors** — Fixed an issue where newly linked actors did not appear in their corresponding form groups until the page was refreshed.
+- **Actor Filters** — Fixed errors when selecting the Notes form in actor filters.
+- **Currency Creation** — Fixed an API error that occurred when creating a new currency.
+
+#### 2. Events
+- **Event Comments** — Fixed text loss when dragging and dropping images into comments.
+- **Event Descriptions** — Fixed incorrect saving of descriptions after inserting empty lines.
+- **Event Calendar** — Fixed overlapping toolbar elements when displaying the calendar alongside an event panel.
+- **Recurring Events** — Fixed incorrect event times following daylight saving time transitions.
+- **Event Editing** — Resolved incorrect access-denied errors when editing events.
+- **SVG Images** — Fixed incorrect rendering of uploaded SVG images in event descriptions.
+
+#### 3. Notifications & Meetings
+- **Notifications** — Fixed disappearing read notifications and restored the ability to clear all notifications regardless of their read status.
+- **Meeting Transcription** — Fixed an issue where transcripts were unavailable to some participants who joined or refreshed an active meeting.
+
+#### 4. Widget
+- **Widget Menus** — Fixed accumulated event handlers in menus and popups to prevent performance degradation during extended sessions.
 
 ## [0.3.80] - 2026-11-04
 ### Helm changes
@@ -419,6 +508,31 @@ All notable changes to this project will be documented in this file.
 - Fixed HTML entities being rendered incorrectly in bot prompts and responses.
 - Fixed several Smart Form, Event, Chat, and navigation UI issues.
 - Fixed multiple production and deployment configuration issues.
+
+## [0.3.76] - 2026-09-16
+### Helm changes
+- mf-api: render the five config keys the service grew after the sub-chart landed, all of them
+  silently absent until now — `config.Load` does not require them and `MigrationConfig.Validate`
+  does not check them, so a pod came up looking healthy and failed per request instead.
+  - `cc_api.ai_url` / `ai_model` from `mf-api.ccApi.aiUrl` / `aiModel`, and `cc_api.ai_token` from
+    the new secret key `ccAiToken` (env `MF_API_CC_AI_TOKEN`) — the upstream LLM a cc-api session
+    runs on. Without `ai_model` a dto-fill run refuses to start.
+  - `migration.source_form_id` — the form behind `/api/v1/sources`; unset sent the analysis worker
+    at form 0.
+  - `migration.public_gantt_graph_id` — the shared graph anonymous sessions' Gantt layers hang on;
+    unset failed an anonymous `/api/v1/init`.
+  - `cc_api.callback_url` from `mf-api.ccApi.callbackUrl` — an override for where cc-api posts a
+    session callback; empty keeps the `app.url` + route fallback, which is what dev and pre want.
+- values: the same six under `global.control.mf-api`, empty/0 by default; dev and pre fill them.
+
+## [0.3.75] - 2026-09-11
+### Helm changes
+- mf-api: new optional sub-chart (`charts/mf-api`, condition `global.control.mf-api.enabled`) for
+  the Migration Factory API — deployment, service, configmap (`config.json`), secret, serviceaccount
+  and an opt-in ServiceMonitor. Stateless: no database, no init containers.
+- ingress: `ingress-mf-api.yaml` publishes it on `global.control.mf-api.mfApiDomain`, overriding
+  `cors-allow-headers` to add `X-Auth-Token` and `X-Session-Ref`, which the service reads.
+- values: `global.control.mf-api` block, disabled by default.
 
 ## [0.3.74] - 2026-08-19
 ### Helm changes

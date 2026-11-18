@@ -68,11 +68,19 @@ spec:
                 secretKeyRef:
                   name: {{ include "control.postgresSecretName" . }}
                   key: dbuser
+            {{- if include "control.existingSecretName" . }}
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "dbPassword") }}
+            {{- else }}
             - name: POSTGRESQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "control.postgresSecretName" . }}
                   key: dbpwd
+            {{- end }}
             - name: PGBOUNCER_STATS_USERS
               valueFrom:
                 secretKeyRef:
@@ -107,7 +115,7 @@ spec:
             - name: PGBOUNCER_DEFAULT_POOL_SIZE
               value: {{ .Values.global.db.default_pool_size | quote }}
             - name: PGBOUNCER_RESERVE_POOL_SIZE
-              value: "400"
+              value: {{ .Values.global.db.reserve_pool_size | default "400" | quote }}
             - name: PGBOUNCER_POOL_MODE
               value: {{ .Values.global.db.default_pool_mode }}
             - name: PGBOUNCER_RESERVE_POOL_TIMEOUT

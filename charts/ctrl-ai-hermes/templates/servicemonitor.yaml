@@ -1,0 +1,21 @@
+{{- if and (include "ctrl-ai-hermes.enabled" .) .Values.global.serviceMonitor.enabled }}
+{{- $name := include "ctrl-ai-hermes.name" . }}
+# The gateway's metrics (hermes_gateway_*, hermes_relay_*: model calls, tools, the stand budget) for the
+# AI Console dashboard. GET :8643/metrics needs no key and holds counters only — no session, key or workspace.
+apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
+kind: ServiceMonitor
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "ctrl-ai-hermes.labels" . | nindent 4 }}
+    {{- include "common.ServiceMonitor.metadata.labes" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "ctrl-ai-hermes.selectorLabels" . | nindent 6 }}
+  endpoints:
+    # the Service's port NAME (model = 8643), not the targetPort: otherwise the target silently does not resolve
+    - port: model
+      path: /metrics
+      interval: 30s
+{{- end }}

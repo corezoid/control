@@ -84,6 +84,31 @@ spec:
             {{- end }}
             - name: CONTROL_DOMAIN
               value: {{ include "control.Domain" . }}
+            {{- if and .Values.global.control.corezoid.apiSecretFromExistingSecret (include "control.existingSecretName" .) }}
+            {{- include "control.existingSecretEnv" (list . "COREZOID_API_SECRET" "corezoidApiSecret") | nindent 12 }}
+            {{- end }}
+            {{- if include "control.existingSecretName" . }}
+            - name: CONTROL_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "apiSecret") }}
+            - name: CONTROL_SUPERADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "superAdminApiKey") }}
+            - name: CONTROL_SA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "authKey") }}
+            - name: CONTROL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "control.existingSecretName" . }}
+                  key: {{ include "control.existingSecretKey" (list . "dbPassword") }}
+            {{- end }}
             {{- include "control.container_envs_redis" . | nindent 12 }}
           ports:
             - name: http

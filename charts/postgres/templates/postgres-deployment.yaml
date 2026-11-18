@@ -29,6 +29,7 @@ spec:
         - name: pgsql-data-permission-fix
           image: busybox
           imagePullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+          {{- include "control.initResources" (list . 10) }}
           command:
             - sh
             - -c

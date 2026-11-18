@@ -12,8 +12,8 @@ data:
   control.yml: |
     port: {{ include "server.port" . }} # Application port
     apiVersion: "{{ .Values.global.control.apiVersion }}" # API version
-    apiSecret: {{ .Values.global.control.apiSecret }} # Secret for submitting requests between Control applications.
-    superAdminApiKey: {{ .Values.global.control.superAdminApiKey }} # Superadmin API key
+    apiSecret: {{ if include "control.existingSecretName" . }}${CONTROL_API_SECRET}{{ else }}{{ .Values.global.control.apiSecret }}{{ end }} # Secret for submitting requests between Control applications.
+    superAdminApiKey: {{ if include "control.existingSecretName" . }}${CONTROL_SUPERADMIN_API_KEY}{{ else }}{{ .Values.global.control.superAdminApiKey }}{{ end }} # Superadmin API key
     superAdminApiKeyPrifix: {{ .Values.global.control.superAdminApiKeyPrifix | default "mst_" }} # Prefix for Admin key
     enableAPI: ${ENABLE_API} # Enable api mode
     enableCrons: false # Enable cron mode
@@ -55,7 +55,7 @@ data:
     auth: # Auth settings via Single Account
       disablePublicApiCheck: {{ .Values.global.control.auth.disablePublicApiCheck }}
       name: {{ .Values.global.control.auth.name }}
-      saSecretKey: {{ .Values.global.control.auth.key }}
+      saSecretKey: {{ if include "control.existingSecretName" . }}${CONTROL_SA_SECRET_KEY}{{ else }}{{ .Values.global.control.auth.key }}{{ end }}
       url: https://{{ .Values.global.control.auth.domain }}
       userOnlineTTL: {{ .Values.global.control.auth.userOnlineTTL | default "-1" }} # how long the user is considered online if -1, the functionality is disabled
 
@@ -67,7 +67,7 @@ data:
       mainDB: # PostgreSQL Main DB settings
         name: {{ .Values.global.db.secret.data.dbname | default "control" }}
         userName: {{ .Values.global.db.secret.data.dbuser }}
-        password: {{ .Values.global.db.secret.data.dbpwd }}
+        password: {{ if include "control.existingSecretName" . }}${CONTROL_DB_PASSWORD}{{ else }}{{ .Values.global.db.secret.data.dbpwd }}{{ end }}
         settings:
           {{- if .Values.global.db.bouncer }}
           host: {{ include "pgbouncer.service.name" . }}
@@ -110,7 +110,7 @@ data:
           password: ${REDIS_PASSWORD}
           db: ${REDIS_DATABASE}
       {{- end }}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- if .Values.global.control.redisTTL }}
@@ -121,7 +121,7 @@ data:
     redis: # Redis cache settings
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- if .Values.global.control.redisDb }}
@@ -141,7 +141,7 @@ data:
           password: ${REDIS_PASSWORD}
           db: ${REDIS_DATABASE}
       {{- end }}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- include "control.server.redisPubSub.pool" . | nindent 6 }}
@@ -149,7 +149,7 @@ data:
     redisPubSub: # Redis PubSub settings for Real-Time
       host: ${REDIS_PUBSUB_HOST}
       port: ${REDIS_PUBSUB_PORT}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
       {{- if .Values.global.control.redisDb }}
@@ -239,7 +239,9 @@ data:
       {{- if .Values.global.control.corezoid.apiLogin }}
       apiLogin: {{ .Values.global.control.corezoid.apiLogin }}
       {{- end }}
-      {{- if .Values.global.control.corezoid.apiSecret }}
+      {{- if and .Values.global.control.corezoid.apiSecretFromExistingSecret (include "control.existingSecretName" .) }}
+      apiSecret: ${COREZOID_API_SECRET}
+      {{- else if .Values.global.control.corezoid.apiSecret }}
       apiSecret: {{ .Values.global.control.corezoid.apiSecret }}
       {{- end }}
     {{- with .Values.global.control.livekit }}

@@ -82,6 +82,8 @@ global:
     maxclientconn: "100000"
     # How many server connections to allow per user/database pair. Can be overridden in the per-database configuration.
     default_pool_size: "5000"
+    # Extra server connections per pgbouncer pod, used when a client waits > reserve_pool_timeout (2s). default: "400"
+    # reserve_pool_size: "400"
     # Server is released back to pool after transaction finishes. default: session, see man https://wiki.postgresql.org/wiki/PgBouncer
     # transaction | session
     default_pool_mode: transaction
@@ -163,6 +165,38 @@ global:
   fullnameOverride: ""
   control:
     product: "control"
+    # MARKETPLACE CH-01: `resources` for every init container and for the
+    # postgres-post-install hook Pod (templates/_helpers.tpl InitWait.*,
+    # templates/postgres-post-install.yaml, plus the ufs / internal postgres /
+    # internal scylla init containers). Empty = no `resources:` rendered (as before).
+    # Example:
+    #   initResources:
+    #     requests: {cpu: 10m, memory: 16Mi}
+    #     limits: {cpu: 100m, memory: 64Mi}
+    initResources: {}
+    # MARKETPLACE SEC-07: read the platform secrets from a pre-created Secret
+    # instead of rendering them from values. When `name` is set:
+    #   - apiSecret, superAdminApiKey, auth.key (saSecretKey) and the app DB password
+    #     (global.db.secret.data.dbpwd) are NOT rendered into any ConfigMap or plain env;
+    #   - server and ctrl-sim-api get them as secretKeyRef env vars, and their config
+    #     files reference them as ${CONTROL_API_SECRET}, ${CONTROL_SUPERADMIN_API_KEY},
+    #     ${CONTROL_SA_SECRET_KEY} and ${CONTROL_DB_PASSWORD};
+    #   - control-tasks, sim-vector, the init containers and the post-install hook read
+    #     the same keys through secretKeyRef;
+    #   - configSaSecretKey is dropped from control-config-secret.
+    # The values above (apiSecret, superAdminApiKey, auth.key, db.secret.data.dbpwd)
+    # are then ignored for these four secrets. `keys` maps each secret to a key of
+    # that Secret. Empty `name` (default) keeps the current values/ConfigMap path.
+    #   kubectl create secret generic control-platform \
+    #     --from-literal=apiSecret=... --from-literal=superAdminApiKey=... \
+    #     --from-literal=saSecretKey=... --from-literal=dbpwd=...
+    existingSecret:
+      name: ""
+      keys:
+        apiSecret: apiSecret
+        superAdminApiKey: superAdminApiKey
+        authKey: saSecretKey
+        dbPassword: dbpwd
     scylladb:
       # if internal true - create and use internal ScyllaDB
       # if internal false - enable external server with ScyllaDB
@@ -277,12 +311,6 @@ global:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       # tag: ""
-      autoscaling:
-        enabled: false
-        minReplicas: 1
-        maxReplicas: 10
-        targetCPUUtilizationPercentage: 80
-        targetMemoryUtilizationPercentage: 80
       resources: {}
       autoscaling:
         enabled: false
@@ -290,6 +318,11 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+      # MARKETPLACE CH-03: optional PodDisruptionBudget (charts/<component>/templates/pdb.yaml).
+      # Set maxUnavailable instead of minAvailable to use it; maxUnavailable wins when both are set.
+      pdb:
+        enabled: false
+        minAvailable: 1
       # Example of well_known configuration for Apple App Site Association
       # well_known:
       #   apple_app_site_association: |
@@ -339,14 +372,6 @@ global:
       #     queue_size: 256
       #     overflow: resync
       #     resync_limit_per_min: 3
-      autoscaling:
-        enabled: false
-        minReplicas: 1
-        maxReplicas: 10
-        targetCPUUtilizationPercentage: 80
-        targetMemoryUtilizationPercentage: 80
-        targetCPUUtilizationPercentage: 80
-        targetMemoryUtilizationPercentage: 80
       resources: {}
       autoscaling:
         enabled: false
@@ -354,6 +379,11 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+      # MARKETPLACE CH-03: optional PodDisruptionBudget (charts/<component>/templates/pdb.yaml).
+      # Set maxUnavailable instead of minAvailable to use it; maxUnavailable wins when both are set.
+      pdb:
+        enabled: false
+        minAvailable: 1
       # Example of Redis pool configuration (commented out by default)
       # config:
       #   redis:
@@ -378,14 +408,6 @@ global:
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
         prometheus.io/scrape: "true"
-      autoscaling:
-        enabled: true
-        minReplicas: 2
-        maxReplicas: 10
-        targetCPUUtilizationPercentage: 80
-        targetMemoryUtilizationPercentage: 80
-        targetCPUUtilizationPercentage: 80
-        targetMemoryUtilizationPercentage: 80
       resources: {}
       autoscaling:
         enabled: false
@@ -393,6 +415,11 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+      # MARKETPLACE CH-03: optional PodDisruptionBudget (charts/<component>/templates/pdb.yaml).
+      # Set maxUnavailable instead of minAvailable to use it; maxUnavailable wins when both are set.
+      pdb:
+        enabled: false
+        minAvailable: 1
       # resources:
       #   limits:
       #     memory: 500Mi
@@ -451,10 +478,6 @@ global:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       # tag: ""
-      autoscaling:
-        enabled: false
-        minReplicas: 1
-        maxReplicas: 2
       resources: {}
       autoscaling:
         enabled: false
@@ -462,6 +485,15 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+        # MARKETPLACE CH-03: render an autoscaling/v2 HPA (charts/<component>/templates/hpa.yaml).
+        # Needs enabled: true as well. Off by default so installs that already set
+        # enabled: true (or manage their own HPA) are unchanged.
+        createHPA: false
+      # MARKETPLACE CH-03: optional PodDisruptionBudget (charts/<component>/templates/pdb.yaml).
+      # Set maxUnavailable instead of minAvailable to use it; maxUnavailable wins when both are set.
+      pdb:
+        enabled: false
+        minAvailable: 1
       # resources:
       #   limits:
       #     memory: 600Mi
@@ -502,6 +534,15 @@ global:
         maxReplicas: 5
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+        # MARKETPLACE CH-03: render an autoscaling/v2 HPA (charts/<component>/templates/hpa.yaml).
+        # Needs enabled: true as well. Off by default so installs that already set
+        # enabled: true (or manage their own HPA) are unchanged.
+        createHPA: false
+      # MARKETPLACE CH-03: optional PodDisruptionBudget (charts/<component>/templates/pdb.yaml).
+      # Set maxUnavailable instead of minAvailable to use it; maxUnavailable wins when both are set.
+      pdb:
+        enabled: false
+        minAvailable: 1
       resources:
         limits:
           memory: 600Mi
@@ -519,10 +560,6 @@ global:
 
     control_tasks:
       pullPolicy: IfNotPresent
-      autoscaling:
-        enabled: false
-        minReplicas: 1
-        maxReplicas: 1
       annotations:
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
@@ -534,6 +571,16 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
+        # MARKETPLACE CH-03: render an autoscaling/v2 HPA (charts/<component>/templates/hpa.yaml).
+        # Needs enabled: true as well. Off by default so installs that already set
+        # enabled: true (or manage their own HPA) are unchanged.
+        createHPA: false
+      # MARKETPLACE CH-03: optional PodDisruptionBudget (charts/<component>/templates/pdb.yaml).
+      # Set maxUnavailable instead of minAvailable to use it; maxUnavailable wins when both are set.
+      # control-tasks runs as a singleton: use maxUnavailable: 1, not minAvailable.
+      pdb:
+        enabled: false
+        minAvailable: 1
       # resources:
       #   limits:
       #     memory: 600Mi
@@ -583,6 +630,10 @@ global:
       name: ""
     podAnnotations: {}
     podSecurityContext: {}
+    # MARKETPLACE SIM-NGINX: set true when podSecurityContext runs pods as non-root. The stock
+    # nginx images of frontend/widget then cannot create /var/cache/nginx/* and /var/run/nginx.pid;
+    # true mounts emptyDir volumes there. false (default) renders exactly as before.
+    nginxWritableDirs: false
       # fsGroup: 2000
     securityContext: {}
     # securityContext:
@@ -921,6 +972,98 @@ global:
       nodeSelector: {}
       tolerations: []
       affinity: {}
+    # Simulator AI (AI Console) agent runtime (charts/ctrl-ai-hermes): Hermes, driven by ctrl-sim-api's config.ai.
+    # sim-api CI builds the image from cmd/ai-hermes-local and sets .tag through pong/control-deploy
+    # (develop → dev, main → pre, release tag → prod). sim-api docs/simulator-ai-architecture.md, "Розгортання на EKS".
+    ctrl_ai_hermes:
+      enabled: false
+      # Pods, Services and the PVC (state-<name>-0) carry this name; sim-api's config.ai addresses it
+      # (hermes.origin http://<name>.<namespace>.svc.cluster.local:8642, shards <name>-<N>.<name>-headless...).
+      name: sim-ai-hermes
+      # Overrides the image tag whose default is the ctrl-ai-hermes chart appVersion (the sim-api release).
+      # tag: ""
+      # Image workspace; default global.repotype.
+      # repotype: ""
+      image:
+        repository: ctrl-ai-hermes
+      pullPolicy: IfNotPresent
+      # One gateway per state volume. More replicas are shards, each with its own volume: list them in sim-api's
+      # config.ai hermes.shards first (sim-api docs/simulator-ai-architecture.md, "Шарди Hermes").
+      replicas: 1
+      # replicas > 1 renders only when ctrl_sim_api.config.ai.hermes.shards in these values lists at least that many
+      # pods (<name>-<N>.<name>-headless...). Set true only when sim-api's config.ai lives elsewhere and lists them.
+      shardsConfiguredInSimApi: false
+      terminationGracePeriodSeconds: 30
+      podAnnotations:
+        karpenter.sh/do-not-disrupt: "true" # a turn runs up to 20 min
+      podSecurityContext:
+        seccompProfile: { type: RuntimeDefault }
+      # Still root: the gateway accepts its profile lock only when the process uid owns it (files on the
+      # volume are root's). Non-root needs the volume's files re-owned first — a separate change.
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities: { drop: [ALL] }
+      # The Secret with LITELLM_API_KEY, HERMES_API_KEY, HERMES_CREDENTIAL_KEY: an existing one,
+      # or rendered from the secret store when externalSecret.enabled.
+      secret:
+        name: sim-ai-hermes-env
+        externalSecret:
+          enabled: false
+          remoteKey: "" # e.g. /mw-dev-common-1/sim-ai-hermes-dev
+          refreshInterval: 5m
+          secretStoreRef:
+            name: aws-global-secretsmanager
+            kind: ClusterSecretStore
+          keys: [LITELLM_API_KEY, HERMES_API_KEY, HERMES_CREDENTIAL_KEY]
+      # ctrl-sim-api's port (its chart's ctrlSimApiPort, 9000): HERMES_SIM_API_UPSTREAM = ctrl-sim-api-service:<this>,
+      # and the NetworkPolicy's egress to sim-api.
+      simApiPort: 9000
+      # The container's environment, rendered as is (empty values are left out; null removes a default).
+      # HERMES_SIM_API_UPSTREAM is set by the chart from simApiPort.
+      env:
+        # every model call through the company LiteLLM, as LiteLLM names the models; the router's Jev calls too
+        HERMES_MODEL_PROVIDER: litellm
+        HERMES_MODEL_UPSTREAM_URL: "" # required, e.g. http://litellm.<ns>.svc.cluster.local:4000/v1/messages
+        HERMES_JEV_UPSTREAM_URL: "" # e.g. http://litellm.<ns>.svc.cluster.local:4000/typesafe/v1/systemone
+        HERMES_MODEL: "" # required, e.g. bedrock-claude-sonnet-5-5
+        HERMES_ROUTER_MODEL: "" # e.g. bedrock-claude-haiku-5-5
+        # the gateway's fuse over its spend ledger: the whole ledger, or a rolling window when WINDOW_HOURS is set
+        HERMES_MODEL_BUDGET_USD: "100"
+        HERMES_MODEL_BUDGET_WINDOW_HOURS: "24"
+        HERMES_CONNECTORS: simulator-ai,corezoid
+        HERMES_COREZOID_API_URL: "" # e.g. https://www.corezoid.com
+        HERMES_COREZOID_ACCOUNT_URL: "" # e.g. https://account.corezoid.com
+        # = sim-api ai.runTimeoutSeconds; runs at once over all sim-api replicas (ai.maxActiveRuns each)
+        HERMES_RUN_TIMEOUT: "1200"
+        HERMES_MAX_CONCURRENT_RUNS: "3"
+        HERMES_MAX_TURNS: "80"
+        HERMES_MAX_TOOL_CALLS: "80"
+      persistence:
+        # Required: block storage (EBS, e.g. ebs-gp3) — never EFS/NFS: the gateway then refuses its lock and exits.
+        # Not global.storageClassName (EFS by default). Immutable: changing it means recreating the StatefulSet and PVC.
+        storageClassName: ""
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+          cpu: "2"
+          memory: 3Gi
+      # Placement: when any of these three is set, all three are Hermes' own; when none is, those of global.control.
+      nodeSelector: {}
+      affinity: {}
+      tolerations: []
+      # The chart's own policy, independent of global.networkPolicy: ingress only from sim-api (and metrics).
+      networkPolicy:
+        enabled: true
+        # the namespace of the cluster's metrics agent (scrapes :8643/metrics); empty = no metrics ingress
+        metricsNamespace: observability
+        # the company LiteLLM's namespace when it runs in this cluster; empty = reached over the internet (443)
+        litellmNamespace: ""
+        litellmPort: 4000
+        extraIngress: []
+        extraEgress: []
     claude_code_api:
       enabled: false
       image:

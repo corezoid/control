@@ -55,7 +55,7 @@ data:
       {{- end }}
       database: {{ .Values.global.db.secret.data.dbname | default "control" }}
       user: {{ .Values.global.db.secret.data.dbuser }}
-      password: {{ .Values.global.db.secret.data.dbpwd }}
+      password: {{ if include "control.existingSecretName" . }}${CONTROL_DB_PASSWORD}{{ else }}{{ .Values.global.db.secret.data.dbpwd }}{{ end }}
       {{- if .Values.global.db.ssl }}
       {{- if .Values.global.db.ssl.enabled }}
       ssl:
@@ -83,7 +83,7 @@ data:
           password: ${REDIS_PASSWORD}
           db: ${REDIS_DATABASE}
       {{- end }}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- end }}
     {{- else }}
@@ -91,7 +91,7 @@ data:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       database: ${REDIS_DATABASE}
-      {{- if .Values.global.redis.secret.data.password }}
+      {{- if or .Values.global.redis.secret.data.password (include "control.redisExistingSecret" .) }}
       password: ${REDIS_PASSWORD}
       {{- else }}
       password:
@@ -112,6 +112,19 @@ data:
       host: https://{{ .Values.global.control.apiCorezoidDomain }}
       syncApiHost: {{ .Values.global.control.corezoidSyncApiUrl }}
       insecure_skip_verify: {{ .Values.global.control.insecure_skip_verify | default true }}
+      {{- /* The Corezoid processes pong-server already gets (charts/server): without sendEmail sim-api
+             drops every notification e-mail, without accRegistrations its system events. */}}
+      {{- with (.Values.global.control.corezoid | default dict).processes }}
+      processes:
+        {{- with .sendEmail }}
+        sendEmail:
+          directUrl: {{ .directUrl }}
+        {{- end }}
+        {{- with .accRegistrations }}
+        accRegistrations:
+          directUrl: {{ .directUrl }}
+        {{- end }}
+      {{- end }}
 
     apigw:
       host: https://{{ .Values.global.control.apiCorezoidDomain }}
@@ -119,7 +132,7 @@ data:
 
     sa:
       url: https://{{ .Values.global.control.auth.domain }}
-      secretKey: {{ .Values.global.control.auth.key }}
+      secretKey: {{ if include "control.existingSecretName" . }}${CONTROL_SA_SECRET_KEY}{{ else }}{{ .Values.global.control.auth.key }}{{ end }}
       {{- /* CE-16153: register sim-api as account's version 2 notify URL (sim-api docs/06-auth-and-access.md) */}}
       {{- with ($ctrl_sim_api_config | default dict).saNotify }}
       notify:

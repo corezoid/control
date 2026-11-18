@@ -1,0 +1,7 @@
+apiVersion: v2
+name: ctrl-ai-hermes
+description: Simulator AI (AI Console) agent runtime — Hermes, driven by ctrl-sim-api
+type: application
+version: 0.1.0
+# the sim-api release whose CI built the image (public/ctrl-ai-hermes:<sim-api tag>); stands set .tag
+appVersion: 0.16.0

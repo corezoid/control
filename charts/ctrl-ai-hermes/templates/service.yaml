@@ -1,0 +1,36 @@
+{{- if include "ctrl-ai-hermes.enabled" . }}
+{{- $name := include "ctrl-ai-hermes.name" . }}
+# sim-api's flat config.ai (hermes.origin :8642, spendUrl and runCredentialUrl :8643) addresses this one
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "ctrl-ai-hermes.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ctrl-ai-hermes.selectorLabels" . | nindent 4 }}
+  ports:
+    - { name: api, port: 8642, targetPort: api }
+    - { name: model, port: 8643, targetPort: model }
+---
+# Headless: no virtual IP, one DNS record per pod (<name>-<N>.<name>-headless.<namespace>.svc) — how sim-api
+# reaches a given shard. Not labelled app: <name>, so the ServiceMonitor (which selects that label) scrapes
+# each pod once, through the Service above.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-headless
+  labels:
+    app: {{ printf "%s-headless" $name | quote }}
+    tier: "ctrl-ai-hermes"
+    release: {{ .Release.Name | quote }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "ctrl-ai-hermes.selectorLabels" . | nindent 4 }}
+  ports:
+    - { name: api, port: 8642, targetPort: api }
+    - { name: model, port: 8643, targetPort: model }
+{{- end }}

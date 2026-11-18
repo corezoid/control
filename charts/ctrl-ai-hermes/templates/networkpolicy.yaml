@@ -1,0 +1,73 @@
+{{- if include "ctrl-ai-hermes.enabled" . }}
+{{- $h := .Values.global.control.ctrl_ai_hermes }}
+{{- $np := $h.networkPolicy }}
+{{- if $np.enabled }}
+# Hermes runs tools under people's tokens and holds the LiteLLM key: only sim-api talks to it, and it talks
+# only to sim-api, DNS, the company LiteLLM and the internet (Corezoid, public file URLs) — not to the VPC,
+# other cluster services or the node's metadata (169.254.0.0/16). Independent of global.networkPolicy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ctrl-ai-hermes.name" . }}
+  labels:
+    {{- include "ctrl-ai-hermes.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ctrl-ai-hermes.selectorLabels" . | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    # sim-api: runs (8642), spend, router classifier and run credentials (8643)
+    - from:
+        # ctrl-sim-api's pods (its "tier" label, ctrl-sim-api.labels)
+        - podSelector:
+            matchLabels: { tier: ctrl-sim-api }
+      ports:
+        - { port: 8642, protocol: TCP }
+        - { port: 8643, protocol: TCP }
+    {{- with $np.metricsNamespace }}
+    # the cluster's metrics agent scrapes GET :8643/metrics (no key: counters only)
+    - from:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: {{ . }} }
+      ports:
+        - { port: 8643, protocol: TCP }
+    {{- end }}
+    {{- with $np.extraIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: kube-system }
+          podSelector:
+            matchLabels: { k8s-app: kube-dns }
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    {{- with $np.litellmNamespace }}
+    # the model and Jev: the company LiteLLM in this cluster
+    - to:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: {{ . }} }
+      ports:
+        - { port: {{ $np.litellmPort | default 4000 }}, protocol: TCP }
+    {{- end }}
+    # the MCP's public API calls, under the run's token (forwarded from 127.0.0.1:9100)
+    - to:
+        - podSelector:
+            matchLabels: { tier: ctrl-sim-api }
+      ports:
+        - { port: {{ int64 $h.simApiPort }}, protocol: TCP }
+    # the internet over TLS: a LiteLLM on a public address (prod: litellm.corezoid.com), Corezoid, file URLs
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, 100.64.0.0/10]
+      ports:
+        - { port: 443, protocol: TCP }
+    {{- with $np.extraEgress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}
+{{- end }}
